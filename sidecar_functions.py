@@ -51,3 +51,21 @@ def edit_info(SOURCE, VALUE, CHANGE, TOKEN):
     return print(json.dumps(response.json(), indent=2))
 
 # edit_info('device', 'name', 'Orange Orangutan', TOKEN)
+
+"""
+FUNCTION:       new_log
+PARAMETERS:     'MESSAGE' is the log message the user wishes to send, passed as a string
+                'TOKEN' is the user's auth token saved as a variable, passed as a variable
+"""
+
+def new_log(MESSAGE, TOKEN):
+    new_message = {
+        'message': MESSAGE
+    }
+
+    url = f'https:{TOKEN['token']['unencoded']['iss']}/api/logs'
+    headers = {'authorization': TOKEN['token']['encoded'], 'content-type': 'application/json'}
+    response = requests.post(url, headers=headers, data=json.dumps(new_message))
+    return print(json.dumps(response.json(), indent=2))
+
+# new_log('This is a new log message', TOKEN)
