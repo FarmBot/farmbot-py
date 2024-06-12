@@ -33,9 +33,9 @@ python3 -m pip install paho-mqtt
 ## Getting Started
 To generate your authorization token and get started:
 
-(1) Import `farmbot-utilities` and create an instance.
+(1) Import `farmbot_utilities` and create an instance.
 ```
-from farmbot-utilities import Farmbot
+from farmbot_utilities import Farmbot
 bot = Farmbot()
 ```
 

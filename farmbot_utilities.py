@@ -25,7 +25,7 @@ class Farmbot():
         if self.token is None:
             print('ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.')
             sys.exit(1)
-    
+
     def publish_BROKER(self, PAYLOAD):
         self.check_token()
 
@@ -46,7 +46,7 @@ class Farmbot():
         headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.get(url, headers=headers)
         return json.dumps(response.json(), indent=2)
-    
+
     def API_post(self, URL, PAYLOAD):
         self.check_token()
 
@@ -84,7 +84,7 @@ class Farmbot():
         }
 
         self.publish_BROKER(shutdown_message)
-    
+
     def e_stop(self):
         e_stop_message = {
             **RPC_REQUEST,
@@ -119,22 +119,22 @@ class Farmbot():
         }
 
         self.publish_BROKER(wait_message)
-    
+
     # def mark_as
 
-    def get_info(self, TYPE, ID=''):
+    def get_info(self, ENDPOINT, ID=''):
         # EXAMPLE: get_info('device') will output all info about your device
         # EXAMPLE: get_info('peripherals', 12345) will output info ONLY about peripheral with ID '12345'
-        target_url = TYPE+'/'+ID
+        target_url = ENDPOINT+'/'+ID
 
         return self.API_get(target_url)
-    
-    def edit_info(self, TYPE, VALUE, CHANGE, ID=''):
+
+    def edit_info(self, ENDPOINT, FIELD, VALUE, ID=''):
         # EXAMPLE: edit_info('device', 'name', 'Carrot Commander') will rename your device 'Carrot Commander'
         # EXAMPLE: edit_info('peripherals', 'label', 'Camera 2', 12345) will change the label of peripheral with ID '12345' to 'Camera 2'
-        target_url = TYPE+'/'+ID
+        target_url = ENDPOINT+'/'+ID
         new_value = {
-            VALUE: CHANGE
+            FIELD: VALUE
         }
 
         self.API_patch(target_url, new_value)
@@ -159,7 +159,7 @@ class Farmbot():
                 }
             }]
         }
-    
+
         self.publish_BROKER(new_log)
 
     def move(self, X, Y, Z):
@@ -207,18 +207,18 @@ class Farmbot():
 
         self.publish_BROKER(set_home_message)
 
-    def find_home(self, AXIS='all'):
+    def find_home(self, AXIS='all', SPEED=100):
         find_home_message = {
             **RPC_REQUEST,
             "body": [{
                 "kind": "find_home",
                 "args": {
                     "axis": AXIS,
-                    "speed": 100
+                    "speed": SPEED
                 }
             }]
         }
-        
+
         self.publish_BROKER(find_home_message)
 
     def axis_length(self, AXIS='all'):
