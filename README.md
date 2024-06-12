@@ -40,7 +40,7 @@ bot = Farmbot()
 ```
 
 (2) Generate your authorization token.
-    The server is https:/my.farm.bot by default.
+    The server is https://my.farm.bot by default.
 ```
 bot.get_token('email', 'password', 'server')
 ```
