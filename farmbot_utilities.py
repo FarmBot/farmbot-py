@@ -45,7 +45,30 @@ class Farmbot():
         url = f'https:{self.token['token']['unencoded']['iss']}/api/'+URL
         headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.get(url, headers=headers)
-        return json.dumps(response.json(), indent=2)
+
+        # Error messages for specific cases
+        error_messages = {
+            404: "Invalid Endpoint: The specified endpoint does not exist.",
+            400: "Invalid Resource ID: The specified ID is invalid or you do not have access to it.",
+            401: "Bad Authentication: The user's token has expired or is invalid.",
+            502: "No Internet Connection: Please check your internet connection and try again."
+        }
+
+        # Check for successful response
+        if response.status_code == 200:
+            return json.dumps(response.json(), indent=2)
+        # Handle client error (4xx)
+        elif 400 <= response.status_code < 500:
+            if response.status_code in error_messages:
+                return json.dumps(f"Client error {response.status_code} {error_messages[response.status_code]}", indent=2)
+            return json.dumps(f"Client error {response.status_code}: {response.reason}", indent=2)
+        # Handle server error (5xx)
+        elif 500 <= response.status_code < 600:
+            if response.status_code in error_messages:
+                return json.dumps(f"Client error {response.status_code} {error_messages[response.status_code]}", indent=2)
+            return json.dumps(f"Server error {response.status_code}: {response.text}", indent=2)
+        else:
+            return json.dumps(f"Unexpected error {response.status_code}: {response.text}", indent=2)
 
     def API_post(self, URL, PAYLOAD):
         self.check_token()
