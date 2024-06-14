@@ -65,7 +65,7 @@ class Farmbot():
         # Handle server error (5xx)
         elif 500 <= response.status_code < 600:
             if response.status_code in error_messages:
-                return json.dumps(f"Client error {response.status_code} {error_messages[response.status_code]}", indent=2)
+                return json.dumps(f"Server error {response.status_code} {error_messages[response.status_code]}", indent=2)
             return json.dumps(f"Server error {response.status_code}: {response.text}", indent=2)
         else:
             return json.dumps(f"Unexpected error {response.status_code}: {response.text}", indent=2)
