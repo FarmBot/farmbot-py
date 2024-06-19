@@ -1,6 +1,7 @@
 import sys
 import json
 import requests
+import socket
 from getpass import getpass # Required for authorization token
 import paho.mqtt.publish as publish # Required for message broker
 
@@ -16,14 +17,41 @@ class Farmbot():
         self.token = None
 
     def get_token(self, EMAIL, PASSWORD, SERVER='https://my.farm.bot'):
-        headers = {'content-type': 'application/json'}
-        user = {'user': {'email': EMAIL, 'password': PASSWORD}}
-        response = requests.post(f'{SERVER}/api/tokens', headers=headers, json=user)
-        self.token = response.json()
+        try:
+            headers = {'content-type': 'application/json'}
+            user = {'user': {'email': EMAIL, 'password': PASSWORD}}
+            response = requests.post(f'{SERVER}/api/tokens', headers=headers, json=user)
+
+            # Handle HTTP status codes
+            if response.status_code == 200:
+                self.token = response.json()
+                return json.dumps(response.json(), indent=2)
+            elif response.status_code == 404:
+                self.token = None
+                return print("ERROR: The server address does not exist.")
+            elif response.status_code == 422:
+                self.token = None
+                return print("ERROR: Incorrect email address or password.")
+            else:
+                self.token = None
+                return print(f"ERROR: Unexpected status code {response.status_code}")
+
+        # Handle DNS resolution errors
+        except requests.exceptions.RequestException as e:
+            self.token = None
+            if isinstance(e, requests.exceptions.ConnectionError):
+                return print("ERROR: The server address does not exist.")
+            elif isinstance(e, requests.exceptions.Timeout):
+                return print("ERROR: The request timed out.")
+            elif isinstance(e, requests.exceptions.RequestException):
+                return print("ERROR: There was a problem with the request.")
+        except Exception as e:
+            self.token = None
+            return print(f"ERROR: An unexpected error occurred: {str(e)}")
 
     def check_token(self):
         if self.token is None:
-            print('ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.')
+            print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
     def publish_BROKER(self, PAYLOAD):
@@ -41,17 +69,16 @@ class Farmbot():
 
     def API_get(self, URL):
         self.check_token()
-
         url = f'https:{self.token['token']['unencoded']['iss']}/api/'+URL
         headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.get(url, headers=headers)
 
         # Error messages for specific cases
         error_messages = {
-            404: "Invalid Endpoint: The specified endpoint does not exist.",
-            400: "Invalid Resource ID: The specified ID is invalid or you do not have access to it.",
-            401: "Bad Authentication: The user's token has expired or is invalid.",
-            502: "No Internet Connection: Please check your internet connection and try again."
+            404: "The specified endpoint does not exist.",
+            400: "The specified ID is invalid or you do not have access to it.",
+            401: "The user's token has expired or is invalid.",
+            502: "Please check your internet connection and try again."
         }
 
         # Check for successful response
@@ -60,15 +87,15 @@ class Farmbot():
         # Handle client error (4xx)
         elif 400 <= response.status_code < 500:
             if response.status_code in error_messages:
-                return json.dumps(f"Client error {response.status_code} {error_messages[response.status_code]}", indent=2)
-            return json.dumps(f"Client error {response.status_code}: {response.reason}", indent=2)
+                return json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages[response.status_code]}", indent=2)
+            return json.dumps(f"CLIENT ERROR {response.status_code}: {response.reason}", indent=2)
         # Handle server error (5xx)
         elif 500 <= response.status_code < 600:
             if response.status_code in error_messages:
-                return json.dumps(f"Server error {response.status_code} {error_messages[response.status_code]}", indent=2)
-            return json.dumps(f"Server error {response.status_code}: {response.text}", indent=2)
+                return json.dumps(f"SERVER ERROR {response.status_code}: {error_messages[response.status_code]}", indent=2)
+            return json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
         else:
-            return json.dumps(f"Unexpected error {response.status_code}: {response.text}", indent=2)
+            return json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
     def API_post(self, URL, PAYLOAD):
         self.check_token()
@@ -147,14 +174,14 @@ class Farmbot():
 
     def get_info(self, ENDPOINT, ID=''):
         # EXAMPLE: get_info('device') will output all info about your device
-        # EXAMPLE: get_info('peripherals', 12345) will output info ONLY about peripheral with ID '12345'
+        # EXAMPLE: get_info('peripherals', '12345') will output info ONLY about peripheral with ID '12345'
         target_url = ENDPOINT+'/'+ID
 
         return self.API_get(target_url)
 
     def edit_info(self, ENDPOINT, FIELD, VALUE, ID=''):
         # EXAMPLE: edit_info('device', 'name', 'Carrot Commander') will rename your device 'Carrot Commander'
-        # EXAMPLE: edit_info('peripherals', 'label', 'Camera 2', 12345) will change the label of peripheral with ID '12345' to 'Camera 2'
+        # EXAMPLE: edit_info('peripherals', 'label', 'Camera 2', '12345') will change the label of peripheral with ID '12345' to 'Camera 2'
         target_url = ENDPOINT+'/'+ID
         new_value = {
             FIELD: VALUE
