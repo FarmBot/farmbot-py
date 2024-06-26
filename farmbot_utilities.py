@@ -1,9 +1,18 @@
+# farmbot_utilities.py
+
 import sys
 import json
-import requests
+import getpass
 import socket
-from getpass import getpass # Required for authorization token
-import paho.mqtt.publish as publish # Required for message broker
+import requests
+
+import paho.mqtt.publish as publish
+
+from functions_BROKER import FarmbotBroker
+from functions_API import FarmbotAPI
+
+BROKER = FarmbotBroker()
+API = FarmbotAPI()
 
 RPC_REQUEST = {
     "kind": "rpc_request",
@@ -14,203 +23,55 @@ RPC_REQUEST = {
 
 class Farmbot():
     def __init__(self):
-        self.token = None
+        print("")
 
-    def get_token(self, EMAIL, PASSWORD, SERVER='https://my.farm.bot'):
-        try:
-            headers = {'content-type': 'application/json'}
-            user = {'user': {'email': EMAIL, 'password': PASSWORD}}
-            response = requests.post(f'{SERVER}/api/tokens', headers=headers, json=user)
-
-            # Handle HTTP status codes
-            if response.status_code == 200:
-                self.token = response.json()
-                return json.dumps(response.json(), indent=2)
-            elif response.status_code == 404:
-                self.token = None
-                return print("ERROR: The server address does not exist.")
-            elif response.status_code == 422:
-                self.token = None
-                return print("ERROR: Incorrect email address or password.")
-            else:
-                self.token = None
-                return print(f"ERROR: Unexpected status code {response.status_code}")
-
-        # Handle DNS resolution errors
-        except requests.exceptions.RequestException as e:
-            self.token = None
-            if isinstance(e, requests.exceptions.ConnectionError):
-                return print("ERROR: The server address does not exist.")
-            elif isinstance(e, requests.exceptions.Timeout):
-                return print("ERROR: The request timed out.")
-            elif isinstance(e, requests.exceptions.RequestException):
-                return print("ERROR: There was a problem with the request.")
-        except Exception as e:
-            self.token = None
-            return print(f"ERROR: An unexpected error occurred: {str(e)}")
-
-    def check_token(self):
-        if self.token is None:
-            print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
-            sys.exit(1)
-
-    def publish_BROKER(self, PAYLOAD):
-        self.check_token()
-
-        publish.single(
-            f'bot/{self.token['token']['unencoded']['bot']}/from_clients',
-            payload=json.dumps(PAYLOAD),
-            hostname=self.token['token']['unencoded']['mqtt'],
-            auth={
-                'username': self.token['token']['unencoded']['bot'],
-                'password': self.token['token']['encoded']
-            }
-        )
-
-    def API_get(self, URL):
-        self.check_token()
-        url = f'https:{self.token['token']['unencoded']['iss']}/api/'+URL
-        headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
-        response = requests.get(url, headers=headers)
-
-        # Error messages for specific cases
-        error_messages = {
-            404: "The specified endpoint does not exist.",
-            400: "The specified ID is invalid or you do not have access to it.",
-            401: "The user's token has expired or is invalid.",
-            502: "Please check your internet connection and try again."
-        }
-
-        # Check for successful response
-        if response.status_code == 200:
-            return json.dumps(response.json(), indent=2)
-        # Handle client error (4xx)
-        elif 400 <= response.status_code < 500:
-            if response.status_code in error_messages:
-                return json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages[response.status_code]}", indent=2)
-            return json.dumps(f"CLIENT ERROR {response.status_code}: {response.reason}", indent=2)
-        # Handle server error (5xx)
-        elif 500 <= response.status_code < 600:
-            if response.status_code in error_messages:
-                return json.dumps(f"SERVER ERROR {response.status_code}: {error_messages[response.status_code]}", indent=2)
-            return json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
-        else:
-            return json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
-
-    def API_post(self, URL, PAYLOAD):
-        self.check_token()
-
-        url = f'https:{self.token['token']['unencoded']['iss']}/api/'+URL
-        headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
-        response = requests.post(url, headers=headers, data=json.dumps(PAYLOAD))
-
-    def API_patch(self, URL, PAYLOAD):
-        self.check_token()
-
-        url = f'https:{self.token['token']['unencoded']['iss']}/api/'+URL
-        headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
-        response = requests.patch(url, headers=headers, data=json.dumps(PAYLOAD))
-
-    def reboot(self):
-        reboot_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "reboot",
-                "args": {
-                    "package": "farmbot_os"
-                }
-            }]
-        }
-
-        self.publish_BROKER(reboot_message)
-
-    def shutdown(self):
-        shutdown_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "power_off",
-                "args": {}
-            }]
-        }
-
-        self.publish_BROKER(shutdown_message)
-
-    def e_stop(self):
-        e_stop_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "emergency_lock",
-                "args": {}
-            }]
-        }
-
-        self.publish_BROKER(e_stop_message)
-
-    def unlock(self):
-        unlock_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "emergency_unlock",
-                "args": {}
-            }]
-        }
-
-        self.publish_BROKER(unlock_message)
-
-    def wait(self, TIME):
-        wait_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "wait",
-                "args": {
-                    "milliseconds": TIME
-                }
-            }]
-        }
-
-        self.publish_BROKER(wait_message)
-
-    # def mark_as
+    def token(self, EMAIL, PASSWORD, SERVER):
+        self.error = API.error
+        self.token = API.get_token(EMAIL, PASSWORD, SERVER)
+        return self.token
 
     def get_info(self, ENDPOINT, ID=''):
-        # EXAMPLE: get_info('device') will output all info about your device
-        # EXAMPLE: get_info('peripherals', '12345') will output info ONLY about peripheral with ID '12345'
-        target_url = ENDPOINT+'/'+ID
+        return API.get(ENDPOINT, ID)
 
-        return self.API_get(target_url)
-
-    def edit_info(self, ENDPOINT, FIELD, VALUE, ID=''):
-        # EXAMPLE: edit_info('device', 'name', 'Carrot Commander') will rename your device 'Carrot Commander'
-        # EXAMPLE: edit_info('peripherals', 'label', 'Camera 2', '12345') will change the label of peripheral with ID '12345' to 'Camera 2'
-        target_url = ENDPOINT+'/'+ID
+    def set_info(self, ENDPOINT, FIELD, VALUE, ID=''):
         new_value = {
             FIELD: VALUE
         }
 
-        self.API_patch(target_url, new_value)
+        API.patch(ENDPOINT, ID, new_value)
 
-    def new_log_API(self, MESSAGE, TYPE):
-        target_url = 'logs'
-        new_log = {
+    def new_log(self, MESSAGE, TYPE, CHANNEL='ticker', VERBOSITY='2'):
+        ENDPOINT = 'logs'
+        ID = ''
+
+        new_log_message = {
             "message": MESSAGE,
-            "type": TYPE
+            "type": TYPE,
+            "channel": CHANNEL, # Specifying channel does not do anything
+            "verbosity": VERBOSITY
         }
 
-        self.API_post(target_url, new_log)
+        API.post(ENDPOINT, ID, new_log_message)
 
-    def new_log_BROKER(self, MESSAGE, TYPE):
-        new_log = {
+    def send_message(self, MESSAGE, TYPE, CHANNEL=''):
+        send_message_message = {
             **RPC_REQUEST,
             "body": [{
                 "kind": "send_message",
                 "args": {
                     "message": MESSAGE,
                     "message_type": TYPE
-                }
+                },
+                "body": [{
+                    "kind": "channel",
+                    "args": {
+                        "channel_name": CHANNEL
+                    }
+                }]
             }]
         }
 
-        self.publish_BROKER(new_log)
+        BROKER.publish(send_message_message)
 
     def move(self, X, Y, Z):
         def axis_overwrite(AXIS, VALUE):
@@ -240,11 +101,9 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(move_message)
+        BROKER.publish(move_message)
 
     def set_home(self, AXIS='all'):
-        # EXAMPLE: set_home() will set all current (x,y,z) coords as 'home'
-        # EXAMPLE: set_home('x') will set ONLY current x coord as 'home'
         set_home_message = {
             **RPC_REQUEST,
             "body": [{
@@ -255,7 +114,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(set_home_message)
+        BROKER.publish(set_home_message)
 
     def find_home(self, AXIS='all', SPEED=100):
         find_home_message = {
@@ -269,7 +128,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(find_home_message)
+        BROKER.publish(find_home_message)
 
     def axis_length(self, AXIS='all'):
         axis_length_message = {
@@ -282,7 +141,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(axis_length_message)
+        BROKER.publish(axis_length_message)
 
     def control_servo(self, PIN, ANGLE):
         control_servo_message = {
@@ -291,12 +150,12 @@ class Farmbot():
                 "kind": "set_servo_angle",
                 "args": {
                     "pin_number": PIN,
-                    "pin_value": ANGLE # From 0 to 180
+                    "pin_value": ANGLE # From 0 to 180 (add restriction?)
                 }
             }]
         }
 
-        self.publish_BROKER(control_servo_message)
+        BROKER.publish(control_servo_message)
 
     def control_peripheral(self, ID, VALUE, MODE):
         control_peripheral_message = {
@@ -317,7 +176,26 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(control_peripheral_message)
+        BROKER.publish(control_peripheral_message)
+
+    def toggle_peripheral(self, ID):
+        toggle_peripheral_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "toggle_pin",
+                "args": {
+                    "pin_number": {
+                        "kind": "named_pin",
+                        "args": {
+                            "pin_type": "Peripheral",
+                            "pin_id": ID
+                        }
+                    }
+                }
+            }]
+        }
+
+        BROKER.publish(toggle_peripheral_message)
 
     def read_sensor(self, ID, MODE, LABEL='---'):
         read_sensor_message = {
@@ -338,7 +216,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(read_sensor_message)
+        BROKER.publish(read_sensor_message)
 
     def take_photo(self):
         take_photo_message = {
@@ -349,7 +227,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(take_photo_message)
+        BROKER.publish(take_photo_message)
 
     def detect_weeds(self):
         detect_weeds_message = {
@@ -362,7 +240,7 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(detect_weeds_message)
+        BROKER.publish(detect_weeds_message)
 
     def soil_height(self):
         soil_height_message = {
@@ -375,4 +253,138 @@ class Farmbot():
             }]
         }
 
-        self.publish_BROKER(soil_height_message)
+        BROKER.publish(soil_height_message)
+
+    def wait(self, TIME):
+        wait_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "wait",
+                "args": {
+                    "milliseconds": TIME
+                }
+            }]
+        }
+
+        BROKER.publish(wait_message)
+
+    def if_statement(self, VARIABLE, ID, OPERATOR, VALUE, THEN_ID, ELSE_ID):
+        if VARIABLE == 'position':
+            define_args = {
+                "lhs": ID
+            }
+        elif VARIABLE == 'peripheral':
+            define_args = {
+                "lhs": {
+                    "kind": "named_pin",
+                    "args": {
+                        "pin_type": "Peripheral",
+                        "pin_id": ID
+                    }
+                }
+            }
+        else:
+            return print("The specified variable does not exist...")
+
+        if_statement_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "_if",
+                "args": {
+                    **define_args,
+                    "op": OPERATOR,
+                    "rhs": VALUE,
+                    "_then": {
+                        "kind": "execute",
+                        "args": {
+                            "sequence_id": THEN_ID
+                        }
+                    },
+                    "_else": {
+                        "kind": "execute",
+                        "args": {
+                            "sequence_id": ELSE_ID
+                        }
+                    }
+                }
+            }]
+        }
+
+        BROKER.publish(if_statement_message)
+
+    def e_stop(self):
+        e_stop_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "emergency_lock",
+                "args": {}
+            }]
+        }
+
+        BROKER.publish(e_stop_message)
+
+    def unlock(self):
+        unlock_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "emergency_unlock",
+                "args": {}
+            }]
+        }
+
+        BROKER.publish(unlock_message)
+
+    def reboot(self):
+        reboot_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "reboot",
+                "args": {
+                    "package": "farmbot_os"
+                }
+            }]
+        }
+
+        BROKER.publish(reboot_message)
+
+    def shutdown(self):
+        shutdown_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "power_off",
+                "args": {}
+            }]
+        }
+
+        BROKER.publish(shutdown_message)
+
+    def assertion(self, CODE, TYPE, ID=''):
+        assertion_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "assertion",
+                "args": {
+                    "lua": CODE,
+                    "_then": {
+                        "kind": "execute",
+                        "args": {
+                            "sequence_id": ID # Recovery sequence ID
+                        }
+                    },
+                    "assertion_type": TYPE # If test fails, do this
+                }
+            }]
+        }
+
+    def lua(self, CODE):
+        lua_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "lua",
+                "args": {
+                    "lua": {CODE}
+                }
+            }]
+        }
+
+        BROKER.publish(lua_message)
