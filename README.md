@@ -30,7 +30,7 @@ python3 -m pip install requests
 python3 -m pip install paho-mqtt
 ```
 
-## 🏁 Getting Started
+## 🌱 Getting Started
 To generate your authorization token and get started:
 
 (1) Import `farmbot_utilities` and create an instance.
@@ -54,8 +54,10 @@ bot.get_info('device')
 ```
 bot.edit_info('device', 'name', 'Carrot Commander')
 ```
+> [!NOTE]
+> To interact with your Farmbot via the message broker, you must first establish a connection. Publishing single messages without establishing a connection may trigger your device rate limit.
 
-(4.1) To interact with your Farmbot via the message broker, first establish a connection:
+(4.1) Connect to the message broker:
 ```
 bot.connect_broker()
 ```
@@ -75,25 +77,19 @@ bot.move(30,40,10)
 bot.disconnect_broker()
 ```
 
-## 🔬 Developer Info
+## 🧰 Developer Info
 
-sidecar-starter-pack/
-│
-├── farmbot_utilities.py
-│   └── class Farmbot
-│
-├── farmbot_API.py
-│   └── class FarmbotAPI
-│
-└── farmbot_BROKER.py
-    └── class FarmbotBroker
-
-`farmbot_API`
+### farmbot_API
 Background: https://developer.farm.bot/v15/docs/web-app/rest-api
+
 Formatting: functions in `farmbot_utilities` which interact with the API require an endpoint, which is truncated onto the HTTP request.
 
 List of endpoints: https://developer.farm.bot/v15/docs/web-app/api-docs
 
-`farmbot_BROKER`
+> [!CAUTION]
+> Making requests other than GET to the API will permanently alter the data in your account. DELETE and POST requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
+
+### farmbot_BROKER
 Background: https://developer.farm.bot/v15/docs/message-broker
+
 Formatting: functions in `farmbot_utilities` which interact with the message broker send a message containing CelerScript. The messages require the pre-formatted `RPC_request` included in `farmbot_utilities` as the first line of the message.
