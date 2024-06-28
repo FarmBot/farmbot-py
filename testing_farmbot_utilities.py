@@ -1,6 +1,6 @@
 import unittest
 import json
-from funct_CLASSES import Farmbot
+from farmbot_utilities import Farmbot
 from unittest.mock import patch, Mock
 
 class TestFarmbot(unittest.TestCase):
