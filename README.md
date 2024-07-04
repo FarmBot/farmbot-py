@@ -1,7 +1,7 @@
 # sidecar-starter-pack
 Authentication and communication utilities for FarmBot sidecars
 
-## Installation (Mac OS)
+## 💻 Installation (Mac OS)
 To set up the project locally, follow these steps:
 
 (1) Clone the repository.
@@ -30,7 +30,7 @@ python3 -m pip install requests
 python3 -m pip install paho-mqtt
 ```
 
-## Getting Started
+## 🌱 Getting Started
 To generate your authorization token and get started:
 
 (1) Import `farmbot_utilities` and create an instance.
@@ -45,12 +45,51 @@ bot = Farmbot()
 bot.get_token('email', 'password', 'server')
 ```
 
-(3.1) Try getting your device info:
+(3.1) To interact with your Farmbot via the API, try getting your device info:
 ```
-print(bot.get_info('device'))
+bot.get_info('device')
 ```
 
-(3.2) Try sending a new log message:
+(3.2) Try editing your device name:
 ```
-bot.new_log_BROKER('Hello world!', 'success')
+bot.edit_info('device', 'name', 'Carrot Commander')
 ```
+> [!NOTE]
+> To interact with your Farmbot via the message broker, you must first establish a connection. Publishing single messages without establishing a connection may trigger your device rate limit.
+
+(4.1) Connect to the message broker:
+```
+bot.connect_broker()
+```
+
+(4.2) Try sending a new log message:
+```
+bot.send_message('Hello from the message broker!', 'success')
+```
+
+(4.3) Try sending a movement command:
+```
+bot.move(30,40,10)
+```
+
+(4.5) After sending messages, don't forget to disconnect from the message broker:
+```
+bot.disconnect_broker()
+```
+
+## 🧰 Developer Info
+
+### farmbot_API
+Background: https://developer.farm.bot/v15/docs/web-app/rest-api
+
+Formatting: functions in `farmbot_utilities` which interact with the API require an endpoint, which is truncated onto the HTTP request.
+
+List of endpoints: https://developer.farm.bot/v15/docs/web-app/api-docs
+
+> [!CAUTION]
+> Making requests other than GET to the API will permanently alter the data in your account. DELETE and POST requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
+
+### farmbot_BROKER
+Background: https://developer.farm.bot/v15/docs/message-broker
+
+Formatting: functions in `farmbot_utilities` which interact with the message broker send a message containing CelerScript. The messages require the pre-formatted `RPC_request` included in `farmbot_utilities` as the first line of the message.
