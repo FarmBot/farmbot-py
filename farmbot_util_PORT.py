@@ -1,9 +1,8 @@
-# farmbot_utilities.py
+import sys
+import os
 
-import json
-
-from farmbot_broker import FarmbotBroker
-from farmbot_api import FarmbotAPI
+from fbbro import FarmbotBroker
+from fbapi import FarmbotAPI
 
 RPC_REQUEST = {
     "kind": "rpc_request",
@@ -17,8 +16,8 @@ class Farmbot():
         self.broker = FarmbotBroker()
         self.api = FarmbotAPI()
 
-        self.token = None
-        self.error = None
+        self.token = self.api.token
+        self.error = self.api.error
 
         self.echo = True # Choose whether functions print return statement
         self.verbose = True # Choose how much detail in return statement
@@ -86,6 +85,36 @@ class Farmbot():
 
         self.broker.publish(status_message)
         # return ...
+
+    def read_sensor(self, id, mode, label='---'):
+        read_sensor_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "read_pin",
+                "args": {
+                    "pin_mode": mode,
+                    "label": label,
+                    "pin_number": {
+                        "kind": "named_pin",
+                        "args": {
+                            "pin_type": "Peripheral",
+                            "pin_id": id
+                        }
+                    }
+                }
+            }]
+        }
+
+        self.broker.publish(read_sensor_message)
+        # return ...
+
+    def env(self, id=None, field=None, new_val=None):
+        if id is None:
+            data = self.api.get('farmware_envs', id=None)
+            print(data)
+        else:
+            data = self.api.get('farmware_envs', id)
+            print(data)
 
     # MESSAGES
     # ├── [✅] log()
@@ -239,6 +268,85 @@ class Farmbot():
 
             self.broker.publish(control_servo_message)
             # return ...
+
+    def control_servo(self, pin, angle):
+        if angle < 0 or angle > 180:
+            return print("ERROR: Servo angle constrained to 0-180 degrees.")
+        else:
+            control_servo_message = {
+                **RPC_REQUEST,
+                "body": {
+                    "kind": "set_servo_angle",
+                    "args": {
+                        "pin_number": pin,
+                        "pin_value": angle # From 0 to 180
+                    }
+                }
+            }
+
+            self.broker.publish(control_servo_message)
+            # return ...
+
+    def control_peripheral(self, id, value, mode=None):
+        if mode is None:
+            peripheral_str = self.get_info('peripherals', id)
+            mode = peripheral_str['mode']
+
+        control_peripheral_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "write_pin",
+                "args": {
+                    "pin_value": value, # Controls ON/OFF or slider value from 0-255
+                    "pin_mode": mode, # Controls digital (0) or analog (1) mode
+                    "pin_number": {
+                        "kind": "named_pin",
+                        "args": {
+                            "pin_type": "Peripheral",
+                            "pin_id": id
+                        }
+                    }
+                }
+            }
+        }
+
+        self.broker.publish(control_peripheral_message)
+        # return ...
+
+    def toggle_peripheral(self, id):
+        toggle_peripheral_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "toggle_pin",
+                "args": {
+                    "pin_number": {
+                        "kind": "named_pin",
+                        "args": {
+                            "pin_type": "Peripheral",
+                            "pin_id": id
+                        }
+                    }
+                }
+            }]
+        }
+
+        self.broker.publish(toggle_peripheral_message)
+        # return ...
+
+    def on(self, id):
+        peripheral_str = self.get_info('peripherals', id)
+        mode = peripheral_str['mode']
+
+        if mode == 1:
+            self.control_peripheral(id, 255)
+        elif mode == 0:
+            self.control_peripheral(id, 1)
+
+        # return ...
+
+    def off(self, id):
+        self.control_peripheral(id, 0)
+        # return ...
 
     def take_photo(self):
         take_photo_message = {
