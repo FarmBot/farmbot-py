@@ -5,6 +5,7 @@ import json
 
 class BrokerFunctions():
     def __init__(self):
+        self.token = None
         self.client = None
 
     # connect() --> establish connection to message broker
@@ -20,25 +21,13 @@ class BrokerFunctions():
     #     self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
     #     print('connected')
 
-    # def on_message(self, _client, _userdata, msg):
-    #     print('-' * 100)
-    #     # print channel
-    #     print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
-    #     # print message
-    #     print(json.dumps(json.loads(msg.payload), indent=4))
+    # def status_connect(self, client, *_args):
+    #     # Subscribe to specific channel
+    #     device_info = self.api.get('device')
+    #     device_id = device_info['id']
 
-    # def on_connect(client, *_args):
-#     # subscribe to all channels
-#     client.subscribe(f"bot/{TOKEN['token']['unencoded']['bot']}/#")
-#     print('connected')
-
-    def status_connect(self, client, *_args):
-        # Subscribe to specific channel
-        device_info = self.api.get('device')
-        device_id = device_info['id']
-
-        client.subscribe("bot/device_4652/status")
-        print('connected via status_connect()')
+    #     client.subscribe("bot/device_4652/status")
+    #     print('connected via status_connect()')
 
     def on_message(self, _client, _userdata, msg):
         print('-' * 100)
@@ -50,10 +39,6 @@ class BrokerFunctions():
         print(json.dumps(json.loads(msg.payload), indent=4))
 
     def connect(self):
-        print(self.api.token)
-
-        self.api.check_token()
-
         self.client = mqtt.Client()
         self.client.username_pw_set(
             username=self.token['token']['unencoded']['bot'],
@@ -78,7 +63,7 @@ class BrokerFunctions():
 
     def publish(self, message):
         if self.client is None:
-            self.connect()
+            self.connect(self.token)
 
         self.client.publish(
             f'bot/{self.token["token"]["unencoded"]["bot"]}/from_clients',

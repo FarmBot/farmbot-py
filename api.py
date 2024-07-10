@@ -69,9 +69,8 @@ class ApiFunctions():
         response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
 
         if self.token_handling(response) == 200:
-            self.token = response.json()
             self.error = None
-            return self.token
+            return response.json()
         else:
             return self.error
 
