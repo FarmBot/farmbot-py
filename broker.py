@@ -1,14 +1,10 @@
-from fbapi import FarmbotAPI
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
 import json
 
-class BrokerConnect():
+class BrokerFunctions():
     def __init__(self):
-        self.api = FarmbotAPI()
-
-        self.token = self.api.token
         self.client = None
 
     # connect() --> establish connection to message broker

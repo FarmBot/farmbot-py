@@ -3,7 +3,7 @@ import os
 import json
 import requests
 
-class FarmbotAPI():
+class ApiFunctions():
     def __init__(self):
         self.token = None
         self.error = None

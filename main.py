@@ -1,8 +1,5 @@
-import sys
-import os
-
-from fbbro import FarmbotBroker
-from fbapi import FarmbotAPI
+from api import ApiFunctions
+from broker import BrokerFunctions
 
 RPC_REQUEST = {
     "kind": "rpc_request",
@@ -13,8 +10,8 @@ RPC_REQUEST = {
 
 class Farmbot():
     def __init__(self):
-        self.broker = FarmbotBroker()
-        self.api = FarmbotAPI()
+        self.api = ApiFunctions()
+        self.broker = BrokerFunctions()
 
         self.token = self.api.token
         self.error = self.api.error
@@ -27,12 +24,6 @@ class Farmbot():
             return print(return_value)
         else:
             return return_value
-
-    # CONNECTIVITY
-    # ├── [✅] get_token()
-    # │
-    # ├── [✅] connect_broker()
-    # └── [✅] disconnect_broker()
 
     def get_token(self, email, password, server='https://my.farm.bot'):
         token_str = self.api.get_token(email, password, server)
@@ -52,15 +43,6 @@ class Farmbot():
         self.broker.disconnect()
         return self.function_return("Disconnected from message broker.")
 
-    # INFORMATION
-    # ├── [✅] get_info()
-    # ├── [✅] set_info()
-    # │
-    # ├── [✅] read_status()
-    # ├── [🚫] read_sensor()
-    # │
-    # └── [🚫] env()
-
     def get_info(self, endpoint, id=None):
         return self.function_return(self.api.get(endpoint, id))
         # return self.api.get(endpoint, id)...
@@ -73,7 +55,7 @@ class Farmbot():
         self.api.patch(endpoint, id, new_value)
         return self.function_return(self.api.get(endpoint, id))
         # return self.api.get(endpoint, id)...
-    
+
     def read_status(self):
         status_message = {
             **RPC_REQUEST,
@@ -115,13 +97,6 @@ class Farmbot():
         else:
             data = self.api.get('farmware_envs', id)
             print(data)
-
-    # MESSAGES
-    # ├── [✅] log()
-    # ├── [✅] message()
-    # │
-    # ├── [✅] debug()
-    # └── [✅] toast()
 
     def log(self, message, type=None, channel=None):
         log_message = {
@@ -165,13 +140,6 @@ class Farmbot():
         self.message(message, 'toast')
         # return ...
 
-    # LOGIC
-    # ├── [✅] wait()
-    # ├── [✅] e_stop()
-    # ├── [✅] unlock()
-    # ├── [✅] reboot()
-    # └── [✅] shutdown()
-
     def wait(self, time):
         wait_message = {
             **RPC_REQUEST,
@@ -184,7 +152,7 @@ class Farmbot():
         }
 
         self.broker.publish(wait_message)
-        return self.function_return("Waiting for "+str(TIME)+" milliseconds...")
+        return self.function_return("Waiting for "+str(time)+" milliseconds...")
 
     def e_stop(self):
         e_stop_message = {
@@ -236,38 +204,8 @@ class Farmbot():
         self.broker.publish(shutdown_message)
         return self.function_return("Triggered device shutdown.")
 
-    # PERIPHERALS
-    # ├── [✅] control_servo()
-    # ├── [🚫] control_peripheral()
-    # ├── [🚫] toggle_peripheral()
-    # │
-    # ├── [🚫] on()
-    # ├── [🚫] off()
-    # │
-    # ├── [🚫] calibrate_camera()
-    # ├── [✅] take_photo()
-    # ├── [🚫] photo_grid()
-    # │
-    # ├── [✅] soil_height()
-    # └── [✅] detect_weeds()
-
-    def control_servo(self, pin, angle):
-        if angle < 0 or angle > 180:
-            return print("ERROR: Servo angle constrained to 0-180 degrees.")
-        else:
-            control_servo_message = {
-                **RPC_REQUEST,
-                "body": {
-                    "kind": "set_servo_angle",
-                    "args": {
-                        "pin_number": pin,
-                        "pin_value": angle # From 0 to 180
-                    }
-                }
-            }
-
-            self.broker.publish(control_servo_message)
-            # return ...
+    # calibrate_camera()
+    # photo_grid()
 
     def control_servo(self, pin, angle):
         if angle < 0 or angle > 180:
@@ -388,18 +326,8 @@ class Farmbot():
         self.broker.publish(detect_weeds_message)
         # return ...
 
-    # MOVEMENT
-    # ├── [✅] move()
-    # ├── [🚫] get_xyz()
-    # ├── [🚫] check_position()
-    # │
-    # ├── [✅] set_home()
-    # ├── [✅] find_home()
-    # │
-    # ├── [✅] axis_length()
-    # ├── [✅] safe_z()
-    # │
-    # └── [✅] garden_size()
+    # get_xyz() --> requires read_status()
+    # check_position() --> requires read_status()
 
     def move(self, x, y, z):
         def axis_overwrite(axis, value):
@@ -505,26 +433,18 @@ class Farmbot():
         size_value = {'x': length_x, 'y': length_y, 'area': area}
         return self.function_return(size_value)
 
-    # COMMANDS
-    # ├── [🚫] mark_as()
-    # │
-    # ├── [✅] group()
-    # ├── [✅] curve()
-    # │
-    # ├── [🚫] verify_tool()
-    # ├── [🚫] mount_tool()
-    # ├── [🚫] dismount_tool()
-    # │
-    # ├── [🚫] water()
-    # ├── [🚫] dispense()
-    # ├── [🚫] sequence()
-    # │
-    # ├── [🚫] get_seed_tray_call(tray, cell)
-    # ├── [🚫] sort(points, method)
-    # │
-    # ├── [🚫] get_job()
-    # ├── [🚫] set_job()
-    # └── [🚫] complete_job()
+    # mark_as()
+    # verify_tool()
+    # mount_tool()
+    # dismount_tool()
+    # water()
+    # dispense()
+    # sequence()
+    # get_seed_tray_call(tray, cell)
+    # sort(points, method)
+    # get_job()
+    # set_job()
+    # complete_job()
 
     def group(self, id):
         return self.function_return(self.get_info('point_groups', id))
@@ -534,10 +454,8 @@ class Farmbot():
         return self.function_return(self.get_info('curves', id))
         # return self.get_info('curves', id)...
 
-    # COMPLEX
-    # ├── [✅] assertion()
-    # ├── [🚫] if_statement()
-    # └── [🚫] lua()
+    # lua()
+    # if_statement()
 
     def assertion(self, code, type, id=''):
         assertion_message = {
