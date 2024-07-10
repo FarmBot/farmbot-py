@@ -1,6 +1,5 @@
-# farmbot_API.py
-
 import sys
+import os
 import json
 import requests
 
@@ -9,19 +8,17 @@ class FarmbotAPI():
         self.token = None
         self.error = None
 
-    # API
-    # ├── token_handling()
-    # ├── request_handling()
-    # │
-    # ├── get_token()
-    # ├── check_token()
-    # │
-    # ├── request()
-    # │
-    # ├── get()
-    # ├── post()
-    # ├── patch()
-    # └── delete()
+    # token_handling() --> errors for token
+    # request_handling() --> errors for request
+
+    # get_token()
+    # check_token()
+
+    # request()
+    # get() --> get endpoint info
+    # post() --> overwrite/new endpoint info
+    # patch() --> edit endpoint info
+    # delete() --> delete endpoint info
 
     def token_handling(self, response):
         # Handle HTTP status codes
