@@ -1,9 +1,9 @@
+import json
+
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
-import json
-
-class BrokerFunctions():
+class BrokerConnect():
     def __init__(self):
         self.token = None
         self.client = None
@@ -28,6 +28,18 @@ class BrokerFunctions():
 
     #     client.subscribe("bot/device_4652/status")
     #     print('connected via status_connect()')
+
+    def sub_all(self, client, *_args):
+        """Subscribe to all message broker channels."""
+
+        self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
+        print("Connected to all channels.")
+
+    def sub_single(self, client, *_args, channel):
+        """Subscribe to specific message broker channel."""
+
+        self.client.subscribe("bot/{device_id}/{channel}")
+        print("Connected to "+channel+".")
 
     def on_message(self, _client, _userdata, msg):
         print('-' * 100)
@@ -63,7 +75,7 @@ class BrokerFunctions():
 
     def publish(self, message):
         if self.client is None:
-            self.connect(self.token)
+            self.connect()
 
         self.client.publish(
             f'bot/{self.token["token"]["unencoded"]["bot"]}/from_clients',

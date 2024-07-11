@@ -1,9 +1,8 @@
 import sys
-import os
 import json
 import requests
 
-class ApiFunctions():
+class ApiConnect():
     def __init__(self):
         self.token = None
         self.error = None
@@ -21,6 +20,8 @@ class ApiFunctions():
     # delete() --> delete endpoint info
 
     def token_handling(self, response):
+        """Handle errors relating to bad user auth token requests."""
+
         # Handle HTTP status codes
         if response.status_code == 200:
             return 200
@@ -44,6 +45,8 @@ class ApiFunctions():
         return 0
 
     def request_handling(self, response):
+        """Handle errors relating to bad endpoints and user requests."""
+
         error_messages = {
             404: "The specified endpoint does not exist.",
             400: "The specified ID is invalid or you do not have access to it.",
@@ -64,22 +67,30 @@ class ApiFunctions():
         return 0
 
     def get_token(self, email, password, server):
+        """Fetch user authentication token via API."""
+
         headers = {'content-type': 'application/json'}
         user = {'user': {'email': email, 'password': password}}
         response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
 
         if self.token_handling(response) == 200:
+            user_data = response.json()
+            user_token = user_data['token']
             self.error = None
-            return response.json()
+            return user_token
         else:
             return self.error
 
     def check_token(self):
+        """Ensure user authentication token has been generated and persists."""
+
         if self.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
     def request(self, method, endpoint, id, payload):
+        """Send requests from user-accessible functions via API."""
+
         self.check_token()
 
         if id is None:
@@ -98,13 +109,17 @@ class ApiFunctions():
             return self.error
 
     def get(self, endpoint, id):
+        """METHOD: 'get' allows user to view endpoint data."""
         return self.request('GET', endpoint, id, payload=None)
 
     def post(self, endpoint, id, payload):
+        """METHOD: 'post' allows user to overwrite/create new endpoint data."""
         return self.request('POST', endpoint, id, payload)
 
     def patch(self, endpoint, id, payload):
+        """METHOD: 'patch' allows user to edit endpoint data (used for new logs)."""
         return self.request('PATCH', endpoint, id, payload)
 
     def delete(self, endpoint, id):
+        """METHOD: 'delete' allows user to delete endpoint data (hidden)."""
         return self.request('DELETE', endpoint, id, payload=None)
