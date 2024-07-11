@@ -1,4 +1,7 @@
 from broker_connect import BrokerConnect
+from api_functions import ApiFunctions
+
+# main.py -> broker_functions.py -> broker_connect.py
 
 RPC_REQUEST = {
     "kind": "rpc_request",
@@ -10,6 +13,7 @@ RPC_REQUEST = {
 class BrokerFunctions():
     def __init__(self):
         self.connect = BrokerConnect()
+        self.api = ApiFunctions()
 
         self.token = None
         self.client = None
@@ -172,7 +176,7 @@ class BrokerFunctions():
 
     def control_peripheral(self, id, value, mode=None):
         if mode is None:
-            peripheral_str = self.get_info('peripherals', id)
+            peripheral_str = self.api.get_info('peripherals', id)
             mode = peripheral_str['mode']
 
         control_peripheral_message = {
@@ -217,7 +221,7 @@ class BrokerFunctions():
         # return ...
 
     def on(self, id):
-        peripheral_str = self.get_info('peripherals', id)
+        peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
         if mode == 1:

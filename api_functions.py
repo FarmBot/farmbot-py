@@ -1,5 +1,7 @@
 from api_connect import ApiConnect
 
+# main.py -> api_functions.py -> api_connect.py
+
 class ApiFunctions():
     def __init__(self):
         self.connect = ApiConnect()

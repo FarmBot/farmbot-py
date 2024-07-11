@@ -2,6 +2,8 @@ import sys
 import json
 import requests
 
+# api_functions.py -> api_connect.py
+
 class ApiConnect():
     def __init__(self):
         self.token = None
@@ -74,10 +76,12 @@ class ApiConnect():
         response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
 
         if self.token_handling(response) == 200:
-            user_data = response.json()
-            user_token = user_data['token']
+            token_obj = response.json()
+            token_str = json.dumps(token_obj)
+            # token_dict = json.loads(token_str)
+            self.token = token_str
             self.error = None
-            return user_token
+            return token_str
         else:
             return self.error
 
@@ -87,6 +91,15 @@ class ApiConnect():
         if self.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
+
+    # save response as JSON object:     json_obj = response.json()
+    #                                   json.dumps(json_obj)
+
+    # save response as a string:        json_str = response.text
+
+    # access JSON object fields:        json_obj = response.json()
+    #                                   data = json.dumps(json_obj)
+    #                                   name = data["name"]
 
     def request(self, method, endpoint, id, payload):
         """Send requests from user-accessible functions via API."""

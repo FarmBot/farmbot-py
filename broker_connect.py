@@ -3,6 +3,8 @@ import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
+# broker_functions.py -> broker_connect.py
+
 class BrokerConnect():
     def __init__(self):
         self.token = None
