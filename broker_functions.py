@@ -1,8 +1,6 @@
 from broker_connect import BrokerConnect
 from api_functions import ApiFunctions
 
-# main.py -> broker_functions.py -> broker_connect.py
-
 RPC_REQUEST = {
     "kind": "rpc_request",
     "args": {
@@ -12,19 +10,11 @@ RPC_REQUEST = {
 
 class BrokerFunctions():
     def __init__(self):
-        self.connect = BrokerConnect()
+        self.broker_connect = BrokerConnect()
         self.api = ApiFunctions()
 
         self.token = None
         self.client = None
-
-    def connect_broker(self):
-        self.connect.connect()
-        # return ...
-
-    def disconnect_broker(self):
-        self.connect.disconnect()
-        return print("Disconnected from message broker.")
 
     def read_status(self):
         status_message = {
@@ -35,7 +25,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(status_message)
+        self.broker_connect.publish(status_message)
         # return ...
 
     def read_sensor(self, id, mode, label='---'):
@@ -57,7 +47,7 @@ class BrokerFunctions():
             }]
         }
 
-        self.connect.publish(read_sensor_message)
+        self.broker_connect.publish(read_sensor_message)
         # return ...
 
     def message(self, message, type=None, channel=None):
@@ -78,7 +68,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(message_message)
+        self.broker_connect.publish(message_message)
         # return ...
 
     def debug(self, message):
@@ -100,7 +90,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(wait_message)
+        self.broker_connect.publish(wait_message)
         return print("Waiting for "+str(time)+" milliseconds...")
 
     def e_stop(self):
@@ -112,7 +102,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(e_stop_message)
+        self.broker_connect.publish(e_stop_message)
         return print("Triggered device emergency stop.")
 
     def unlock(self):
@@ -124,7 +114,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(unlock_message)
+        self.broker_connect.publish(unlock_message)
         return print("Triggered device unlock.")
 
     def reboot(self):
@@ -138,7 +128,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(reboot_message)
+        self.broker_connect.publish(reboot_message)
         return print("Triggered device reboot.")
 
     def shutdown(self):
@@ -150,11 +140,11 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(shutdown_message)
+        self.broker_connect.publish(shutdown_message)
         return print("Triggered device shutdown.")
 
-    # calibrate_camera()
-    # photo_grid()
+    # calibrate_camera() --> sequence (broker message)
+    # photo_grid() --> sequence (broker message)
 
     def control_servo(self, pin, angle):
         if angle < 0 or angle > 180:
@@ -171,7 +161,7 @@ class BrokerFunctions():
                 }
             }
 
-            self.connect.publish(control_servo_message)
+            self.broker_connect.publish(control_servo_message)
             # return ...
 
     def control_peripheral(self, id, value, mode=None):
@@ -197,7 +187,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(control_peripheral_message)
+        self.broker_connect.publish(control_peripheral_message)
         # return ...
 
     def toggle_peripheral(self, id):
@@ -217,7 +207,7 @@ class BrokerFunctions():
             }]
         }
 
-        self.connect.publish(toggle_peripheral_message)
+        self.broker_connect.publish(toggle_peripheral_message)
         # return ...
 
     def on(self, id):
@@ -244,7 +234,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(take_photo_message)
+        self.broker_connect.publish(take_photo_message)
         # return ...
 
     def soil_height(self):
@@ -258,7 +248,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(soil_height_message)
+        self.broker_connect.publish(soil_height_message)
         # return ...
 
     def detect_weeds(self):
@@ -272,11 +262,11 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(detect_weeds_message)
+        self.broker_connect.publish(detect_weeds_message)
         # return ...
 
-    # get_xyz() --> requires read_status()
-    # check_position() --> requires read_status()
+    # get_xyz() --> requires read_status() --> LUA
+    # check_position() --> requires read_status() --> LUA
 
     def move(self, x, y, z):
         def axis_overwrite(axis, value):
@@ -306,7 +296,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(move_message)
+        self.broker_connect.publish(move_message)
         # return ...
 
     def set_home(self, axis='all'):
@@ -320,7 +310,7 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(set_home_message)
+        self.broker_connect.publish(set_home_message)
         # return ...
 
     def find_home(self, axis='all', speed=100):
@@ -338,7 +328,7 @@ class BrokerFunctions():
                 }
             }
 
-            self.connect.publish(find_home_message)
+            self.broker_connect.publish(find_home_message)
             # return ...
 
     def axis_length(self, axis='all'):
@@ -352,24 +342,28 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(axis_length_message)
+        self.broker_connect.publish(axis_length_message)
         # return ...
 
-    # mark_as()
-    # verify_tool()
-    # mount_tool()
-    # dismount_tool()
-    # water()
-    # dispense()
-    # sequence()
-    # get_seed_tray_call(tray, cell)
-    # sort(points, method)
-    # get_job()
-    # set_job()
-    # complete_job()
+    # mark_as() --> sequence (broker message)
 
-    # lua()
-    # if_statement()
+    # verify_tool() --> check
+    # mount_tool() --> check
+    # dismount_tool() --> check
+
+    # water() --> check
+    # dispense() --> check
+
+    # sequence() --> check
+    # get_seed_tray_call(tray, cell) --> check
+    # sort(points, method) --> check (API?)
+
+    # get_job() --> LUA
+    # set_job() --> LUA
+    # complete_job() --> LUA
+
+    # lua() --> sequence (broker message)
+    # if_statement() --> sequence (broker message)
 
     def assertion(self, code, type, id=''):
         assertion_message = {
@@ -389,5 +383,5 @@ class BrokerFunctions():
             }
         }
 
-        self.connect.publish(assertion_message)
+        self.broker_connect.publish(assertion_message)
         # return ...

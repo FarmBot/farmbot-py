@@ -2,24 +2,10 @@ import sys
 import json
 import requests
 
-# api_functions.py -> api_connect.py
-
 class ApiConnect():
     def __init__(self):
         self.token = None
         self.error = None
-
-    # token_handling() --> errors for token
-    # request_handling() --> errors for request
-
-    # get_token()
-    # check_token()
-
-    # request()
-    # get() --> get endpoint info
-    # post() --> overwrite/new endpoint info
-    # patch() --> edit endpoint info
-    # delete() --> delete endpoint info
 
     def token_handling(self, response):
         """Handle errors relating to bad user auth token requests."""
@@ -76,12 +62,9 @@ class ApiConnect():
         response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
 
         if self.token_handling(response) == 200:
-            token_obj = response.json()
-            token_str = json.dumps(token_obj)
-            # token_dict = json.loads(token_str)
-            self.token = token_str
+            token_data = response.json()
             self.error = None
-            return token_str
+            return token_data
         else:
             return self.error
 
@@ -91,15 +74,6 @@ class ApiConnect():
         if self.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
-
-    # save response as JSON object:     json_obj = response.json()
-    #                                   json.dumps(json_obj)
-
-    # save response as a string:        json_str = response.text
-
-    # access JSON object fields:        json_obj = response.json()
-    #                                   data = json.dumps(json_obj)
-    #                                   name = data["name"]
 
     def request(self, method, endpoint, id, payload):
         """Send requests from user-accessible functions via API."""

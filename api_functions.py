@@ -1,57 +1,49 @@
 from api_connect import ApiConnect
 
-# main.py -> api_functions.py -> api_connect.py
-
 class ApiFunctions():
     def __init__(self):
-        self.connect = ApiConnect()
-
+        self.api_connect = ApiConnect()
         self.token = None
-        self.error = None
 
     def get_token(self, email, password, server='https://my.farm.bot'):
-        # when get_token() is called, set self.token
-        self.token = self.connect.get_token(email, password, server)
+        token_str = self.api_connect.get_token(email, password, server)
+        return token_str
 
-        # when get_token() is called, set api.token
-        self.connect.token = self.token
-        # when get_token() is called, set broker.token
-        self.broker.token = self.token
-
-        return self.token
+    # data = get_info() and like functions will assign 'data' JSON object
+    # data["name"] will access the field "name" and return the field value
 
     def get_info(self, endpoint, id=None):
-        return self.connect.get(endpoint, id)
-        # return self.connect.get(endpoint, id)...
+        return self.api_connect.get(endpoint, id)
+        # return self.api_connect.get(endpoint, id)...
 
     def set_info(self, endpoint, field, value, id=None):
         new_value = {
             field: value
         }
 
-        self.connect.patch(endpoint, id, new_value)
-        return self.connect.get(endpoint, id)
-        # return self.connect.get(endpoint, id)...
+        self.api_connect.patch(endpoint, id, new_value)
+        return self.api_connect.get(endpoint, id)
+        # return self.api_connect.get(endpoint, id)...
 
     def env(self, id=None, field=None, new_val=None):
         if id is None:
-            data = self.connect.get('farmware_envs', id=None)
+            data = self.api_connect.get('farmware_envs', id=None)
             print(data)
         else:
-            data = self.connect.get('farmware_envs', id)
+            data = self.api_connect.get('farmware_envs', id)
             print(data)
 
     def log(self, message, type=None, channel=None):
         log_message = {
             "message": message,
-            "type": type,
+            "type": type, # https://software.farm.bot/v15/app/intro/jobs-and-logs#log-types
             "channel": channel # Specifying channel does not do anything
         }
 
         endpoint = 'logs'
         id = None
 
-        self.connect.post(endpoint, id, log_message)
+        self.api_connect.post(endpoint, id, log_message)
         # return ...
 
     def safe_z(self):
