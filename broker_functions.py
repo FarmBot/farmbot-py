@@ -384,31 +384,30 @@ class BrokerFunctions():
                 "label": "6a6b10a6-46a8-4b97-8b66-c55021c02bbd",
                 "priority": 600
             },
-            "body": [
-                {
-                    "kind": "execute",
+            "body": {
+                "kind": "execute",
+                "args": {
+                    "sequence_id": 24350
+                },
+                "body": {
+                    "kind": "parameter_application",
                     "args": {
-                        "sequence_id": 24350
-                    },
-                    "body": [
-                        {
-                            "kind": "parameter_application",
+                        "label": "Tool",
+                        "data_value": {
+                            "kind": "coordinate",
                             "args": {
-                                "label": "Tool",
-                                "data_value": {
-                                    "kind": "coordinate",
-                                    "args": {
-                                        "x": 0,
-                                        "y": 40,
-                                        "z": 0
-                                    }
-                                }
+                                "x": x,
+                                "y": y,
+                                "z": z
                             }
                         }
-                    ]
+                    }
                 }
-            ]
+            }
         }
+
+        self.broker_connect.publish(mount_tool_message)
+        # return ...
 
     # water() --> check
     # dispense() --> check
