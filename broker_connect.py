@@ -9,6 +9,7 @@ class BrokerConnect():
         self.client = None
 
     def connect(self):
+        print("connect() was called from broker_connect.py")
         """Establish persistent connection with message broker."""
         self.client = mqtt.Client()
         self.client.username_pw_set(

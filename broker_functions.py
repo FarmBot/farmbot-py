@@ -143,8 +143,33 @@ class BrokerFunctions():
         self.broker_connect.publish(shutdown_message)
         return print("Triggered device shutdown.")
 
-    # calibrate_camera() --> sequence (broker message)
+    def calibrate_camera(self):
+        calibrate_message = {
+            **RPC_REQUEST,
+            "args": {
+                "label": "3fcd2d32-302b-46c9-9448-b4f30c3a9bb1",
+                "priority": 600
+            },
+            "body": {
+                "kind": "execute_script",
+                "args": {
+                    "label": "camera-calibration"
+                },
+                "body": {
+                    "kind": "pair",
+                    "args": {
+                        "label": "CAMERA_CALIBRATION_easy_calibration",
+                        "value": "\"TRUE\""
+                    }
+                }
+            }
+        }
+
+        self.broker_connect.publish(calibrate_message)
+        # return ...
+
     # photo_grid() --> sequence (broker message)
+
 
     def control_servo(self, pin, angle):
         if angle < 0 or angle > 180:
@@ -348,8 +373,42 @@ class BrokerFunctions():
     # mark_as() --> sequence (broker message)
 
     # verify_tool() --> check
+
     # mount_tool() --> check
     # dismount_tool() --> check
+
+    def mount_tool(self, x, y, z):
+        mount_tool_message = {
+            **RPC_REQUEST,
+            "args": {
+                "label": "6a6b10a6-46a8-4b97-8b66-c55021c02bbd",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "execute",
+                    "args": {
+                        "sequence_id": 24350
+                    },
+                    "body": [
+                        {
+                            "kind": "parameter_application",
+                            "args": {
+                                "label": "Tool",
+                                "data_value": {
+                                    "kind": "coordinate",
+                                    "args": {
+                                        "x": 0,
+                                        "y": 40,
+                                        "z": 0
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
 
     # water() --> check
     # dispense() --> check

@@ -17,13 +17,15 @@ class Farmbot():
         self.api.api_connect.token = token_data
 
         self.broker.token = token_data
-        self.broker.broker_connect = token_data
+        self.broker.broker_connect.token = token_data
 
         return token_data
 
     def get_info(self, endpoint, id=None):
         return self.api.get_info(endpoint, id)
 
+    def set_info(self, endpoint, field, value, id=None):
+        return self.api.set_info(endpoint, field, value, id)
+
     def connect(self):
         self.broker.broker_connect.connect()
-        return print("Connected to message broker.")
