@@ -29,3 +29,10 @@ class Farmbot():
 
     def connect(self):
         self.broker.broker_connect.connect()
+
+    def disconnect(self):
+        self.broker.broker_connect.disconnect()
+        return print("Disconnected from message broker.")
+
+    def on(self, id):
+        self.broker.on(id)

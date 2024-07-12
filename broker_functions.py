@@ -170,7 +170,6 @@ class BrokerFunctions():
 
     # photo_grid() --> sequence (broker message)
 
-
     def control_servo(self, pin, angle):
         if angle < 0 or angle > 180:
             return print("ERROR: Servo angle constrained to 0-180 degrees.")
