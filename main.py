@@ -16,8 +16,9 @@ class Farmbot():
         self.api.token = token_data
         self.api.api_connect.token = token_data
 
-        self.broker.token = token_data
+        # self.broker.token = token_data
         self.broker.broker_connect.token = token_data
+        self.broker.api.api_connect.token = token_data
 
         return token_data
 
@@ -36,3 +37,9 @@ class Farmbot():
 
     def on(self, id):
         self.broker.on(id)
+
+    def toggle_peripheral(self, id):
+        self.broker.toggle_peripheral(id)
+
+    def listen(self):
+        self.broker.broker_connect.listen()

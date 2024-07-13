@@ -1,4 +1,5 @@
 import json
+import time
 
 from datetime import datetime
 import paho.mqtt.client as mqtt
@@ -39,3 +40,31 @@ class BrokerConnect():
             f'bot/{self.token["token"]["unencoded"]["bot"]}/from_clients',
             payload=json.dumps(message)
         )
+
+    def on_connect(self, *_args):
+        # Subscribe to all channels
+        self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
+
+    def on_message(self, _client, _userdata, msg):
+        print('-'*100)
+        # Print channel
+        print(f"Channel: {msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n")
+        # Print message
+        print(json.dumps(json.loads(msg.payload), indent=4))
+
+    def listen(self):
+        if self.client is None:
+            self.connect()
+
+        self.client.on_connect = self.on_connect
+        self.client.on_message = self.on_message
+
+        # Start loop in a separate thread
+        self.client.loop_start()
+
+        # Sleep for five seconds to listen for messages
+        time.sleep(5)
+
+        # Stop loop and disconnect after five seconds
+        self.client.loop_stop()
+        self.client.disconnect()

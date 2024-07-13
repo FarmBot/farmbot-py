@@ -70,8 +70,11 @@ class ApiFunctions():
         length_y = y_steps / y_mm
         area = length_x * length_y
 
-        size_value = {'x': length_x, 'y': length_y, 'area': area}
-        return size_value
+        # return print(f'Garden size:\n\tx length = {length_x:.2f}\n\ty length = {length_y:.2f}\n\tarea = {area:.2f}')
+        return print(f'Garden size:\n'
+                    f'\tx length = {length_x:.4f}\n'
+                    f'\ty length = {length_y:.3f}\n'
+                    f'\tarea = {area:.5f}')
 
     def group(self, id):
         return self.get_info('point_groups', id)
