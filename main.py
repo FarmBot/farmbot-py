@@ -13,10 +13,11 @@ class Farmbot():
 
         self.token = token_data
 
+        # Set API tokens
         self.api.token = token_data
         self.api.api_connect.token = token_data
 
-        # self.broker.token = token_data
+        # Set broker tokens
         self.broker.broker_connect.token = token_data
         self.broker.api.api_connect.token = token_data
 
@@ -30,28 +31,28 @@ class Farmbot():
 
     def env(self, id=None, field=None, new_val=None):
         return self.api.env(id, field, new_val)
-    
+
     def log(self, message, type=None, channel=None):
         return self.api.log(message, type, channel)
-    
+
     def safe_z(self):
         return self.api.safe_z()
-    
+
     def garden_size(self):
         return self.api.garden_size()
-    
+
     def group(self, id):
         return self.api.group(id)
-    
+
     def curve(self, id):
         return self.api.curve(id)
-    
+
     def read_status(self):
         return self.broker.read_status()
-    
+
     def read_sensor(self, id, mode, label='---'):
         return self.broker.read_sensor(id, mode, label)
-    
+
     def message(self, message, type=None, channel=None):
         return self.broker.message(message, type, channel)
 
