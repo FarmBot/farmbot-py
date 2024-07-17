@@ -46,10 +46,10 @@ class BrokerConnect():
         self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
 
     def on_message(self, _client, _userdata, msg):
-        print('-'*100)
-        # Print channel
-        print(f"Channel: {msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n")
-        # Print message
+        print('-' * 100)
+        # print channel
+        print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
+        # print message
         print(json.dumps(json.loads(msg.payload), indent=4))
 
     def listen(self):

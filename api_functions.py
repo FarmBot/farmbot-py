@@ -28,10 +28,11 @@ class ApiFunctions():
     def env(self, id=None, field=None, new_val=None):
         if id is None:
             data = self.api_connect.get('farmware_envs', id=None)
-            print(data)
+            print(data) # ?
         else:
             data = self.api_connect.get('farmware_envs', id)
-            print(data)
+            print(data) # ?
+        # return ...
 
     def log(self, message, type=None, channel=None):
         log_message = {

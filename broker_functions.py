@@ -146,10 +146,6 @@ class BrokerFunctions():
     def calibrate_camera(self):
         calibrate_message = {
             **RPC_REQUEST,
-            "args": {
-                "label": "3fcd2d32-302b-46c9-9448-b4f30c3a9bb1",
-                "priority": 600
-            },
             "body": {
                 "kind": "execute_script",
                 "args": {
@@ -169,6 +165,19 @@ class BrokerFunctions():
         # return ...
 
     # photo_grid() --> sequence (broker message)
+    def photo_grid(self):
+        photo_grid_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "execute",
+                "args": {
+                    "sequence_id": 24372
+                }
+            }
+        }
+
+        self.broker_connect.publish(photo_grid_message)
+        # return ...
 
     def control_servo(self, pin, angle):
         if angle < 0 or angle > 180:
@@ -379,15 +388,8 @@ class BrokerFunctions():
     def mount_tool(self, x, y, z):
         mount_tool_message = {
             **RPC_REQUEST,
-            "args": {
-                "label": "6a6b10a6-46a8-4b97-8b66-c55021c02bbd",
-                "priority": 600
-            },
             "body": {
                 "kind": "execute",
-                "args": {
-                    "sequence_id": 24350
-                },
                 "body": {
                     "kind": "parameter_application",
                     "args": {
@@ -422,7 +424,7 @@ class BrokerFunctions():
     # lua() --> sequence (broker message)
     # if_statement() --> sequence (broker message)
 
-    def assertion(self, code, type, id=''):
+    def assertion(self, code, as_type, id=''):
         assertion_message = {
             **RPC_REQUEST,
             "body": {
@@ -435,7 +437,7 @@ class BrokerFunctions():
                             "sequence_id": id # Recovery sequence ID
                         }
                     },
-                    "assertion_type": type # If test fails, do this
+                    "assertion_type": as_type # If test fails, do this
                 }
             }
         }
