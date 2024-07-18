@@ -10,7 +10,8 @@ from main import Farmbot
 
 class TestFarmbot(unittest.TestCase):
     """Farmbot tests"""
-    @patch('main.Farmbot.get_token')
+
+    @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
         """POSITIVE TEST: function called with email, password, and default server"""
         mock_response = Mock()
@@ -29,6 +30,7 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(fb.token, expected_token)
         self.assertEqual(mock_post.return_value.status_code, 200)
 
+    @patch('requests.post')
     def test_get_token_custom_server(self, mock_post):
         """POSITIVE TEST: function called with email, password, and custom server"""
         mock_response = Mock()
