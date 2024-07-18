@@ -49,6 +49,40 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(fb.token, expected_token)
         self.assertEqual(mock_post.return_value.status_code, 200)
 
+    @patch('requests.post')
+    def test_get_token_bad_email(self, mock_post):
+        """NEGATIVE TEST: function called with bad email or password (HTTP error)"""
+        mock_response = Mock()
+        mock_response.status_code = 422
+        mock_post.return_value = mock_response
+        fb = Farmbot()
+        # Call with bad email
+        fb.get_token('bad_email@gmail.com', 'test_pass_123', 'https://staging.farm.bot')
+        mock_post.assert_called_once_with(
+            'https://staging.farm.bot/api/tokens',
+            headers={'content-type': 'application/json'},
+            json={'user': {'email': 'bad_email@gmail.com', 'password': 'test_pass_123'}}
+        )
+        self.assertIsNone(fb.token)
+        self.assertEqual(mock_post.return_value.status_code, 422)
+
+    @patch('requests.post')
+    def test_get_token_bad_server(self, mock_post):
+        """NEGATIVE TEST: function called with bad server address (HTTP error)"""
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_post.return_value = mock_response
+        fb = Farmbot()
+        # Call with bad email
+        fb.get_token('test_email@gmail.com', 'test_pass_123', 'https://bad.farm.bot')
+        mock_post.assert_called_once_with(
+            'https://bad.farm.bot/api/tokens',
+            headers={'content-type': 'application/json'},
+            json={'user': {'email': 'test_email@gmail.com', 'password': 'test_pass_123'}}
+        )
+        self.assertIsNone(fb.token)
+        self.assertEqual(mock_post.return_value.status_code, 404)
+
     @patch('requests.get')
     def test_get_info_endpoint_only(self, mock_get):
         """POSITIVE TEST: function called with endpoint only"""
