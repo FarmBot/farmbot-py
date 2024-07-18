@@ -1,3 +1,5 @@
+import json
+
 from broker_connect import BrokerConnect
 from api_functions import ApiFunctions
 
@@ -26,16 +28,23 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(status_message)
-        # return ...
+        self.broker_connect.listen(5, 'status')
 
-    def read_sensor(self, id, mode, label='---'):
+        status_tree = self.broker_connect.last_message
+
+        return print(json.dumps(status_tree, indent=4))
+
+    def read_sensor(self, id):
+        peripheral_str = self.api.get_info('peripherals', id)
+        mode = peripheral_str['mode']
+
         read_sensor_message = {
             **RPC_REQUEST,
             "body": [{
                 "kind": "read_pin",
                 "args": {
                     "pin_mode": mode,
-                    "label": label,
+                    "label": '---',
                     "pin_number": {
                         "kind": "named_pin",
                         "args": {
@@ -48,7 +57,11 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(read_sensor_message)
-        # return ...
+        self.broker_connect.listen(5, 'status')
+
+        sensor_data = self.broker_connect.last_message
+
+        return print(sensor_data)
 
     def message(self, message, type=None, channel=None):
         message_message = {
