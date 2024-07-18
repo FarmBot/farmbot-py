@@ -8,7 +8,7 @@ class ApiFunctions():
         self.echo = True
         self.verbose = True
 
-    def return_config(self, return_value):
+    def return_config(self, return_value): # TODO: which functions return json()
         """Configure echo and verbosity of function returns."""
 
         if self.echo is True and self.verbose is True:

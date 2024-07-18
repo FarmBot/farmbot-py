@@ -144,8 +144,5 @@ class Farmbot():
     def detect_weeds(self):
         return self.broker.detect_weeds()
 
-    def mount_tool(self, x, y, z):
-        return self.broker.mount_tool(x, y, z)
-
     def assertion(self, code, as_type, id=''):
         return self.broker.assertion(code, as_type, id)

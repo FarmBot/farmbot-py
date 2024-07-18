@@ -21,7 +21,7 @@ class BrokerFunctions():
         self.echo = True
         self.verbose = True
 
-    def return_config(self, return_value):
+    def return_config(self, return_value): # TODO: which functions return json()
         """Configure echo and verbosity of function returns."""
 
         if self.echo is True and self.verbose is True:
@@ -369,6 +369,104 @@ class BrokerFunctions():
         self.control_peripheral(id, 0)
         # return ...
 
+    ## RESOURCES
+
+    # TODO: sort(points, method) --> API? --> order group of points according to chosen method
+
+    # def sort(tray, tray_cell):
+    #     cell = tray_cell.upper()
+    #     seeder_needle_offset = 17.5
+    #     cell_spacing = 12.5
+
+    #     cells = {
+    #         "A1": {"label": "A1", "x": 0, "y": 0},
+    #         "A2": {"label": "A2", "x": 0, "y": 1},
+    #         "A3": {"label": "A3", "x": 0, "y": 2},
+    #         "A4": {"label": "A4", "x": 0, "y": 3},
+    #         "B1": {"label": "B1", "x": -1, "y": 0},
+    #         "B2": {"label": "B2", "x": -1, "y": 1},
+    #         "B3": {"label": "B3", "x": -1, "y": 2},
+    #         "B4": {"label": "B4", "x": -1, "y": 3},
+    #         "C1": {"label": "C1", "x": -2, "y": 0},
+    #         "C2": {"label": "C2", "x": -2, "y": 1},
+    #         "C3": {"label": "C3", "x": -2, "y": 2},
+    #         "C4": {"label": "C4", "x": -2, "y": 3},
+    #         "D1": {"label": "D1", "x": -3, "y": 0},
+    #         "D2": {"label": "D2", "x": -3, "y": 1},
+    #         "D3": {"label": "D3", "x": -3, "y": 2},
+    #         "D4": {"label": "D4", "x": -3, "y": 3}
+    #     }
+
+    #     # Checks
+    #     if tray["pointer_type"] != "ToolSlot":
+    #         print("Error: Seed Tray variable must be a seed tray in a slot")
+    #         return
+    #     elif cell not in cells:
+    #         print("Error: Seed Tray Cell must be one of **A1** through **D4**")
+    #         return
+
+    #     # Flip X offsets depending on pullout direction
+    #     flip = 1
+    #     if tray["pullout_direction"] == 1:
+    #         flip = 1
+    #     elif tray["pullout_direction"] == 2:
+    #         flip = -1
+    #     else:
+    #         print("Error: Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
+    #         return
+
+    #     # A1 coordinates
+    #     A1 = {
+    #         "x": tray["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
+    #         "y": tray["y"] - (1.5 * cell_spacing * flip),
+    #         "z": tray["z"]
+    #     }
+
+    #     # Cell offset from A1
+    #     offset = {
+    #         "x": cell_spacing * cells[cell]["x"] * flip,
+    #         "y": cell_spacing * cells[cell]["y"] * flip
+    #     }
+
+    #     # Return cell coordinates
+    #     return {
+    #         "x": A1["x"] + offset["x"],
+    #         "y": A1["y"] + offset["y"],
+    #         "z": A1["z"]
+    #     }
+
+    def soil_height(self):
+        """Execute script to check soil height via message broker."""
+
+        soil_height_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "execute_script",
+                "args": {
+                    "label": "Measure Soil Height"
+                }
+            }
+        }
+
+        self.broker_connect.publish(soil_height_message)
+        # return ...
+
+    def detect_weeds(self):
+        """Execute script to detect weeds via message broker."""
+
+        detect_weeds_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "execute_script",
+                "args": {
+                    "label": "plant-detection"
+                }
+            }
+        }
+
+        self.broker_connect.publish(detect_weeds_message)
+        # return ...
+
     ## OTHER FUNCTIONS
 
     def calibrate_camera(self): # TODO: fix "sequence_id"
@@ -438,38 +536,6 @@ class BrokerFunctions():
         self.broker_connect.publish(take_photo_message)
         # return ...
 
-    def soil_height(self):
-        """Execute script to check soil height via message broker."""
-
-        soil_height_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "execute_script",
-                "args": {
-                    "label": "Measure Soil Height"
-                }
-            }
-        }
-
-        self.broker_connect.publish(soil_height_message)
-        # return ...
-
-    def detect_weeds(self):
-        """Execute script to detect weeds via message broker."""
-
-        detect_weeds_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "execute_script",
-                "args": {
-                    "label": "plant-detection"
-                }
-            }
-        }
-
-        self.broker_connect.publish(detect_weeds_message)
-        # return ...
-
     def mark_coord(self, x, y, z, property, mark_as): # TODO: Fix "label"
         mark_coord_message = {
             **RPC_REQUEST,
@@ -527,9 +593,8 @@ class BrokerFunctions():
     # TODO: water() --> all or single coords
     # TODO: dispense() --> single coords?
 
-    # TODO: sequence()
-    # TODO: get_seed_tray_call(tray, cell)
-    # TODO: sort(points, method) --> API?
+    # TODO: sequence() --> execute a sequence by ID
+    # TODO: get_seed_tray_call(tray, cell) --> get coordinates of cell in seed tray by passing tool object and cell id, eg B3
 
     # TODO: get_job() --> access status tree --> fetch all or single by name
     # TODO: set_job() --> access status tree --> inject(?) new or edit single by name
