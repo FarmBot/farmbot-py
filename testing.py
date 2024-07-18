@@ -3,8 +3,6 @@ import json
 from unittest.mock import Mock, patch
 
 from main import Farmbot
-from api_functions import ApiFunctions
-from broker_functions import BrokerFunctions
 
 class TestFarmbot(unittest.TestCase):
     @patch('main.Farmbot.get_token')
