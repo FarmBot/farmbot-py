@@ -32,7 +32,7 @@ class BrokerFunctions():
 
         status_tree = self.broker_connect.last_message
 
-        return print(json.dumps(status_tree, indent=4))
+        return status_tree
 
     def read_sensor(self, id):
         peripheral_str = self.api.get_info('peripherals', id)
@@ -56,12 +56,7 @@ class BrokerFunctions():
             }]
         }
 
-        self.broker_connect.publish(read_sensor_message)
-        self.broker_connect.listen(5, 'status')
-
-        sensor_data = self.broker_connect.last_message
-
-        return print(sensor_data)
+        # return ...
 
     def message(self, message, type=None, channel=None):
         message_message = {
@@ -311,7 +306,20 @@ class BrokerFunctions():
         self.broker_connect.publish(detect_weeds_message)
         # return ...
 
-    # get_xyz() --> requires read_status() --> LUA
+    def get_xyz(self):
+        tree_data = self.read_status()
+
+        position = tree_data["position"]
+
+        x_val = position['x']
+        y_val = position['y']
+        z_val = position['z']
+
+        return print(f'Garden size:\n'
+                    f'\tx = {x_val:.2f}\n'
+                    f'\ty = {y_val:.2f}\n'
+                    f'\tz = {z_val:.2f}')
+
     # check_position() --> requires read_status() --> LUA
 
     def move(self, x, y, z):
