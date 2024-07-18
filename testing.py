@@ -105,11 +105,12 @@ class TestFarmbot(unittest.TestCase):
         response = fb.get_info('device')
         mock_request.assert_called_once_with(
             'GET',
-            'https://my.farm.bot/api/device/',
+            'https://my.farm.bot/api/device',
             headers={
                 'authorization': 'encoded_token_value',
                 'content-type': 'application/json'
-            }
+            },
+            json=None,
         )
         self.assertEqual(response, json.dumps(expected_response, indent=2))
         self.assertEqual(mock_request.return_value.status_code, 200)
