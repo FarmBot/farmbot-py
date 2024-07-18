@@ -5,6 +5,25 @@ class ApiFunctions():
         self.api_connect = ApiConnect()
         self.token = None
 
+        self.echo = True
+        self.verbose = True
+
+    def return_config(self, return_value):
+        """Configure echo and verbosity of function returns."""
+
+        if self.echo is True and self.verbose is True:
+            print('-' * 100)
+            print(f'FUNCTION: {return_value}\n')
+            return print(return_value)
+        elif self.echo is True and self.verbose is False:
+            print('-' * 100)
+            return print(return_value)
+        elif self.echo is False and self.verbose is False:
+            return return_value
+        else:
+            print('-' * 100)
+            return print("ERROR: Incompatible return configuration.")
+
     def get_token(self, email, password, server='https://my.farm.bot'):
         token_str = self.api_connect.get_token(email, password, server)
         return token_str
@@ -67,8 +86,8 @@ class ApiFunctions():
                     f'\ty length = {length_y:.2f}\n'
                     f'\tarea = {area:.2f}')
 
-    def group(self, id):
+    def group(self, id): ## MAKE ID OPTIONAL RETURN FULL TREE W/O ID
         return self.get_info('point_groups', id)
 
-    def curve(self, id):
+    def curve(self, id): ## MAKE ID OPTIONAL RETURN FULL TREE W/O ID
         return self.get_info('curves', id)

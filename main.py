@@ -8,7 +8,11 @@ class Farmbot():
 
         self.token = None
 
+    ## SETUP
+
     def get_token(self, email, password, server="https://my.farm.bot"):
+        """Fetch user authentication token via API."""
+
         token_data = self.api.get_token(email, password, server)
 
         self.token = token_data
@@ -23,6 +27,17 @@ class Farmbot():
 
         return token_data
 
+    def connect_broker(self):
+        """Establish persistent connection with message broker."""
+
+    def disconnect_broker(self):
+        """Disconnect from the message broker."""
+
+    def listen_broker(self, duration, channel):
+        """Listen to messages via message broker."""
+
+    ## INFORMATION
+
     def get_info(self, endpoint, id=None):
         return self.api.get_info(endpoint, id)
 
@@ -31,15 +46,6 @@ class Farmbot():
 
     def env(self, id=None, field=None, new_val=None):
         return self.api.env(id, field, new_val)
-
-    def log(self, message, type=None, channel=None):
-        return self.api.log(message, type, channel)
-
-    def safe_z(self):
-        return self.api.safe_z()
-
-    def garden_size(self):
-        return self.api.garden_size()
 
     def group(self, id):
         return self.api.group(id)
@@ -53,6 +59,17 @@ class Farmbot():
     def read_sensor(self, id):
         return self.broker.read_sensor(id)
 
+    def safe_z(self):
+        return self.api.safe_z()
+
+    def garden_size(self):
+        return self.api.garden_size()
+
+    ## MESSAGING
+
+    def log(self, message, type=None, channel=None):
+        return self.api.log(message, type, channel)
+
     def message(self, message, type=None, channel=None):
         return self.broker.message(message, type, channel)
 
@@ -61,6 +78,8 @@ class Farmbot():
 
     def toast(self, message):
         return self.broker.toast(message)
+
+    ## BASIC COMMANDS
 
     def wait(self, time):
         return self.broker.wait(time)
@@ -77,11 +96,21 @@ class Farmbot():
     def shutdown(self):
         return self.broker.shutdown()
 
-    def calibrate_camera(self):
-        return self.broker.calibrate_camera()
+    ## MOVEMENT
 
-    def control_servo(self, pin, angle):
-        return self.broker.control_servo(pin, angle)
+    def move(self, x, y, z):
+        return self.broker.move(x, y, z)
+
+    def set_home(self, axis='all'):
+        return self.broker.set_home(axis)
+
+    def find_home(self, axis='all', speed=100):
+        return self.broker.find_home(axis, speed)
+
+    def axis_length(self, axis='all'):
+        return self.broker.axis_length(axis)
+
+    ## PERIPHERALS
 
     def control_peripheral(self, id, value, mode=None):
         return self.broker.control_peripheral(id, value, mode)
@@ -95,6 +124,16 @@ class Farmbot():
     def off(self, id):
         return self.broker.off(id)
 
+    ## API COMMANDS
+
+    ## BROKER COMMANDS
+
+    def calibrate_camera(self):
+        return self.broker.calibrate_camera()
+
+    def control_servo(self, pin, angle):
+        return self.broker.control_servo(pin, angle)
+
     def take_photo(self):
         return self.broker.take_photo()
 
@@ -103,18 +142,6 @@ class Farmbot():
 
     def detect_weeds(self):
         return self.broker.detect_weeds()
-
-    def move(self, x, y, z):
-        return self.broker.move(x, y, z)
-
-    def set_home(self, axis='all'):
-        return self.broker.set_home(axis)
-
-    def find_home(self, axis='all', speed=100):
-        return self.broker.find_home(axis, speed)
-
-    def axis_length(self, axis='all'):
-        return self.broker.axis_length(axis)
 
     def mount_tool(self, x, y, z):
         return self.broker.mount_tool(x, y, z)

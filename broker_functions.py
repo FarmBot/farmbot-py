@@ -18,7 +18,28 @@ class BrokerFunctions():
         self.token = None
         self.client = None
 
+        self.echo = True
+        self.verbose = True
+
+    def return_config(self, return_value):
+        """Configure echo and verbosity of function returns."""
+
+        if self.echo is True and self.verbose is True:
+            print('-' * 100)
+            print(f'FUNCTION: {return_value}\n')
+            return print(return_value)
+        elif self.echo is True and self.verbose is False:
+            print('-' * 100)
+            return print(return_value)
+        elif self.echo is False and self.verbose is False:
+            return return_value
+        else:
+            print('-' * 100)
+            return print("ERROR: Incompatible return configuration.")
+
     def read_status(self):
+        """Get Farmbot device status tree via message broker."""
+
         status_message = {
             **RPC_REQUEST,
             "body": {
@@ -35,6 +56,8 @@ class BrokerFunctions():
         return status_tree
 
     def read_sensor(self, id):
+        """Get sensor data via message broker."""
+
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
@@ -59,6 +82,8 @@ class BrokerFunctions():
         # return ...
 
     def message(self, message, type=None, channel=None):
+        """Send log message via message broker."""
+
         message_message = {
             **RPC_REQUEST,
             "body": {
@@ -80,28 +105,34 @@ class BrokerFunctions():
         # return ...
 
     def debug(self, message):
+        """Send 'debug' type log message via message broker."""
         self.message(message, 'debug')
         # return ...
 
     def toast(self, message):
+        """Send 'toast' type log message via message broker."""
         self.message(message, 'toast')
         # return ...
 
-    def wait(self, time):
+    def wait(self, duration):
+        """Send wait command to device via message broker."""
+
         wait_message = {
             **RPC_REQUEST,
             "body": {
                 "kind": "wait",
                 "args": {
-                    "milliseconds": time
+                    "milliseconds": duration
                 }
             }
         }
 
         self.broker_connect.publish(wait_message)
-        return print("Waiting for "+str(time)+" milliseconds...")
+        return print("Waiting for "+str(duration)+" milliseconds...")
 
     def e_stop(self):
+        """Send emergency stop command to device via message broker."""
+
         e_stop_message = {
             **RPC_REQUEST,
             "body": {
@@ -114,6 +145,8 @@ class BrokerFunctions():
         return print("Triggered device emergency stop.")
 
     def unlock(self):
+        """Send unlock command to device via message broker."""
+
         unlock_message = {
             **RPC_REQUEST,
             "body": {
@@ -126,6 +159,8 @@ class BrokerFunctions():
         return print("Triggered device unlock.")
 
     def reboot(self):
+        """Send reboot command to device via message broker."""
+
         reboot_message = {
             **RPC_REQUEST,
             "body": {
@@ -140,6 +175,8 @@ class BrokerFunctions():
         return print("Triggered device reboot.")
 
     def shutdown(self):
+        """Send shutdown command to device via message broker."""
+
         shutdown_message = {
             **RPC_REQUEST,
             "body": {
@@ -151,7 +188,7 @@ class BrokerFunctions():
         self.broker_connect.publish(shutdown_message)
         return print("Triggered device shutdown.")
 
-    def calibrate_camera(self):
+    def calibrate_camera(self): ## JULIANA FIX THIS
         calibrate_message = {
             **RPC_REQUEST,
             "body": {
@@ -172,8 +209,7 @@ class BrokerFunctions():
         self.broker_connect.publish(calibrate_message)
         # return ...
 
-    # photo_grid() --> sequence (broker message)
-    def photo_grid(self):
+    def photo_grid(self): ## JULIANA FIX THIS
         photo_grid_message = {
             **RPC_REQUEST,
             "body": {
@@ -232,6 +268,8 @@ class BrokerFunctions():
         # return ...
 
     def toggle_peripheral(self, id):
+        """Toggle peripheral off/on via message broker."""
+
         toggle_peripheral_message = {
             **RPC_REQUEST,
             "body": [{
@@ -252,6 +290,8 @@ class BrokerFunctions():
         # return ...
 
     def on(self, id):
+        """Toggle peripheral ON via message broker."""
+
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
@@ -263,10 +303,14 @@ class BrokerFunctions():
         # return ...
 
     def off(self, id):
+        """Toggle peripheral OFF via message broker."""
+
         self.control_peripheral(id, 0)
         # return ...
 
     def take_photo(self):
+        """Send photo command to camera via message broker."""
+
         take_photo_message = {
             **RPC_REQUEST,
             "body": {
@@ -279,6 +323,8 @@ class BrokerFunctions():
         # return ...
 
     def soil_height(self):
+        """Execute script to check soil height via message broker."""
+
         soil_height_message = {
             **RPC_REQUEST,
             "body": {
@@ -293,6 +339,8 @@ class BrokerFunctions():
         # return ...
 
     def detect_weeds(self):
+        """Execute script to detect weeds via message broker."""
+
         detect_weeds_message = {
             **RPC_REQUEST,
             "body": {
@@ -307,6 +355,8 @@ class BrokerFunctions():
         # return ...
 
     def get_xyz(self):
+        """Get current x, y, z coordinate of device via message broker."""
+
         tree_data = self.read_status()
 
         position = tree_data["position"]
@@ -320,9 +370,10 @@ class BrokerFunctions():
                     f'\ty = {y_val:.2f}\n'
                     f'\tz = {z_val:.2f}')
 
-    # check_position() --> requires read_status() --> LUA
+    # check_position(coordinate, tolerance) USE COORDS?
 
     def move(self, x, y, z):
+        """Move to new x, y, z position via message broker."""
         def axis_overwrite(axis, value):
             return {
                 "kind": "axis_overwrite",

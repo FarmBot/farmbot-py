@@ -7,6 +7,8 @@ class ApiConnect():
         self.token = None
         self.error = None
 
+    ## ERROR HANDLING
+
     def token_handling(self, response):
         """Handle errors relating to bad user auth token requests."""
 
@@ -54,6 +56,8 @@ class ApiConnect():
 
         return 0
 
+    ## FUNCTIONS
+
     def get_token(self, email, password, server):
         """Fetch user authentication token via API."""
 
@@ -94,6 +98,8 @@ class ApiConnect():
             return user_request
         else:
             return self.error
+
+    ## REQUEST METHODS
 
     def get(self, endpoint, id):
         """METHOD: 'get' allows user to view endpoint data."""
