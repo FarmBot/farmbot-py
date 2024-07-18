@@ -112,7 +112,7 @@ class TestFarmbot(unittest.TestCase):
             },
             json=None,
         )
-        self.assertEqual(response, json.dumps(expected_response, indent=2))
+        self.assertEqual(response, expected_response)
         self.assertEqual(mock_request.return_value.status_code, 200)
 
     @patch('requests.get')
