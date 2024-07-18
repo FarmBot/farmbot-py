@@ -365,12 +365,22 @@ class BrokerFunctions():
         y_val = position['y']
         z_val = position['z']
 
-        return print(f'Garden size:\n'
-                    f'\tx = {x_val:.2f}\n'
-                    f'\ty = {y_val:.2f}\n'
-                    f'\tz = {z_val:.2f}')
+        return {'x': x_val, 'y': y_val, 'z': z_val}
 
     # check_position(coordinate, tolerance) USE COORDS?
+
+    def check_position(self, user_x, user_y, user_z, tolerance):
+
+        user_values = [user_x, user_y, user_z]
+
+        position_data = self.get_xyz()
+        actual_vals = [position_data['x'], position_data['y'], position_data['z']]
+
+        for user_value, actual_value in zip(user_values, actual_vals):
+            if actual_value - tolerance <= user_value <= actual_value + tolerance:
+                print("Farmbot is at position.")
+            else:
+                print("Farmbot is NOT at position.")
 
     def move(self, x, y, z):
         """Move to new x, y, z position via message broker."""
