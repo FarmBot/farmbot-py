@@ -495,50 +495,89 @@ class BrokerFunctions():
 
         # return ...
 
-    # verify_tool() --> check
-    # mount_tool() --> check
-    # dismount_tool() --> check
+    # TODO: verify_tool() --> get broker message example
+    # TODO: mount_tool() --> get broker message example
+    # TODO: dismount_tool() --> get broker message example
 
-    def mount_tool(self, x, y, z):
-        mount_tool_message = {
+    # def mount_tool(self, x, y, z):
+    #     mount_tool_message = {
+    #         **RPC_REQUEST,
+    #         "body": {
+    #             "kind": "execute",
+    #             "body": {
+    #                 "kind": "parameter_application",
+    #                 "args": {
+    #                     "label": "Tool",
+    #                     "data_value": {
+    #                         "kind": "coordinate",
+    #                         "args": {
+    #                             "x": x,
+    #                             "y": y,
+    #                             "z": z
+    #                         }
+    #                     }
+    #                 }
+    #             }
+    #         }
+    #     }
+
+    #     self.broker_connect.publish(mount_tool_message)
+    #     # return ...
+
+    # TODO: water() --> all or single coords
+    # TODO: dispense() --> single coords?
+
+    # TODO: sequence()
+    # TODO: get_seed_tray_call(tray, cell)
+    # TODO: sort(points, method) --> API?
+
+    # TODO: get_job() --> access status tree --> fetch all or single by name
+    # TODO: set_job() --> access status tree --> inject(?) new or edit single by name
+    # TODO: complete_job() --> access status tree --> edit single by name
+
+    def lua(self, code_snippet): # TODO: verify working
+        lua_message = {
             **RPC_REQUEST,
             "body": {
-                "kind": "execute",
-                "body": {
-                    "kind": "parameter_application",
-                    "args": {
-                        "label": "Tool",
-                        "data_value": {
-                            "kind": "coordinate",
-                            "args": {
-                                "x": x,
-                                "y": y,
-                                "z": z
-                            }
+                "kind": "lua",
+                "args": {
+                    "lua": code_snippet
+                }
+            }
+        }
+
+        self.broker_connect.publish(lua_message)
+        # return ...
+
+    def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add 'do nothing' functionality
+        if_statement_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "_if",
+                "args": {
+                    "lhs": variable,
+                    "op": operator,
+                    "rhs": value,
+                    "_then": {
+                        "kind": "execute",
+                        "args": {
+                            "sequence_id": then_id
+                        }
+                    },
+                    "_else": {
+                        "kind": "execute",
+                        "args": {
+                            "sequence_id": else_id
                         }
                     }
                 }
             }
         }
 
-        self.broker_connect.publish(mount_tool_message)
+        self.broker_connect.publish(if_statement_message)
         # return ...
 
-    # water() --> check
-    # dispense() --> check
-
-    # sequence() --> check
-    # get_seed_tray_call(tray, cell) --> check
-    # sort(points, method) --> check (API?)
-
-    # get_job() --> LUA
-    # set_job() --> LUA
-    # complete_job() --> LUA
-
-    # lua() --> sequence (broker message)
-    # if_statement() --> sequence (broker message)
-
-    def assertion(self, code, as_type, id=''):
+    def assertion(self, code, as_type, id=''): # TODO: add 'continue' functionality
         assertion_message = {
             **RPC_REQUEST,
             "body": {
