@@ -42,7 +42,7 @@ class ApiFunctions():
         self.api_connect.patch(endpoint, id, new_value)
         return self.api_connect.get(endpoint, id)
 
-    def env(self, id=None, field=None, new_val=None):
+    def env(self, id=None, field=None, new_val=None): # TODO: why are there '?'
         if id is None:
             data = self.api_connect.get('farmware_envs', id=None)
             print(data) # ?
@@ -86,8 +86,8 @@ class ApiFunctions():
                     f'\ty length = {length_y:.2f}\n'
                     f'\tarea = {area:.2f}')
 
-    def group(self, id): ## MAKE ID OPTIONAL RETURN FULL TREE W/O ID
+    def group(self, id): # TODO: make ID optional return full tree w/o ID
         return self.get_info('point_groups', id)
 
-    def curve(self, id): ## MAKE ID OPTIONAL RETURN FULL TREE W/O ID
+    def curve(self, id): # TODO: make ID optional return full tree w/o ID
         return self.get_info('curves', id)

@@ -29,12 +29,15 @@ class Farmbot():
 
     def connect_broker(self):
         """Establish persistent connection with message broker."""
+        self.broker.broker_connect.connect()
 
     def disconnect_broker(self):
         """Disconnect from the message broker."""
+        self.broker.broker_connect.disconnect()
 
-    def listen_broker(self, duration, channel):
+    def listen_broker(self, duration, channel='#'):
         """Listen to messages via message broker."""
+        self.broker.broker_connect.listen(duration, channel)
 
     ## INFORMATION
 
@@ -123,8 +126,6 @@ class Farmbot():
 
     def off(self, id):
         return self.broker.off(id)
-
-    ## API COMMANDS
 
     ## BROKER COMMANDS
 
