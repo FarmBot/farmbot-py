@@ -1,3 +1,7 @@
+"""
+Farmbot Unit Tests
+"""
+
 import unittest
 import json
 from unittest.mock import Mock, patch
@@ -5,8 +9,10 @@ from unittest.mock import Mock, patch
 from main import Farmbot
 
 class TestFarmbot(unittest.TestCase):
+    """Farmbot tests"""
     @patch('main.Farmbot.get_token')
     def test_get_token_default_server(self, mock_post):
+        """POSITIVE TEST: function called with email, password, and default server"""
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
@@ -24,6 +30,7 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(mock_post.return_value.status_code, 200)
 
     def test_get_token_custom_server(self, mock_post):
+        """POSITIVE TEST: function called with email, password, and custom server"""
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
@@ -40,9 +47,9 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(fb.token, expected_token)
         self.assertEqual(mock_post.return_value.status_code, 200)
 
-    # POSITIVE TEST: function called with endpoint only
     @patch('requests.get')
     def test_get_info_endpoint_only(self, mock_get):
+        """POSITIVE TEST: function called with endpoint only"""
         mock_token = {
             'token': {
                 'unencoded': {'iss': '//my.farm.bot'},
@@ -68,9 +75,9 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, json.dumps(expected_response, indent=2))
         self.assertEqual(mock_get.return_value.status_code, 200)
 
-    # POSITIVE TEST: function called with endpoint and ID value
     @patch('requests.get')
     def test_get_info_with_id(self, mock_get):
+        """POSITIVE TEST: function called with endpoint and ID value"""
         mock_token = {
             'token': {
                 'unencoded': {'iss': '//my.farm.bot'},
