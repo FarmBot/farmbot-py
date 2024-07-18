@@ -85,8 +85,8 @@ class TestFarmbot(unittest.TestCase):
         self.assertIsNone(fb.token)
         self.assertEqual(mock_post.return_value.status_code, 404)
 
-    @patch('requests.get')
-    def test_get_info_endpoint_only(self, mock_get):
+    @patch('requests.request')
+    def test_get_info_endpoint_only(self, mock_request):
         """POSITIVE TEST: function called with endpoint only"""
         mock_token = {
             'token': {
@@ -98,12 +98,13 @@ class TestFarmbot(unittest.TestCase):
         expected_response = {'device': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
-        mock_get.return_value = mock_response
+        mock_request.return_value = mock_response
         fb = Farmbot()
         fb.token = mock_token
         # Call with endpoint only
         response = fb.get_info('device')
-        mock_get.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            'GET',
             'https://my.farm.bot/api/device/',
             headers={
                 'authorization': 'encoded_token_value',
@@ -111,7 +112,7 @@ class TestFarmbot(unittest.TestCase):
             }
         )
         self.assertEqual(response, json.dumps(expected_response, indent=2))
-        self.assertEqual(mock_get.return_value.status_code, 200)
+        self.assertEqual(mock_request.return_value.status_code, 200)
 
     @patch('requests.get')
     def test_get_info_with_id(self, mock_get):
