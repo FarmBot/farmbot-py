@@ -1,3 +1,5 @@
+import json
+
 from broker_connect import BrokerConnect
 from api_functions import ApiFunctions
 
@@ -26,16 +28,23 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(status_message)
-        # return ...
+        self.broker_connect.listen(5, 'status')
 
-    def read_sensor(self, id, mode, label='---'):
+        status_tree = self.broker_connect.last_message
+
+        return status_tree
+
+    def read_sensor(self, id):
+        peripheral_str = self.api.get_info('peripherals', id)
+        mode = peripheral_str['mode']
+
         read_sensor_message = {
             **RPC_REQUEST,
             "body": [{
                 "kind": "read_pin",
                 "args": {
                     "pin_mode": mode,
-                    "label": label,
+                    "label": '---',
                     "pin_number": {
                         "kind": "named_pin",
                         "args": {
@@ -47,7 +56,6 @@ class BrokerFunctions():
             }]
         }
 
-        self.broker_connect.publish(read_sensor_message)
         # return ...
 
     def message(self, message, type=None, channel=None):
@@ -298,7 +306,20 @@ class BrokerFunctions():
         self.broker_connect.publish(detect_weeds_message)
         # return ...
 
-    # get_xyz() --> requires read_status() --> LUA
+    def get_xyz(self):
+        tree_data = self.read_status()
+
+        position = tree_data["position"]
+
+        x_val = position['x']
+        y_val = position['y']
+        z_val = position['z']
+
+        return print(f'Garden size:\n'
+                    f'\tx = {x_val:.2f}\n'
+                    f'\ty = {y_val:.2f}\n'
+                    f'\tz = {z_val:.2f}')
+
     # check_position() --> requires read_status() --> LUA
 
     def move(self, x, y, z):

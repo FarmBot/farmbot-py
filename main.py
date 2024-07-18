@@ -50,8 +50,8 @@ class Farmbot():
     def read_status(self):
         return self.broker.read_status()
 
-    def read_sensor(self, id, mode, label='---'):
-        return self.broker.read_sensor(id, mode, label)
+    def read_sensor(self, id):
+        return self.broker.read_sensor(id)
 
     def message(self, message, type=None, channel=None):
         return self.broker.message(message, type, channel)
