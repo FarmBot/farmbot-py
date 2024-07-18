@@ -63,6 +63,7 @@ class TestFarmbot(unittest.TestCase):
             headers={'content-type': 'application/json'},
             json={'user': {'email': 'bad_email@gmail.com', 'password': 'test_pass_123'}}
         )
+        # self.assertEqual(fb.error, 'ERROR: Incorrect email address or password.')
         self.assertIsNone(fb.token)
         self.assertEqual(mock_post.return_value.status_code, 422)
 
@@ -80,6 +81,7 @@ class TestFarmbot(unittest.TestCase):
             headers={'content-type': 'application/json'},
             json={'user': {'email': 'test_email@gmail.com', 'password': 'test_pass_123'}}
         )
+        # self.assertEqual(fb.error, 'ERROR: The server address does not exist.')
         self.assertIsNone(fb.token)
         self.assertEqual(mock_post.return_value.status_code, 404)
 
