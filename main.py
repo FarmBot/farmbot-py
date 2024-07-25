@@ -12,7 +12,8 @@ class Farmbot():
     ## SETUP
 
     def get_token(self, email, password, server="https://my.farm.bot"):
-        """Fetch user authentication token via API."""
+        # Call get_token() source
+        # Set authentication token for all modules
 
         token_data = self.api.get_token(email, password, server)
 
@@ -26,15 +27,12 @@ class Farmbot():
         return token_data
 
     def connect_broker(self):
-        """Establish persistent connection with message broker."""
         self.broker.broker_connect.connect()
 
     def disconnect_broker(self):
-        """Disconnect from the message broker."""
         self.broker.broker_connect.disconnect()
 
     def listen_broker(self, duration, channel='#'):
-        """Listen to messages via message broker."""
         self.broker.broker_connect.listen(duration, channel)
 
     ## INFORMATION

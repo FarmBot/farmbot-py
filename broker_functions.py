@@ -17,14 +17,11 @@ class BrokerFunctions():
 
         self.client = None
 
-        self.echo = True
-        self.verbose = True
-
     ## INFORMATION
 
     def read_status(self):
-        """Get Farmbot device status tree via message broker."""
-
+        # Get device status tree
+        # Return status as json object: status[""]
         status_message = {
             **RPC_REQUEST,
             "body": {
@@ -38,11 +35,9 @@ class BrokerFunctions():
 
         status_tree = self.broker_connect.last_message
 
-        return status_tree
-
     def read_sensor(self, id):
-        """Get sensor data via message broker."""
-
+        # Get sensor data
+        # Return sensor as json object: sensor[""]
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
@@ -64,13 +59,11 @@ class BrokerFunctions():
             }]
         }
 
-        # return ...
-
     ## MESSAGING
 
     def message(self, message, type=None, channel=None):
-        """Send log message via message broker."""
-
+        # Send new log message via broker
+        # No inherent return value
         message_message = {
             **RPC_REQUEST,
             "body": {
@@ -89,23 +82,22 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(message_message)
-        # return ...
 
     def debug(self, message):
-        """Send 'debug' type log message via message broker."""
+        # Send 'debug' type message
+        # No inherent return value
         self.message(message, 'debug')
-        # return ...
 
     def toast(self, message):
-        """Send 'toast' type log message via message broker."""
+        # Send 'toast' type message
+        # No inherent return value
         self.message(message, 'toast')
-        # return ...
 
     ## BASIC COMMANDS
 
     def wait(self, duration):
-        """Send wait command to device via message broker."""
-
+        # Tell bot to wait for some time
+        # No inherent return value
         wait_message = {
             **RPC_REQUEST,
             "body": {
@@ -120,8 +112,8 @@ class BrokerFunctions():
         return print("Waiting for "+str(duration)+" milliseconds...")
 
     def e_stop(self):
-        """Send emergency stop command to device via message broker."""
-
+        # Tell bot to emergency stop
+        # No inherent return value
         e_stop_message = {
             **RPC_REQUEST,
             "body": {
@@ -134,8 +126,8 @@ class BrokerFunctions():
         return print("Triggered device emergency stop.")
 
     def unlock(self):
-        """Send unlock command to device via message broker."""
-
+        # Tell bot to unlock
+        # No inherent return value
         unlock_message = {
             **RPC_REQUEST,
             "body": {
@@ -148,8 +140,8 @@ class BrokerFunctions():
         return print("Triggered device unlock.")
 
     def reboot(self):
-        """Send reboot command to device via message broker."""
-
+        # Tell bot to reboot
+        # No inherent return value
         reboot_message = {
             **RPC_REQUEST,
             "body": {
@@ -164,8 +156,8 @@ class BrokerFunctions():
         return print("Triggered device reboot.")
 
     def shutdown(self):
-        """Send shutdown command to device via message broker."""
-
+        # Tell bot to shutdown
+        # No inherent return value
         shutdown_message = {
             **RPC_REQUEST,
             "body": {
@@ -179,8 +171,9 @@ class BrokerFunctions():
 
     ## MOVEMENT
 
-    def move(self, x, y, z): # TODO: update for coord(x,y,z)
-        """Move to new x, y, z position via message broker."""
+    def move(self, x, y, z):
+        # Tell bot to move to new xyz coord
+        # Return new xyz position as values
         def axis_overwrite(axis, value):
             return {
                 "kind": "axis_overwrite",
@@ -209,9 +202,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(move_message)
-        # return ...
 
     def set_home(self, axis='all'):
+        # Set current xyz coord as 0,0,0
+        # No inherent return value
         set_home_message = {
             **RPC_REQUEST,
             "body": {
@@ -223,9 +217,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(set_home_message)
-        # return ...
 
     def find_home(self, axis='all', speed=100):
+        # Move to 0,0,0
+        # Return new xyz position as values
         if speed > 100 or speed < 1:
             return print("ERROR: Speed constrained to 1-100.")
         else:
@@ -241,9 +236,10 @@ class BrokerFunctions():
             }
 
             self.broker_connect.publish(find_home_message)
-            # return ...
 
     def axis_length(self, axis='all'):
+        # Get axis length
+        # Return axis length as values
         axis_length_message = {
             **RPC_REQUEST,
             "body": {
@@ -255,11 +251,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(axis_length_message)
-        # return ...
 
-    def get_xyz(self): # TODO: update for coord(x,y,z)
-        """Get current x, y, z coordinate of device via message broker."""
-
+    def get_xyz(self):
+        # Get current xyz coord
+        # Return xyz position as values
         tree_data = self.read_status()
 
         position = tree_data["position"]
@@ -270,8 +265,9 @@ class BrokerFunctions():
 
         return {'x': x_val, 'y': y_val, 'z': z_val}
 
-    def check_position(self, user_x, user_y, user_z, tolerance): # TODO: update for coord(x,y,z)
-
+    def check_position(self, user_x, user_y, user_z, tolerance):
+        # Check current xyz coord = user xyz coord within tolerance
+        # Return in or out of tolerance range
         user_values = [user_x, user_y, user_z]
 
         position_data = self.get_xyz()
@@ -286,6 +282,8 @@ class BrokerFunctions():
     ## PERIPHERALS
 
     def control_peripheral(self, id, value, mode=None):
+        # Change peripheral values
+        # No inherent return value
         if mode is None:
             peripheral_str = self.api.get_info('peripherals', id)
             mode = peripheral_str['mode']
@@ -309,11 +307,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(control_peripheral_message)
-        # return ...
 
     def toggle_peripheral(self, id):
-        """Toggle peripheral off/on via message broker."""
-
+        # Toggle peripheral on or off
+        # Return status
         toggle_peripheral_message = {
             **RPC_REQUEST,
             "body": [{
@@ -331,11 +328,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(toggle_peripheral_message)
-        # return ...
 
     def on(self, id):
-        """Toggle peripheral ON via message broker."""
-
+        # Set peripheral to on
+        # Return status
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
@@ -344,15 +340,16 @@ class BrokerFunctions():
         elif mode == 0:
             self.control_peripheral(id, 1)
 
-        # return ...
-
     def off(self, id):
-        """Toggle peripheral OFF via message broker."""
-
+        # Set peripheral to off
+        # Return status
         self.control_peripheral(id, 0)
-        # return ...
 
     ## RESOURCES
+
+    # TODO: sort_points(points, method)
+        # Order group of points with method
+        # Return ???
 
     # TODO: sort(points, method) --> API? --> order group of points according to chosen method
 
@@ -419,8 +416,8 @@ class BrokerFunctions():
     #     }
 
     def soil_height(self):
-        """Execute script to check soil height via message broker."""
-
+        # Execute soil height scripts
+        # Return soil height as value
         soil_height_message = {
             **RPC_REQUEST,
             "body": {
@@ -432,11 +429,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(soil_height_message)
-        # return ...
 
     def detect_weeds(self):
-        """Execute script to detect weeds via message broker."""
-
+        # Execute detect weeds script
+        # Return array of weeds with xyz coords
         detect_weeds_message = {
             **RPC_REQUEST,
             "body": {
@@ -448,11 +444,12 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(detect_weeds_message)
-        # return ...
 
     ## OTHER FUNCTIONS
 
     def calibrate_camera(self): # TODO: fix "sequence_id"
+        # Execute calibrate camera script
+        # No inherent return value
         calibrate_message = {
             **RPC_REQUEST,
             "body": {
@@ -471,9 +468,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(calibrate_message)
-        # return ...
 
     def photo_grid(self): # TODO: fix "sequence_id"
+        # Execute photo grid script
+        # No inherent return value
         photo_grid_message = {
             **RPC_REQUEST,
             "body": {
@@ -485,9 +483,23 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(photo_grid_message)
-        # return ...
+
+    def take_photo(self):
+        # Take single photo
+        # No inherent return value
+        take_photo_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "take_photo",
+                "args": {}
+            }
+        }
+
+        self.broker_connect.publish(take_photo_message)
 
     def control_servo(self, pin, angle):
+        # Change servo values
+        # No inherent return value
         if angle < 0 or angle > 180:
             return print("ERROR: Servo angle constrained to 0-180 degrees.")
         else:
@@ -503,23 +515,10 @@ class BrokerFunctions():
             }
 
             self.broker_connect.publish(control_servo_message)
-            # return ...
-
-    def take_photo(self):
-        """Send photo command to camera via message broker."""
-
-        take_photo_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "take_photo",
-                "args": {}
-            }
-        }
-
-        self.broker_connect.publish(take_photo_message)
-        # return ...
 
     def mark_coord(self, x, y, z, property, mark_as): # TODO: Fix "label"
+        # Mark xyz coordinate
+        # Return new xyz coord value(s)
         mark_coord_message = {
             **RPC_REQUEST,
             "body": {
@@ -542,11 +541,15 @@ class BrokerFunctions():
             }
         }
 
-        # return ...
-
     # TODO: verify_tool() --> get broker message example
+        # Verify tool exists at xyz coord
+        # Return xyz coord and info(?)
     # TODO: mount_tool() --> get broker message example
+        # Mount tool at xyz coord
+        # No inherent return value
     # TODO: dismount_tool() --> get broker message example
+        # Dismount tool (at xyz coord?)
+        # No inherent return value
 
     # def mount_tool(self, x, y, z):
     #     mount_tool_message = {
@@ -571,19 +574,55 @@ class BrokerFunctions():
     #     }
 
     #     self.broker_connect.publish(mount_tool_message)
-    #     # return ...
 
     # TODO: water() --> all or single coords
+        # Dispense water at all or single xyz coords
+        # No inherent return value
     # TODO: dispense() --> single coords?
+        # Dispense from source at all or single xyz coords
+        # No inherent return value
 
-    # TODO: sequence() --> execute a sequence by ID
     # TODO: get_seed_tray_call(tray, cell) --> get coordinates of cell in seed tray by passing tool object and cell id, eg B3
+        # Get xyz coords of cell in seed tray
+        # Return xyz coords (as ??)
+
+    def sequence(self, sequence_id):
+        # Execute sequence by id
+        # No inherent return value
+        sequence_message = {
+            **RPC_REQUEST,
+            "body": {
+                "kind": "execute",
+                "args": {
+                    "sequence_id": sequence_id
+                }
+            }
+        }
+
+        self.broker_connect.publish(sequence_message)
 
     # TODO: get_job() --> access status tree --> fetch all or single by name
+        # Get all or single job by name
+        # Return job as json object: job[""]
     # TODO: set_job() --> access status tree --> inject(?) new or edit single by name
+        # Add new or edit single by name
+        # Return job as json object: job[""]
     # TODO: complete_job() --> access status tree --> edit single by name
+        # Set job status as 'complete'
+        # Return job as json object: job[""]
+
+    def get_job(self, job_str=None):
+        status_data = self.read_status().json()
+
+        if job_str is None:
+            jobs = status_data["jobs"]
+        else:
+            tree = status_data["jobs"]
+            jobs = tree[job_str]
 
     def lua(self, code_snippet): # TODO: verify working
+        # Send custom code snippet
+        # No inherent return value
         lua_message = {
             **RPC_REQUEST,
             "body": {
@@ -595,9 +634,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(lua_message)
-        # return ...
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add 'do nothing' functionality
+        # Execute if statement
+        # No inherent return value
         if_statement_message = {
             **RPC_REQUEST,
             "body": {
@@ -623,9 +663,10 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(if_statement_message)
-        # return ...
 
     def assertion(self, code, as_type, id=''): # TODO: add 'continue' functionality
+        # Execute assertion
+        # No inherent return value
         assertion_message = {
             **RPC_REQUEST,
             "body": {
@@ -644,4 +685,3 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(assertion_message)
-        # return ...
