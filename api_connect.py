@@ -41,7 +41,7 @@ class ApiConnect():
             # Handle HTTP status codes
             if response.status_code == 200:
                 token_data = response.json()
-                self.token = token_data
+                self.token = token_data # TODO
                 self.error = None
                 return token_data
             elif response.status_code == 404:
