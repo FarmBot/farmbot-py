@@ -17,13 +17,9 @@ class Farmbot():
 
         self.token = token_data
 
-        # Set API tokens
-        self.api.token = token_data
-        self.api.api_connect.token = token_data
-
         # Set broker tokens
-        self.broker.broker_connect.token = token_data
-        self.broker.api.api_connect.token = token_data
+        self.broker.broker_connect.token = self.api.api_connect.token
+        self.broker.api.api_connect.token = self.api.api_connect.token
 
         return token_data
 

@@ -15,7 +15,6 @@ class BrokerFunctions():
         self.broker_connect = BrokerConnect()
         self.api = ApiFunctions()
 
-        self.token = None
         self.client = None
 
         self.echo = True

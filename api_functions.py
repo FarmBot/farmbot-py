@@ -3,7 +3,6 @@ from api_connect import ApiConnect
 class ApiFunctions():
     def __init__(self):
         self.api_connect = ApiConnect()
-        self.token = None
 
         self.echo = True
         self.verbose = True
