@@ -9,31 +9,6 @@ class ApiConnect():
 
     ## ERROR HANDLING
 
-    def token_handling(self, response):
-        """Handle errors relating to bad user auth token requests."""
-
-        # Handle HTTP status codes
-        if response.status_code == 200:
-            return 200
-        elif response.status_code == 404:
-            self.error = "ERROR: The server address does not exist."
-        elif response.status_code == 422:
-            self.error = "ERROR: Incorrect email address or password."
-        else:
-            self.error = f"ERROR: Unexpected status code {response.status_code}"
-
-        # Handle DNS resolution errors
-        if response is None:
-            self.error = "ERROR: There was a problem with the request."
-        elif isinstance(response, requests.exceptions.ConnectionError):
-            self.error = "ERROR: The server address does not exist."
-        elif isinstance(response, requests.exceptions.Timeout):
-            self.error = "ERROR: The request timed out."
-        elif isinstance(response, requests.exceptions.RequestException):
-            self.error = "ERROR: There was a problem with the request."
-
-        return 0
-
     def request_handling(self, response):
         """Handle errors relating to bad endpoints and user requests."""
 
@@ -54,23 +29,39 @@ class ApiConnect():
         else:
             self.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
-        return 0
-
     ## FUNCTIONS
 
     def get_token(self, email, password, server):
         """Fetch user authentication token via API."""
 
-        headers = {'content-type': 'application/json'}
-        user = {'user': {'email': email, 'password': password}}
-        response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+        try:
+            headers = {'content-type': 'application/json'}
+            user = {'user': {'email': email, 'password': password}}
+            response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+            # Handle HTTP status codes
+            if response.status_code == 200:
+                token_data = response.json()
+                self.error = None
+                return token_data
+            elif response.status_code == 404:
+                self.error = "HTTP ERROR: The server address does not exist."
+            elif response.status_code == 422:
+                self.error = "HTTP ERROR: Incorrect email address or password."
+            else:
+                self.error = f"HTTP ERROR: Unexpected status code {response.status_code}"
+        # Handle DNS resolution errors
+        except requests.exceptions.RequestException as e:
+            if isinstance(e, requests.exceptions.ConnectionError):
+                self.error = "DNS ERROR: The server address does not exist."
+            elif isinstance(e, requests.exceptions.Timeout):
+                self.error = "DNS ERROR: The request timed out."
+            elif isinstance(e, requests.exceptions.RequestException):
+                self.error = "DNS ERROR: There was a problem with the request."
+        except Exception as e:
+            self.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
 
-        if self.token_handling(response) == 200:
-            token_data = response.json()
-            self.error = None
-            return token_data
-        else:
-            return self.error
+        self.token = None
+        return self.error
 
     def check_token(self):
         """Ensure user authentication token has been generated and persists."""

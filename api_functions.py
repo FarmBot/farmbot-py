@@ -8,13 +8,17 @@ class ApiFunctions():
         self.echo = True
         self.verbose = True
 
-    def return_config(self, return_value): # TODO: which functions return json()
+    def __return_config(self, return_value, json_val=False): # TODO: which functions return json()
         """Configure echo and verbosity of function returns."""
 
         if self.echo is True and self.verbose is True:
             print('-' * 100)
-            print(f'FUNCTION: {return_value}\n')
-            return print(return_value)
+            if json_val is True:
+                print(f'FUNCTION: {return_value}\n')
+                return print(return_value)
+            else:
+                print(f'FUNCTION: {return_value}\n')
+                return print(return_value)
         elif self.echo is True and self.verbose is False:
             print('-' * 100)
             return print(return_value)
@@ -42,13 +46,11 @@ class ApiFunctions():
         self.api_connect.patch(endpoint, id, new_value)
         return self.api_connect.get(endpoint, id)
 
-    def env(self, id=None, field=None, new_val=None): # TODO: why are there '?'
+    def env(self, id=None, field=None, new_val=None): # TODO: Fix
         if id is None:
             data = self.api_connect.get('farmware_envs', id=None)
-            print(data) # ?
         else:
             data = self.api_connect.get('farmware_envs', id)
-            print(data) # ?
         # return ...
 
     def log(self, message, type=None, channel=None):

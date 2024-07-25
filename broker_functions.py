@@ -21,22 +21,6 @@ class BrokerFunctions():
         self.echo = True
         self.verbose = True
 
-    def return_config(self, return_value): # TODO: which functions return json()
-        """Configure echo and verbosity of function returns."""
-
-        if self.echo is True and self.verbose is True:
-            print('-' * 100)
-            print(f'FUNCTION: {return_value}\n')
-            return print(return_value)
-        elif self.echo is True and self.verbose is False:
-            print('-' * 100)
-            return print(return_value)
-        elif self.echo is False and self.verbose is False:
-            return return_value
-        else:
-            print('-' * 100)
-            return print("ERROR: Incompatible return configuration.")
-
     ## INFORMATION
 
     def read_status(self):

@@ -1,6 +1,22 @@
 # sidecar-starter-pack
 Authentication and communication utilities for FarmBot sidecars
 
+## 📖 Contents
+
+* [Installation](#-installation-mac-os)
+* [Getting Started](#-getting-started)
+* [Functions](#-functions)
+    * [Setup](#setup)
+    * [Information](#information)
+    * [Messaging](#messaging)
+    * [Basic Commands](#basic-commands)
+    * [Movement](#movement)
+    * [Peripherals](#peripherals)
+    * [Broker Commands](#broker-commands)
+* [Developer Info](#-developer-info)
+    * [api_connect.py](#api_connectpy)
+    * [broker_connect.py](#broker_connectpy)
+
 ## 💻 Installation (Mac OS)
 To set up the project locally, follow these steps:
 
@@ -33,7 +49,7 @@ python3 -m pip install paho-mqtt
 ## 🌱 Getting Started
 To generate your authorization token and get started:
 
-(1) Import `farmbot_utilities` and create an instance.
+(1) Import `main.py` and create an instance.
 ```
 from farmbot_utilities import Farmbot
 bot = Farmbot()
@@ -77,19 +93,77 @@ bot.move(30,40,10)
 bot.disconnect_broker()
 ```
 
+## 🧭 Functions
+
+### Setup
+
+`get_token()` generates user authentication token; call before any other function
+`connect_broker()` establishes persistent connect to message broker
+`disconnect_broker()` disconnects from the message broker
+`listen_broker()` displays messages sent to/from message broker
+
+### Information
+
+`get_info()` returns information about a specific endpoint
+`set_info()` edits information belonging to preexisting endpoint
+env()
+group()
+curve()
+read_status()
+read_sensor()
+safe_z()
+garden_size()
+
+### Messaging
+
+`log()` sends a new log message via the API
+`message()` sends a new log message via the message broker
+`debug()` sends a log message of type 'debug' via the message broker
+`toast()` sends a log message of type 'toast' via the message broker
+
+### Basic Commands
+
+wait()
+e_stop()
+unlock()
+reboot()
+shutdown()
+
+### Movement
+
+move()
+set_home()
+find_home()
+axis_length()
+
+### Peripherals
+
+control_peripheral()
+toggle_peripheral()
+on()
+off()
+
+### Broker Commands
+
+calibrate_camera()
+control_servo()
+take_photo()
+soil_height()
+detect_weeds()
+
 ## 🧰 Developer Info
 
-### farmbot_API
+### api_connect.py
 Background: https://developer.farm.bot/v15/docs/web-app/rest-api
 
-Formatting: functions in `farmbot_utilities` which interact with the API require an endpoint, which is truncated onto the HTTP request.
+Formatting: functions in `api_functions.py` and `main.py` which interact with the API require an endpoint, which is truncated onto the HTTP request.
 
 List of endpoints: https://developer.farm.bot/v15/docs/web-app/api-docs
 
 > [!CAUTION]
 > Making requests other than GET to the API will permanently alter the data in your account. DELETE and POST requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
 
-### farmbot_BROKER
+### broker_connect.py
 Background: https://developer.farm.bot/v15/docs/message-broker
 
-Formatting: functions in `farmbot_utilities` which interact with the message broker send a message containing CelerScript. The messages require the pre-formatted `RPC_request` included in `farmbot_utilities` as the first line of the message.
+Formatting: functions in `broker_functions.py` and `main.py` which interact with the message broker send a message containing CeleryScript. The messages require the pre-formatted `RPC_request` included in `broker_functions.py` as the first line of the message.
