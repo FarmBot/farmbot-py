@@ -61,7 +61,7 @@ class ApiConnect():
             self.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
 
         self.token = None
-        return self.error
+        return
 
     def check_token(self):
         """Ensure user authentication token has been generated and persists."""
