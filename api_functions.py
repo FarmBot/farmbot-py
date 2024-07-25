@@ -1,3 +1,5 @@
+import json
+
 from api_connect import ApiConnect
 
 class ApiFunctions():
@@ -7,35 +9,35 @@ class ApiFunctions():
         self.echo = True
         self.verbose = True
 
-    def __return_config(self, return_value, json_val=False): # TODO: which functions return json()
+    def __return_config(self, funct_name, return_value, is_json=False):
         """Configure echo and verbosity of function returns."""
 
-        if self.echo is True and self.verbose is True:
+        if self.echo is True:
             print('-' * 100)
-            if json_val is True:
-                print(f'FUNCTION: {return_value}\n')
-                return print(return_value)
+            print(f'FUNCTION: {funct_name}\n')
+            if is_json is True:
+                readable_json = json.dumps(return_value, indent=4)
+                print(readable_json)
             else:
-                print(f'FUNCTION: {return_value}\n')
-                return print(return_value)
-        elif self.echo is True and self.verbose is False:
-            print('-' * 100)
-            return print(return_value)
-        elif self.echo is False and self.verbose is False:
-            return return_value
+                print(return_value)
+        elif self.echo is False:
+            pass
         else:
             print('-' * 100)
             return print("ERROR: Incompatible return configuration.")
 
+        return return_value
+
     def get_token(self, email, password, server='https://my.farm.bot'):
         token_str = self.api_connect.get_token(email, password, server)
-        return token_str
+        return self.__return_config("get_token()", token_str, is_json=True)
 
     # data = get_info() and like functions will assign 'data' JSON object
     # data["name"] will access the field "name" and return the field value
 
     def get_info(self, endpoint, id=None):
-        return self.api_connect.get(endpoint, id)
+        endpoint_data = self.api_connect.get(endpoint, id)
+        return self.__return_config("get_info()", endpoint_data, is_json=True)
 
     def set_info(self, endpoint, field, value, id=None):
         new_value = {
@@ -43,14 +45,17 @@ class ApiFunctions():
         }
 
         self.api_connect.patch(endpoint, id, new_value)
-        return self.api_connect.get(endpoint, id)
+
+        endpoint_data = self.api_connect.get(endpoint, id)
+        return self.__return_config("set_info()", endpoint_data, is_json=True)
 
     def env(self, id=None, field=None, new_val=None): # TODO: Fix
         if id is None:
-            data = self.api_connect.get('farmware_envs', id=None)
+            env_data = self.api_connect.get('farmware_envs', id=None)
         else:
-            data = self.api_connect.get('farmware_envs', id)
-        # return ...
+            env_data = self.api_connect.get('farmware_envs', id)
+
+        return self.__return_config("env()", env_data, is_json=True)
 
     def log(self, message, type=None, channel=None):
         log_message = {
