@@ -115,8 +115,8 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, expected_response)
         self.assertEqual(mock_request.return_value.status_code, 200)
 
-    @patch('requests.get')
-    def test_get_info_with_id(self, mock_get):
+    @patch('requests.request')
+    def test_get_info_with_id(self, mock_request):
         """POSITIVE TEST: function called with valid ID"""
         mock_token = {
             'token': {
@@ -128,20 +128,22 @@ class TestFarmbot(unittest.TestCase):
         expected_response = {'peripheral': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
-        mock_get.return_value = mock_response
+        mock_request.return_value = mock_response
         fb = Farmbot()
         fb.token = mock_token
         # Call with specific ID
         response = fb.get_info('peripherals', '12345')
-        mock_get.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            'GET',
             'https://my.farm.bot/api/peripherals/12345',
             headers = {
                 'authorization': 'encoded_token_value',
                 'content-type': 'application/json',
-            }
+            },
+            json=None,
         )
         self.assertEqual(response, json.dumps(expected_response, indent=2))
-        self.assertEqual(mock_get.return_value.status_code, 200)
+        self.assertEqual(mock_request.return_value.status_code, 200)
 
 if __name__ == '__main__':
     unittest.main()
