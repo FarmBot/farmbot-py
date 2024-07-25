@@ -1,2 +1,4 @@
 .coverage
+.DS_Store
 __pycache__
+test_commands.py

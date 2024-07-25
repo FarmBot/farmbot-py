@@ -1,52 +1,17 @@
-# farmbot_API.py
-
 import sys
 import json
 import requests
 
-class FarmbotAPI():
+class ApiConnect():
     def __init__(self):
         self.token = None
         self.error = None
 
-    # API
-    # ├── token_handling()
-    # ├── request_handling()
-    # │
-    # ├── get_token()
-    # ├── check_token()
-    # │
-    # ├── request()
-    # │
-    # ├── get()
-    # ├── post()
-    # ├── patch()
-    # └── delete()
-
-    def token_handling(self, response):
-        # Handle HTTP status codes
-        if response.status_code == 200:
-            return 200
-        elif response.status_code == 404:
-            self.error = "ERROR: The server address does not exist."
-        elif response.status_code == 422:
-            self.error = "ERROR: Incorrect email address or password."
-        else:
-            self.error = f"ERROR: Unexpected status code {response.status_code}"
-
-        # Handle DNS resolution errors
-        if response is None:
-            self.error = "ERROR: There was a problem with the request."
-        elif isinstance(response, requests.exceptions.ConnectionError):
-            self.error = "ERROR: The server address does not exist."
-        elif isinstance(response, requests.exceptions.Timeout):
-            self.error = "ERROR: The request timed out."
-        elif isinstance(response, requests.exceptions.RequestException):
-            self.error = "ERROR: There was a problem with the request."
-
-        return 0
+    ## ERROR HANDLING
 
     def request_handling(self, response):
+        """Handle errors relating to bad endpoints and user requests."""
+
         error_messages = {
             404: "The specified endpoint does not exist.",
             400: "The specified ID is invalid or you do not have access to it.",
@@ -64,26 +29,51 @@ class FarmbotAPI():
         else:
             self.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
-        return 0
+    ## FUNCTIONS
 
     def get_token(self, email, password, server):
-        headers = {'content-type': 'application/json'}
-        user = {'user': {'email': email, 'password': password}}
-        response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+        """Fetch user authentication token via API."""
 
-        if self.token_handling(response) == 200:
-            self.token = response.json()
-            self.error = None
-            return self.token
-        else:
-            return self.error
+        try:
+            headers = {'content-type': 'application/json'}
+            user = {'user': {'email': email, 'password': password}}
+            response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+            # Handle HTTP status codes
+            if response.status_code == 200:
+                token_data = response.json()
+                self.token = token_data
+                self.error = None
+                return token_data
+            elif response.status_code == 404:
+                self.error = "HTTP ERROR: The server address does not exist."
+            elif response.status_code == 422:
+                self.error = "HTTP ERROR: Incorrect email address or password."
+            else:
+                self.error = f"HTTP ERROR: Unexpected status code {response.status_code}"
+        # Handle DNS resolution errors
+        except requests.exceptions.RequestException as e:
+            if isinstance(e, requests.exceptions.ConnectionError):
+                self.error = "DNS ERROR: The server address does not exist."
+            elif isinstance(e, requests.exceptions.Timeout):
+                self.error = "DNS ERROR: The request timed out."
+            elif isinstance(e, requests.exceptions.RequestException):
+                self.error = "DNS ERROR: There was a problem with the request."
+        except Exception as e:
+            self.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
+
+        self.token = None
+        return
 
     def check_token(self):
+        """Ensure user authentication token has been generated and persists."""
+
         if self.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
     def request(self, method, endpoint, id, payload):
+        """Send requests from user-accessible functions via API."""
+
         self.check_token()
 
         if id is None:
@@ -101,14 +91,20 @@ class FarmbotAPI():
         else:
             return self.error
 
+    ## REQUEST METHODS
+
     def get(self, endpoint, id):
+        """METHOD: 'get' allows user to view endpoint data."""
         return self.request('GET', endpoint, id, payload=None)
 
     def post(self, endpoint, id, payload):
+        """METHOD: 'post' allows user to overwrite/create new endpoint data."""
         return self.request('POST', endpoint, id, payload)
 
     def patch(self, endpoint, id, payload):
+        """METHOD: 'patch' allows user to edit endpoint data (used for new logs)."""
         return self.request('PATCH', endpoint, id, payload)
 
     def delete(self, endpoint, id):
+        """METHOD: 'delete' allows user to delete endpoint data (hidden)."""
         return self.request('DELETE', endpoint, id, payload=None)
