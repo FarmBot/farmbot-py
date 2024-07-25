@@ -130,7 +130,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.token = mock_token
+        fb.api.api_connect.token = mock_token
         # Call with specific ID
         response = fb.get_info('peripherals', '12345')
         mock_request.assert_called_once_with(
