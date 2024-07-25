@@ -7,6 +7,7 @@ class Farmbot():
         self.broker = BrokerFunctions()
 
         self.token = None
+        self.error = None
 
     ## SETUP
 
@@ -16,6 +17,7 @@ class Farmbot():
         token_data = self.api.get_token(email, password, server)
 
         self.token = token_data
+        self.error = self.api.api_connect.error
 
         # Set broker tokens
         self.broker.broker_connect.token = self.api.api_connect.token
