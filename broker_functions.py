@@ -60,7 +60,7 @@ class BrokerFunctions():
             }]
         }
 
-    def message(self, message, type=None, channel=None):
+    def message(self, message, type=None):
         # Send new log message via broker
         # No inherent return value
         message_message = {
@@ -70,12 +70,6 @@ class BrokerFunctions():
                 "args": {
                     "message": message,
                     "message_type": type
-                },
-                "body": {
-                    "kind": "channel",
-                    "args": {
-                        "channel_name": channel
-                    }
                 }
             }
         }
@@ -111,29 +105,60 @@ class BrokerFunctions():
     def e_stop(self):
         # Tell bot to emergency stop
         # No inherent return value
-        e_stop_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "emergency_lock",
-                "args": {}
-            }
-        }
 
-        self.broker_connect.publish(e_stop_message)
+        new_message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 9000
+            },
+            "body": [
+                {
+                    "kind": "emergency_lock",
+                    "args": {}
+                }
+            ]
+        }
+        # e_stop_message = {
+        #     **RPC_REQUEST,
+        #     "body": {
+        #         "kind": "emergency_lock",
+        #         "args": {}
+        #     }
+        # }
+
+        # self.broker_connect.publish(e_stop_message)
+        self.broker_connect.publish(new_message)
         return print("Triggered device emergency stop.")
 
     def unlock(self):
         # Tell bot to unlock
         # No inherent return value
-        unlock_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "emergency_unlock",
-                "args": {}
-            }
-        }
 
-        self.broker_connect.publish(unlock_message)
+        # unlock_message = {
+        #     **RPC_REQUEST,
+        #     "body": {
+        #         "kind": "emergency_unlock",
+        #         "args": {}
+        #     }
+        # }
+
+        new_unlock = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 9000
+            },
+            "body": [
+                {
+                    "kind": "emergency_unlock",
+                    "args": {}
+                }
+            ]
+        }
+        self.broker_connect.publish(new_unlock)
+
+        # self.broker_connect.publish(unlock_message)
         return print("Triggered device unlock.")
 
     def reboot(self):
