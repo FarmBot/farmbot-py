@@ -604,7 +604,7 @@ class BrokerFunctions():
         # Return job as json object: job[""]
         return jobs
 
-    def set_job(self, job_str, field=None, new_val=None):
+    def set_job(self, job_str, field=None, new_val=None): # TODO: implement changes via message broker
         # Add new or edit single by name
         status_data = self.read_status()
         jobs = status_data["jobs"]
@@ -634,7 +634,7 @@ class BrokerFunctions():
         # Return job as json object: job[""]
         return None
 
-    def complete_job(self, job_str):
+    def complete_job(self, job_str): # TODO: implement changes via message broker
         status_data = self.read_status()
         jobs = status_data["jobs"]
 

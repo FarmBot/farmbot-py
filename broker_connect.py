@@ -1,3 +1,4 @@
+import threading
 import json
 import time
 
@@ -60,6 +61,18 @@ class BrokerConnect():
         """Update message queue with latest broker response."""
         self.last_message = json.loads(msg.payload)
 
+    def show_connect(self, client, *_args):
+        # Subscribe to all channels
+        client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
+
+    def show_message(self, _client, _userdata, msg):
+        self.last_message = msg.payload
+        print('-' * 100)
+        # Print channel
+        print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
+        # Print message
+        print(json.dumps(json.loads(msg.payload), indent=4))
+
     def listen(self, duration, channel):
         """Listen to messages via message broker."""
 
@@ -74,6 +87,24 @@ class BrokerConnect():
 
         # Listen to messages for duration (seconds)
         time.sleep(duration)
+
+        self.client.loop_stop()
+        self.client.disconnect()
+
+    def start_listening(self):
+        print("Now listening to message broker...")
+
+        if self.client is None:
+            self.connect()
+
+        # Wrap on_connect to pass channel argument
+        self.client.on_connect = self.show_connect
+        self.client.on_message = self.show_message
+
+        self.client.loop_start()
+
+    def stop_listening(self):
+        print("Stopped listening to message broker...")
 
         self.client.loop_stop()
         self.client.disconnect()
