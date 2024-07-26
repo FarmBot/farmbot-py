@@ -11,6 +11,23 @@ RPC_REQUEST = {
     }
 }
 
+"""MESSAGE TEMPLATE
+
+    message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": # Code here... (600)
+            },
+            "body": [
+                {
+                    # Instructions here...
+                }
+            ]
+        }
+
+"""
+
 class BrokerFunctions():
     def __init__(self):
         self.broker_connect = BrokerConnect()
@@ -20,15 +37,21 @@ class BrokerFunctions():
 
     def read_status(self):
         # Get device status tree
-        status_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "read_status",
-                "args": {}
-            }
+        message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "read_status",
+                    "args": {}
+                }
+            ]
         }
 
-        self.broker_connect.publish(status_message)
+        self.broker_connect.publish(message)
         self.broker_connect.listen(5, 'status')
 
         status_tree = self.broker_connect.last_message
@@ -38,7 +61,6 @@ class BrokerFunctions():
 
     def read_sensor(self, id):
         # Get sensor data
-        # Return sensor as json object: sensor[""]
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
@@ -60,52 +82,63 @@ class BrokerFunctions():
             }]
         }
 
+        # Return sensor as json object: sensor[""]
+
     def message(self, message, type=None):
         # Send new log message via broker
-        # No inherent return value
-        message_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "send_message",
-                "args": {
-                    "message": message,
-                    "message_type": type
+        message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "send_message",
+                    "args": {
+                        "message": message,
+                        "message_type": type
+                    }
                 }
-            }
+            ]
         }
-
-        self.broker_connect.publish(message_message)
+        self.broker_connect.publish(message)
+        # No inherent return value
 
     def debug(self, message):
         # Send 'debug' type message
         # No inherent return value
-        self.message(message, 'debug')
+        self.message(message, "debug")
 
     def toast(self, message):
         # Send 'toast' type message
         # No inherent return value
-        self.message(message, 'toast')
+        self.message(message, "toast")
 
     def wait(self, duration):
         # Tell bot to wait for some time
-        # No inherent return value
-        wait_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "wait",
-                "args": {
-                    "milliseconds": duration
+        message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "wait",
+                    "args": {
+                        "milliseconds": duration
+                    }
                 }
-            }
+            ]
         }
+        self.broker_connect.publish(message)
 
-        self.broker_connect.publish(wait_message)
+        # No inherent return value
         return print("Waiting for "+str(duration)+" milliseconds...")
 
     def e_stop(self):
         # Tell bot to emergency stop
-        # No inherent return value
-
         new_message = {
             "kind": "rpc_request",
             "args": {
@@ -119,16 +152,9 @@ class BrokerFunctions():
                 }
             ]
         }
-        # e_stop_message = {
-        #     **RPC_REQUEST,
-        #     "body": {
-        #         "kind": "emergency_lock",
-        #         "args": {}
-        #     }
-        # }
-
-        # self.broker_connect.publish(e_stop_message)
         self.broker_connect.publish(new_message)
+
+        # No inherent return value
         return print("Triggered device emergency stop.")
 
     def unlock(self):
@@ -192,8 +218,6 @@ class BrokerFunctions():
         return print("Triggered device shutdown.")
 
     def move(self, x, y, z):
-        # Tell bot to move to new xyz coord
-        # Return new xyz position as values
         def axis_overwrite(axis, value):
             return {
                 "kind": "axis_overwrite",
@@ -208,35 +232,49 @@ class BrokerFunctions():
                 }
             }
 
+        # Tell bot to move to new xyz coord
         move_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "move",
-                "args": {},
-                "body": [
-                    axis_overwrite("x", x),
-                    axis_overwrite("y", y),
-                    axis_overwrite("z", z)
-                ]
-            }
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "move",
+                    "args": {},
+                    "body": [
+                        axis_overwrite("x", x),
+                        axis_overwrite("y", y),
+                        axis_overwrite("z", z)
+                    ]
+                }
+            ]
         }
 
         self.broker_connect.publish(move_message)
+        # Return new xyz position as values
 
     def set_home(self, axis='all'):
         # Set current xyz coord as 0,0,0
-        # No inherent return value
         set_home_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "zero",
-                "args": {
-                    "axis": axis
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [
+                {
+                    "kind": "zero",
+                    "args": {
+                        "axis": axis
+                    }
                 }
-            }
+            ]
         }
 
         self.broker_connect.publish(set_home_message)
+        # No inherent return value
 
     def find_home(self, axis='all', speed=100):
         # Move to 0,0,0
