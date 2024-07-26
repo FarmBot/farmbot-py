@@ -58,9 +58,7 @@ class BrokerConnect():
 
     def on_message(self, _client, _userdata, msg):
         """Update message queue with latest broker response."""
-
-        new_message = json.loads(msg.payload)
-        self.last_message = new_message
+        self.last_message = json.loads(msg.payload)
 
     def listen(self, duration, channel):
         """Listen to messages via message broker."""

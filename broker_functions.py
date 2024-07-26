@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from broker_connect import BrokerConnect
 from api_functions import ApiFunctions
@@ -17,11 +18,8 @@ class BrokerFunctions():
 
         self.client = None
 
-    ## INFORMATION
-
     def read_status(self):
         # Get device status tree
-        # Return status as json object: status[""]
         status_message = {
             **RPC_REQUEST,
             "body": {
@@ -34,6 +32,9 @@ class BrokerFunctions():
         self.broker_connect.listen(5, 'status')
 
         status_tree = self.broker_connect.last_message
+
+        # Return status as json object: status[""]
+        return status_tree
 
     def read_sensor(self, id):
         # Get sensor data
@@ -58,8 +59,6 @@ class BrokerFunctions():
                 }
             }]
         }
-
-    ## MESSAGING
 
     def message(self, message, type=None, channel=None):
         # Send new log message via broker
@@ -92,8 +91,6 @@ class BrokerFunctions():
         # Send 'toast' type message
         # No inherent return value
         self.message(message, 'toast')
-
-    ## BASIC COMMANDS
 
     def wait(self, duration):
         # Tell bot to wait for some time
@@ -168,8 +165,6 @@ class BrokerFunctions():
 
         self.broker_connect.publish(shutdown_message)
         return print("Triggered device shutdown.")
-
-    ## MOVEMENT
 
     def move(self, x, y, z):
         # Tell bot to move to new xyz coord
@@ -254,7 +249,6 @@ class BrokerFunctions():
 
     def get_xyz(self):
         # Get current xyz coord
-        # Return xyz position as values
         tree_data = self.read_status()
 
         position = tree_data["position"]
@@ -263,23 +257,22 @@ class BrokerFunctions():
         y_val = position['y']
         z_val = position['z']
 
-        return {'x': x_val, 'y': y_val, 'z': z_val}
+        # Return xyz position as values
+        return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
         # Check current xyz coord = user xyz coord within tolerance
         # Return in or out of tolerance range
         user_values = [user_x, user_y, user_z]
 
-        position_data = self.get_xyz()
-        actual_vals = [position_data['x'], position_data['y'], position_data['z']]
+        position = self.get_xyz()
+        actual_vals = list(position)
 
         for user_value, actual_value in zip(user_values, actual_vals):
             if actual_value - tolerance <= user_value <= actual_value + tolerance:
                 print("Farmbot is at position.")
             else:
                 print("Farmbot is NOT at position.")
-
-    ## PERIPHERALS
 
     def control_peripheral(self, id, value, mode=None):
         # Change peripheral values
@@ -332,8 +325,8 @@ class BrokerFunctions():
     def on(self, id):
         # Set peripheral to on
         # Return status
-        peripheral_str = self.api.get_info('peripherals', id)
-        mode = peripheral_str['mode']
+        peripheral_str = self.api.get_info("peripherals", id)
+        mode = peripheral_str["mode"]
 
         if mode == 1:
             self.control_peripheral(id, 255)
@@ -344,8 +337,6 @@ class BrokerFunctions():
         # Set peripheral to off
         # Return status
         self.control_peripheral(id, 0)
-
-    ## RESOURCES
 
     # TODO: sort_points(points, method)
         # Order group of points with method
@@ -444,8 +435,6 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(detect_weeds_message)
-
-    ## OTHER FUNCTIONS
 
     def calibrate_camera(self): # TODO: fix "sequence_id"
         # Execute calibrate camera script
@@ -601,24 +590,61 @@ class BrokerFunctions():
 
         self.broker_connect.publish(sequence_message)
 
-    # TODO: get_job() --> access status tree --> fetch all or single by name
-        # Get all or single job by name
-        # Return job as json object: job[""]
-    # TODO: set_job() --> access status tree --> inject(?) new or edit single by name
-        # Add new or edit single by name
-        # Return job as json object: job[""]
-    # TODO: complete_job() --> access status tree --> edit single by name
-        # Set job status as 'complete'
-        # Return job as json object: job[""]
+    # https://developer.farm.bot/v15/lua/functions/jobs.html
 
     def get_job(self, job_str=None):
-        status_data = self.read_status().json()
+        # Get all or single job by name
+        status_data = self.read_status()
 
         if job_str is None:
             jobs = status_data["jobs"]
         else:
-            tree = status_data["jobs"]
-            jobs = tree[job_str]
+            jobs = status_data["jobs"][job_str]
+
+        # Return job as json object: job[""]
+        return jobs
+
+    def set_job(self, job_str, field=None, new_val=None):
+        # Add new or edit single by name
+        status_data = self.read_status()
+        jobs = status_data["jobs"]
+
+        good_jobs = json.dumps(jobs, indent=4)
+        print(good_jobs)
+
+        # Check existing jobs to see if job_str exists
+        # If job_str does not exist, append new job to end of jobs list
+        if job_str not in jobs:
+            jobs[job_str] = {
+                "status": "Working", # Initialize 'status' to 'Working'
+                "type": "unknown",
+                "unit": "percent",
+                "time": datetime.now().isoformat(), # Initialize 'time' to current time
+                "updated_at": "null",
+                "file_type": "null",
+                'percent': 0 # Initialize 'percent' to '0'
+            }
+
+        self.broker_connect.publish(jobs)
+
+        # Update field of job_str with new_val
+        # if field and new_val:
+        #     jobs[job_str][field].update(new_val)
+
+        # Return job as json object: job[""]
+        return None
+
+    def complete_job(self, job_str):
+        status_data = self.read_status()
+        jobs = status_data["jobs"]
+
+        # Set job status as 'complete' updated at current time
+        set_complete = {
+            "status": "Complete",
+            "updated_at": datetime.now().isoformat()
+        }
+
+        # Return job as json object: job[""]
 
     def lua(self, code_snippet): # TODO: verify working
         # Send custom code snippet

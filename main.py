@@ -43,9 +43,6 @@ class Farmbot():
     def set_info(self, endpoint, field, value, id=None):
         return self.api.set_info(endpoint, field, value, id)
 
-    def env(self, id=None, field=None, new_val=None):
-        return self.api.env(id, field, new_val)
-
     def group(self, id):
         return self.api.group(id)
 
