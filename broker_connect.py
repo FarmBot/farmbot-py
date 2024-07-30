@@ -54,7 +54,7 @@ class BrokerConnect():
     ## FUNCTIONS -- RECEIVING MESSAGES
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
-        """Subscribe to specified broker response channel."""
+        """Subscribe to specified message broker channel."""
         self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/{channel}")
 
     def on_message(self, _client, _userdata, msg):

@@ -35,7 +35,7 @@ class BrokerFunctions():
 
         self.client = None
 
-    def read_status(self):
+    def read_status(self): #########################################
         # Get device status tree
         message = {
             "kind": "rpc_request",
@@ -59,7 +59,7 @@ class BrokerFunctions():
         # Return status as json object: status[""]
         return status_tree
 
-    def read_sensor(self, id):
+    def read_sensor(self, id): #########################################
         # Get sensor data
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
@@ -159,17 +159,7 @@ class BrokerFunctions():
 
     def unlock(self):
         # Tell bot to unlock
-        # No inherent return value
-
-        # unlock_message = {
-        #     **RPC_REQUEST,
-        #     "body": {
-        #         "kind": "emergency_unlock",
-        #         "args": {}
-        #     }
-        # }
-
-        new_unlock = {
+        message = {
             "kind": "rpc_request",
             "args": {
                 "label": "",
@@ -182,12 +172,12 @@ class BrokerFunctions():
                 }
             ]
         }
-        self.broker_connect.publish(new_unlock)
+        self.broker_connect.publish(message)
 
-        # self.broker_connect.publish(unlock_message)
+        # No inherent return value
         return print("Triggered device unlock.")
 
-    def reboot(self):
+    def reboot(self): #########################################
         # Tell bot to reboot
         # No inherent return value
         reboot_message = {
@@ -203,7 +193,7 @@ class BrokerFunctions():
         self.broker_connect.publish(reboot_message)
         return print("Triggered device reboot.")
 
-    def shutdown(self):
+    def shutdown(self): #########################################
         # Tell bot to shutdown
         # No inherent return value
         shutdown_message = {
@@ -278,22 +268,28 @@ class BrokerFunctions():
 
     def find_home(self, axis='all', speed=100):
         # Move to 0,0,0
-        # Return new xyz position as values
         if speed > 100 or speed < 1:
             return print("ERROR: Speed constrained to 1-100.")
         else:
-            find_home_message = {
-                **RPC_REQUEST,
-                "body": {
-                    "kind": "find_home",
-                    "args": {
-                        "axis": axis,
-                        "speed": speed
+            message = {
+                "kind": "rpc_request",
+                "args": {
+                    "label": "",
+                    "priority": 600
+                },
+                "body": [
+                    {
+                        "kind": "find_home",
+                        "args": {
+                            "axis": axis,
+                            "speed": speed
+                        }
                     }
-                }
+                ]
             }
+            self.broker_connect.publish(message)
 
-            self.broker_connect.publish(find_home_message)
+        # Return new xyz position as values
 
     def axis_length(self, axis='all'):
         # Get axis length
@@ -629,7 +625,7 @@ class BrokerFunctions():
 
     # TODO: water() --> all or single coords
         # Dispense water at all or single xyz coords
-        # No inherent return value
+        # No inherent return value✅
     # TODO: dispense() --> single coords?
         # Dispense from source at all or single xyz coords
         # No inherent return value
