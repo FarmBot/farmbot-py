@@ -635,9 +635,25 @@ class BrokerFunctions():
 
         self.lua(lua_code)
 
-    # TODO: get_seed_tray_call(tray, cell) --> get coordinates of cell in seed tray by passing tool object and cell id, eg B3
-        # Get xyz coords of cell in seed tray
-        # Return xyz coords (as ??)
+    def get_seed_tray_cell(self, tray, cell):
+        lua_code = f"""
+            tray = variable("Seed Tray")
+            cell_label = variable("Seed Tray Cell")
+            cell = get_seed_tray_cell({tray}, cell_label)
+            cell_depth = 5
+
+            local cell_coordinates = " (" .. cell.x .. ", " .. cell.y .. ", " .. cell.z - cell_depth .. ")"
+            toast("Picking up seed from cell " .. cell_label .. cell_coordinates)
+
+            move_absolute({{
+                x = cell.x,
+                y = cell.y,
+                z = cell.z + 25,
+                safe_z = true
+            }})
+        """
+
+        self.lua(lua_code)
 
     def sequence(self, sequence_id):
         # Execute sequence by id
