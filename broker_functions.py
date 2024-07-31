@@ -513,17 +513,14 @@ class BrokerFunctions():
 
         self.lua(lua_code)
 
-    def water(self, x_val, y_val, z_val):
+    def water(self, point_id):
         # Dispense water at all or single xyz coords
         # No inherent return value
+        plants = self.api.get_info("points", point_id)
+        plant_name = plants["name"]
+
         lua_code = f"""
-            local x_coord = {x_val}
-            local y_coord = {y_val}
-            local z_coord = {z_val}
-
-            plant = {{x = x_coord, y = y_coord, z = z_coord}}
-
-            water(plant)
+            water({plant_name})
         """
 
         self.lua(lua_code)
