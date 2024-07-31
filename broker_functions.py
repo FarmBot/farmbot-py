@@ -35,7 +35,7 @@ class BrokerFunctions():
 
         self.client = None
 
-    def read_status(self): #########################################
+    def read_status(self):
         # Get device status tree
         message = {
             "kind": "rpc_request",
@@ -59,7 +59,7 @@ class BrokerFunctions():
         # Return status as json object: status[""]
         return status_tree
 
-    def read_sensor(self, id): #########################################
+    def read_sensor(self, id):
         # Get sensor data
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
@@ -177,7 +177,7 @@ class BrokerFunctions():
         # No inherent return value
         return print("Triggered device unlock.")
 
-    def reboot(self): #########################################
+    def reboot(self):
         # Tell bot to reboot
         # No inherent return value
         reboot_message = {
@@ -193,7 +193,7 @@ class BrokerFunctions():
         self.broker_connect.publish(reboot_message)
         return print("Triggered device reboot.")
 
-    def shutdown(self): #########################################
+    def shutdown(self):
         # Tell bot to shutdown
         # No inherent return value
         shutdown_message = {
@@ -398,72 +398,7 @@ class BrokerFunctions():
         self.control_peripheral(id, 0)
 
     # TODO: sort_points(points, method)
-        # Order group of points with method
-        # Return ???
-
-    # TODO: sort(points, method) --> API? --> order group of points according to chosen method
-
-    # def sort(tray, tray_cell):
-    #     cell = tray_cell.upper()
-    #     seeder_needle_offset = 17.5
-    #     cell_spacing = 12.5
-
-    #     cells = {
-    #         "A1": {"label": "A1", "x": 0, "y": 0},
-    #         "A2": {"label": "A2", "x": 0, "y": 1},
-    #         "A3": {"label": "A3", "x": 0, "y": 2},
-    #         "A4": {"label": "A4", "x": 0, "y": 3},
-    #         "B1": {"label": "B1", "x": -1, "y": 0},
-    #         "B2": {"label": "B2", "x": -1, "y": 1},
-    #         "B3": {"label": "B3", "x": -1, "y": 2},
-    #         "B4": {"label": "B4", "x": -1, "y": 3},
-    #         "C1": {"label": "C1", "x": -2, "y": 0},
-    #         "C2": {"label": "C2", "x": -2, "y": 1},
-    #         "C3": {"label": "C3", "x": -2, "y": 2},
-    #         "C4": {"label": "C4", "x": -2, "y": 3},
-    #         "D1": {"label": "D1", "x": -3, "y": 0},
-    #         "D2": {"label": "D2", "x": -3, "y": 1},
-    #         "D3": {"label": "D3", "x": -3, "y": 2},
-    #         "D4": {"label": "D4", "x": -3, "y": 3}
-    #     }
-
-    #     # Checks
-    #     if tray["pointer_type"] != "ToolSlot":
-    #         print("Error: Seed Tray variable must be a seed tray in a slot")
-    #         return
-    #     elif cell not in cells:
-    #         print("Error: Seed Tray Cell must be one of **A1** through **D4**")
-    #         return
-
-    #     # Flip X offsets depending on pullout direction
-    #     flip = 1
-    #     if tray["pullout_direction"] == 1:
-    #         flip = 1
-    #     elif tray["pullout_direction"] == 2:
-    #         flip = -1
-    #     else:
-    #         print("Error: Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
-    #         return
-
-    #     # A1 coordinates
-    #     A1 = {
-    #         "x": tray["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
-    #         "y": tray["y"] - (1.5 * cell_spacing * flip),
-    #         "z": tray["z"]
-    #     }
-
-    #     # Cell offset from A1
-    #     offset = {
-    #         "x": cell_spacing * cells[cell]["x"] * flip,
-    #         "y": cell_spacing * cells[cell]["y"] * flip
-    #     }
-
-    #     # Return cell coordinates
-    #     return {
-    #         "x": A1["x"] + offset["x"],
-    #         "y": A1["y"] + offset["y"],
-    #         "z": A1["z"]
-    #     }
+    # TODO: sort(points, method)
 
     def soil_height(self):
         # Execute soil height scripts
@@ -495,42 +430,9 @@ class BrokerFunctions():
 
         self.broker_connect.publish(detect_weeds_message)
 
-    def calibrate_camera(self): # TODO: fix "sequence_id"
-        # Execute calibrate camera script
-        # No inherent return value
-        calibrate_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "execute_script",
-                "args": {
-                    "label": "camera-calibration"
-                },
-                "body": {
-                    "kind": "pair",
-                    "args": {
-                        "label": "CAMERA_CALIBRATION_easy_calibration",
-                        "value": "\"TRUE\""
-                    }
-                }
-            }
-        }
 
-        self.broker_connect.publish(calibrate_message)
-
-    def photo_grid(self): # TODO: fix "sequence_id"
-        # Execute photo grid script
-        # No inherent return value
-        photo_grid_message = {
-            **RPC_REQUEST,
-            "body": {
-                "kind": "execute",
-                "args": {
-                    "sequence_id": 24372
-                }
-            }
-        }
-
-        self.broker_connect.publish(photo_grid_message)
+    # TODO: calibrate_camera()
+    # TODO: photo_grid()
 
     def take_photo(self):
         # Take single photo

@@ -12,8 +12,6 @@ class BrokerConnect():
 
         self.last_message = None
 
-    ## ERROR HANDLING
-
     ## FUNCTIONS -- SENDING MESSAGES
 
     def connect(self):
