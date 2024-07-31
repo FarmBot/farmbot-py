@@ -71,7 +71,7 @@ class ApiConnect():
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
-    def request(self, method, endpoint, database_id, payload):
+    def request(self, method, endpoint, database_id, payload=None):
         """Send requests to the API using various methods."""
 
         self.check_token()

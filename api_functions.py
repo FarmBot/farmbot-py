@@ -17,7 +17,7 @@ class ApiFunctions():
 
     def get_info(self, endpoint, id=None):
         # Get endpoint info
-        endpoint_data = self.api_connect.get(endpoint, id)
+        endpoint_data = self.api_connect.request('GET', endpoint, id)
         # Return endpoint info as json object: endpoint[""]
         return endpoint_data
 
@@ -26,10 +26,10 @@ class ApiFunctions():
         new_value = {
             field: value
         }
-        self.api_connect.patch(endpoint, id, new_value)
+        self.api_connect.request('PATCH', endpoint, id, new_value)
 
         # Return endpoint info as json object: endpoint[""]
-        new_endpoint_data = self.api_connect.get(endpoint, id)
+        new_endpoint_data = self.api_connect.request('GET', endpoint, id)
         return new_endpoint_data
 
     def log(self, message, type=None, channel=None):
@@ -43,7 +43,7 @@ class ApiFunctions():
         endpoint = 'logs'
         id = None
 
-        self.api_connect.post(endpoint, id, log_message)
+        self.api_connect.request('POST', endpoint, id, log_message)
 
         # No inherent return value
 
