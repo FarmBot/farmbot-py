@@ -599,30 +599,6 @@ class BrokerFunctions():
         # Dismount tool (at xyz coord?)
         # No inherent return value
 
-    # def mount_tool(self, x, y, z):
-    #     mount_tool_message = {
-    #         **RPC_REQUEST,
-    #         "body": {
-    #             "kind": "execute",
-    #             "body": {
-    #                 "kind": "parameter_application",
-    #                 "args": {
-    #                     "label": "Tool",
-    #                     "data_value": {
-    #                         "kind": "coordinate",
-    #                         "args": {
-    #                             "x": x,
-    #                             "y": y,
-    #                             "z": z
-    #                         }
-    #                     }
-    #                 }
-    #             }
-    #         }
-    #     }
-
-    #     self.broker_connect.publish(mount_tool_message)
-
     # TODO: water() --> all or single coords
         # Dispense water at all or single xyz coords
         # No inherent return value✅
@@ -651,7 +627,7 @@ class BrokerFunctions():
 
     # https://developer.farm.bot/v15/lua/functions/jobs.html
 
-    def get_job(self, job_str=None):
+    def get_job(self, job_str):
         # Get all or single job by name
         status_data = self.read_status()
 
@@ -663,49 +639,28 @@ class BrokerFunctions():
         # Return job as json object: job[""]
         return jobs
 
-    def set_job(self, job_str, field=None, new_val=None): # TODO: implement changes via message broker
-        # Add new or edit single by name
-        status_data = self.read_status()
-        jobs = status_data["jobs"]
+    def set_job(self, job_str, status_message, value):
+        lua_code = f"""
+            local job_name = "{job_str}"
+            set_job(job_name)
 
-        good_jobs = json.dumps(jobs, indent=4)
-        print(good_jobs)
+            -- Update the job's status and percent:
+            set_job(job_name, {{
+            status = "{status_message}",
+            percent = {value}
+            }})
+        """
 
-        # Check existing jobs to see if job_str exists
-        # If job_str does not exist, append new job to end of jobs list
-        if job_str not in jobs:
-            jobs[job_str] = {
-                "status": "Working", # Initialize 'status' to 'Working'
-                "type": "unknown",
-                "unit": "percent",
-                "time": datetime.now().isoformat(), # Initialize 'time' to current time
-                "updated_at": "null",
-                "file_type": "null",
-                'percent': 0 # Initialize 'percent' to '0'
-            }
+        self.lua(lua_code)
 
-        self.broker_connect.publish(jobs)
+    def complete_job(self, job_str):
+        lua_code = f"""
+            complete_job("{job_str}")
+        """
 
-        # Update field of job_str with new_val
-        # if field and new_val:
-        #     jobs[job_str][field].update(new_val)
+        self.lua(lua_code)
 
-        # Return job as json object: job[""]
-        return None
-
-    def complete_job(self, job_str): # TODO: implement changes via message broker
-        status_data = self.read_status()
-        jobs = status_data["jobs"]
-
-        # Set job status as 'complete' updated at current time
-        set_complete = {
-            "status": "Complete",
-            "updated_at": datetime.now().isoformat()
-        }
-
-        # Return job as json object: job[""]
-
-    def lua(self, code_snippet): # TODO: verify working
+    def lua(self, code_snippet):
         # Send custom code snippet
         # No inherent return value
         lua_message = {
