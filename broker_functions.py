@@ -592,19 +592,48 @@ class BrokerFunctions():
     # TODO: verify_tool() --> get broker message example
         # Verify tool exists at xyz coord
         # Return xyz coord and info(?)
-    # TODO: mount_tool() --> get broker message example
+
+    def mount_tool(self, tool_str):
         # Mount tool at xyz coord
         # No inherent return value
-    # TODO: dismount_tool() --> get broker message example
+        lua_code = f"""
+            mount_tool("{tool_str}")
+        """
+
+        self.lua(lua_code)
+
+    def dismount_tool(self):
         # Dismount tool (at xyz coord?)
         # No inherent return value
+        lua_code = """
+            dismount_tool()
+        """
 
-    # TODO: water() --> all or single coords
+        self.lua(lua_code)
+
+    def water(self, x_val, y_val, z_val):
         # Dispense water at all or single xyz coords
-        # No inherent return value✅
-    # TODO: dispense() --> single coords?
+        # No inherent return value
+        lua_code = f"""
+            local x_coord = {x_val}
+            local y_coord = {y_val}
+            local z_coord = {z_val}
+
+            plant = {{x = x_coord, y = y_coord, z = z_coord}}
+
+            water(plant)
+        """
+
+        self.lua(lua_code)
+
+    def dispense(self, mL, tool_str, pin):
         # Dispense from source at all or single xyz coords
         # No inherent return value
+        lua_code = f"""
+            dispense({mL}, {{tool_name = "{tool_str}", pin = {pin}}})
+        """
+
+        self.lua(lua_code)
 
     # TODO: get_seed_tray_call(tray, cell) --> get coordinates of cell in seed tray by passing tool object and cell id, eg B3
         # Get xyz coords of cell in seed tray
