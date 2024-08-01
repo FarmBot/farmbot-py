@@ -41,7 +41,7 @@ class ApiConnect():
             # Handle HTTP status codes
             if response.status_code == 200:
                 token_data = response.json()
-                self.token = token_data
+                self.token = token_data # TODO
                 self.error = None
                 return token_data
             elif response.status_code == 404:
@@ -71,40 +71,27 @@ class ApiConnect():
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
-    def request(self, method, endpoint, id, payload):
-        """Send requests from user-accessible functions via API."""
+    def request(self, method, endpoint, database_id, payload=None):
+        """Send requests to the API using various methods."""
 
         self.check_token()
 
-        if id is None:
+        # use 'GET' method to view endpoint data
+        # use 'POST' method to overwrite/create new endpoint data
+        # use 'PATCH' method to edit endpoint data (used for new logs)
+        # use 'DELETE' method to delete endpoint data (hidden)
+
+        if database_id is None:
             url = f'https:{self.token["token"]["unencoded"]["iss"]}/api/{endpoint}'
         else:
-            url = f'https:{self.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{id}'
+            url = f'https:{self.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
 
         headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.request(method, url, headers=headers, json=payload)
 
         if self.request_handling(response) == 200:
-            user_request = response.json()
             self.error = None
-            return user_request
+            request_data = response.json()
+            return request_data
         else:
             return self.error
-
-    ## REQUEST METHODS
-
-    def get(self, endpoint, id):
-        """METHOD: 'get' allows user to view endpoint data."""
-        return self.request('GET', endpoint, id, payload=None)
-
-    def post(self, endpoint, id, payload):
-        """METHOD: 'post' allows user to overwrite/create new endpoint data."""
-        return self.request('POST', endpoint, id, payload)
-
-    def patch(self, endpoint, id, payload):
-        """METHOD: 'patch' allows user to edit endpoint data (used for new logs)."""
-        return self.request('PATCH', endpoint, id, payload)
-
-    def delete(self, endpoint, id):
-        """METHOD: 'delete' allows user to delete endpoint data (hidden)."""
-        return self.request('DELETE', endpoint, id, payload=None)

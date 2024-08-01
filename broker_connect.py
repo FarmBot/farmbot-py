@@ -1,3 +1,4 @@
+import threading
 import json
 import time
 
@@ -10,8 +11,6 @@ class BrokerConnect():
         self.client = None
 
         self.last_message = None
-
-    ## ERROR HANDLING
 
     ## FUNCTIONS -- SENDING MESSAGES
 
@@ -53,14 +52,24 @@ class BrokerConnect():
     ## FUNCTIONS -- RECEIVING MESSAGES
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
-        """Subscribe to specified broker response channel."""
+        """Subscribe to specified message broker channel."""
         self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/{channel}")
 
     def on_message(self, _client, _userdata, msg):
         """Update message queue with latest broker response."""
+        self.last_message = json.loads(msg.payload)
 
-        new_message = json.loads(msg.payload)
-        self.last_message = new_message
+    def show_connect(self, client, *_args):
+        # Subscribe to all channels
+        client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
+
+    def show_message(self, _client, _userdata, msg):
+        self.last_message = msg.payload
+        print('-' * 100)
+        # Print channel
+        print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
+        # Print message
+        print(json.dumps(json.loads(msg.payload), indent=4))
 
     def listen(self, duration, channel):
         """Listen to messages via message broker."""
@@ -80,32 +89,20 @@ class BrokerConnect():
         self.client.loop_stop()
         self.client.disconnect()
 
-    ## FUNCTIONS -- HIDDEN
+    def start_listening(self):
+        print("Now listening to message broker...")
 
-    def hidden_on_connect(self, _client, _userdata, _flags, _rc):
-        # Subscribe to all channels
-        self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
-
-    def hidden_on_message(self, _client, _userdata, msg):
-        # print channel
-        print('-' * 100)
-        print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
-        # print message
-        print(json.dumps(json.loads(msg.payload), indent=4))
-
-    def hidden_listen(self):
         if self.client is None:
             self.connect()
 
-        self.client.on_connect = self.hidden_on_connect
-        self.client.on_message = self.hidden_on_message
+        # Wrap on_connect to pass channel argument
+        self.client.on_connect = self.show_connect
+        self.client.on_message = self.show_message
 
-        # Start loop in a separate thread
         self.client.loop_start()
 
-        # Sleep for five seconds to listen for messages
-        time.sleep(60)
+    def stop_listening(self):
+        print("Stopped listening to message broker...")
 
-        # Stop loop and disconnect after five seconds
         self.client.loop_stop()
         self.client.disconnect()
