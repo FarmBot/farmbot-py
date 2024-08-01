@@ -11,18 +11,24 @@ class Farmbot():
 
     ## SETUP
 
+    def set_token(self, token):
+        self.token = token
+
+        # Set api token (redundant--used for tests)
+        self.api.api_connect.token = token
+
+        # Set broker tokens
+        self.broker.broker_connect.token = token
+        self.broker.api.api_connect.token = token
+
     def get_token(self, email, password, server="https://my.farm.bot"):
         # Call get_token() source
         # Set authentication token for all modules
 
         token_data = self.api.get_token(email, password, server)
 
-        self.token = self.api.api_connect.token
+        self.set_token(self.api.api_connect.token)
         self.error = self.api.api_connect.error
-
-        # Set broker tokens
-        self.broker.broker_connect.token = self.api.api_connect.token
-        self.broker.api.api_connect.token = self.api.api_connect.token
 
         return token_data
 
