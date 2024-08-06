@@ -43,12 +43,10 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 600
             },
-            "body": [
-                {
+            "body": [{
                     "kind": "read_status",
                     "args": {}
-                }
-            ]
+            }]
         }
 
         self.broker_connect.publish(message)
@@ -84,36 +82,40 @@ class BrokerFunctions():
 
         # Return sensor as json object: sensor[""]
 
-    def message(self, message, type=None):
-        # Send new log message via broker
+    def message(self, message, type=None, channel="ticker"):
         message = {
             "kind": "rpc_request",
             "args": {
                 "label": "",
                 "priority": 600
             },
-            "body": [
-                {
-                    "kind": "send_message",
+            "body": [{
+                "kind": "send_message",
+                "args": {
+                    "message": message,
+                    "message_type": type
+                },
+                "body": [{
+                    "kind": "channel",
                     "args": {
-                        "message": message,
-                        "message_type": type
+                        "channel_name": channel
                     }
-                }
-            ]
+                }]
+            }]
         }
+
         self.broker_connect.publish(message)
         # No inherent return value
 
     def debug(self, message):
         # Send 'debug' type message
+        self.message(message, "debug", "ticker")
         # No inherent return value
-        self.message(message, "debug")
 
     def toast(self, message):
         # Send 'toast' type message
+        self.message(message, "info", "toast")
         # No inherent return value
-        self.message(message, "toast")
 
     def wait(self, duration):
         # Tell bot to wait for some time
@@ -123,14 +125,12 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 600
             },
-            "body": [
-                {
-                    "kind": "wait",
-                    "args": {
-                        "milliseconds": duration
-                    }
+            "body": [{
+                "kind": "wait",
+                "args": {
+                    "milliseconds": duration
                 }
-            ]
+            }]
         }
         self.broker_connect.publish(message)
 
@@ -145,12 +145,10 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 9000
             },
-            "body": [
-                {
-                    "kind": "emergency_lock",
-                    "args": {}
-                }
-            ]
+            "body": [{
+                "kind": "emergency_lock",
+                "args": {}
+            }]
         }
         self.broker_connect.publish(new_message)
 
@@ -165,12 +163,10 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 9000
             },
-            "body": [
-                {
-                    "kind": "emergency_unlock",
-                    "args": {}
-                }
-            ]
+            "body": [{
+                "kind": "emergency_unlock",
+                "args": {}
+            }]
         }
         self.broker_connect.publish(message)
 
@@ -182,12 +178,12 @@ class BrokerFunctions():
         # No inherent return value
         reboot_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "reboot",
                 "args": {
                     "package": "farmbot_os"
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(reboot_message)
@@ -198,10 +194,10 @@ class BrokerFunctions():
         # No inherent return value
         shutdown_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "power_off",
                 "args": {}
-            }
+            }]
         }
 
         self.broker_connect.publish(shutdown_message)
@@ -229,17 +225,15 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 600
             },
-            "body": [
-                {
-                    "kind": "move",
-                    "args": {},
-                    "body": [
-                        axis_overwrite("x", x),
-                        axis_overwrite("y", y),
-                        axis_overwrite("z", z)
-                    ]
-                }
-            ]
+            "body": [{
+                "kind": "move",
+                "args": {},
+                "body": [
+                    axis_overwrite("x", x),
+                    axis_overwrite("y", y),
+                    axis_overwrite("z", z)
+                ]
+            }]
         }
 
         self.broker_connect.publish(move_message)
@@ -253,14 +247,12 @@ class BrokerFunctions():
                 "label": "",
                 "priority": 600
             },
-            "body": [
-                {
-                    "kind": "zero",
-                    "args": {
-                        "axis": axis
-                    }
+            "body": [{
+                "kind": "zero",
+                "args": {
+                    "axis": axis
                 }
-            ]
+            }]
         }
 
         self.broker_connect.publish(set_home_message)
@@ -277,15 +269,13 @@ class BrokerFunctions():
                     "label": "",
                     "priority": 600
                 },
-                "body": [
-                    {
-                        "kind": "find_home",
-                        "args": {
-                            "axis": axis,
-                            "speed": speed
-                        }
+                "body": [{
+                    "kind": "find_home",
+                    "args": {
+                        "axis": axis,
+                        "speed": speed
                     }
-                ]
+                }]
             }
             self.broker_connect.publish(message)
 
@@ -296,12 +286,12 @@ class BrokerFunctions():
         # Return axis length as values
         axis_length_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "calibrate",
                 "args": {
                     "axis": axis
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(axis_length_message)
@@ -342,7 +332,7 @@ class BrokerFunctions():
 
         control_peripheral_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "write_pin",
                 "args": {
                     "pin_value": value, # Controls ON/OFF or slider value from 0-255
@@ -355,7 +345,7 @@ class BrokerFunctions():
                         }
                     }
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(control_peripheral_message)
@@ -405,12 +395,12 @@ class BrokerFunctions():
         # Return soil height as value
         soil_height_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "execute_script",
                 "args": {
                     "label": "Measure Soil Height"
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(soil_height_message)
@@ -420,12 +410,12 @@ class BrokerFunctions():
         # Return array of weeds with xyz coords
         detect_weeds_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "execute_script",
                 "args": {
                     "label": "plant-detection"
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(detect_weeds_message)
@@ -439,10 +429,10 @@ class BrokerFunctions():
         # No inherent return value
         take_photo_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "take_photo",
                 "args": {}
-            }
+            }]
         }
 
         self.broker_connect.publish(take_photo_message)
@@ -455,13 +445,13 @@ class BrokerFunctions():
         else:
             control_servo_message = {
                 **RPC_REQUEST,
-                "body": {
+                "body": [{
                     "kind": "set_servo_angle",
                     "args": {
                         "pin_number": pin,
                         "pin_value": angle # From 0 to 180
                     }
-                }
+                }]
             }
 
             self.broker_connect.publish(control_servo_message)
@@ -471,7 +461,7 @@ class BrokerFunctions():
         # Return new xyz coord value(s)
         mark_coord_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "update_resource",
                 "args": {
                     "resource": {
@@ -481,14 +471,14 @@ class BrokerFunctions():
                         }
                     }
                 },
-                "body": {
+                "body": [{
                     "kind": "pair",
                     "args": {
                         "label": property,
                         "value": mark_as
                     }
-                }
-            }
+                }]
+            }]
         }
 
     # TODO: verify_tool() --> get broker message example
@@ -559,12 +549,12 @@ class BrokerFunctions():
         # No inherent return value
         sequence_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "execute",
                 "args": {
                     "sequence_id": sequence_id
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(sequence_message)
@@ -609,12 +599,12 @@ class BrokerFunctions():
         # No inherent return value
         lua_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "lua",
                 "args": {
                     "lua": code_snippet
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(lua_message)
@@ -624,7 +614,7 @@ class BrokerFunctions():
         # No inherent return value
         if_statement_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "_if",
                 "args": {
                     "lhs": variable,
@@ -643,7 +633,7 @@ class BrokerFunctions():
                         }
                     }
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(if_statement_message)
@@ -653,7 +643,7 @@ class BrokerFunctions():
         # No inherent return value
         assertion_message = {
             **RPC_REQUEST,
-            "body": {
+            "body": [{
                 "kind": "assertion",
                 "args": {
                     "lua": code,
@@ -665,7 +655,7 @@ class BrokerFunctions():
                     },
                     "assertion_type": as_type # If test fails, do this
                 }
-            }
+            }]
         }
 
         self.broker_connect.publish(assertion_message)
