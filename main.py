@@ -72,7 +72,7 @@ class Farmbot():
     def log(self, message, type=None, channel=None):
         return self.api.log(message, type, channel)
 
-    def message(self, message, type=None, channel=None):
+    def message(self, message, type=None, channel="ticker"):
         return self.broker.message(message, type, channel)
 
     def debug(self, message):
