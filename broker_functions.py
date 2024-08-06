@@ -83,7 +83,7 @@ class BrokerFunctions():
         self.broker_connect.publish(message)
         # Return sensor as json object: sensor[""]
 
-    def message(self, message, type="info", channel="ticker"):
+    def message(self, message, type=None, channel="ticker"):
         message = {
             "kind": "rpc_request",
             "args": {
@@ -421,8 +421,21 @@ class BrokerFunctions():
 
         self.broker_connect.publish(detect_weeds_message)
 
+    def calibrate_camera(self):
+        # Execute calibrate camera script
+        # No inherent return value
+        calibrate_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "execute_script",
+                "args": {
+                    "label": "camera-calibration"
+                },
+            }]
+        }
 
-    # TODO: calibrate_camera()
+        self.broker_connect.publish(calibrate_message)
+
     # TODO: photo_grid()
 
     def take_photo(self):
