@@ -62,7 +62,7 @@ class BrokerFunctions():
         peripheral_str = self.api.get_info('peripherals', id)
         mode = peripheral_str['mode']
 
-        read_sensor_message = {
+        message = {
             **RPC_REQUEST,
             "body": [{
                 "kind": "read_pin",
@@ -80,9 +80,10 @@ class BrokerFunctions():
             }]
         }
 
+        self.broker_connect.publish(message)
         # Return sensor as json object: sensor[""]
 
-    def message(self, message, type=None, channel="ticker"):
+    def message(self, message, type="info", channel="ticker"):
         message = {
             "kind": "rpc_request",
             "args": {
