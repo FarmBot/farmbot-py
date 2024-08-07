@@ -616,7 +616,7 @@ class BrokerFunctions():
             "body": [{
                 "kind": "lua",
                 "args": {
-                    "lua": code_snippet
+                    "lua": code_snippet.strip()
                 }
             }]
         }
