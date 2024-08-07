@@ -354,11 +354,11 @@ class TestFarmbot(unittest.TestCase):
         mock_request = args[2]
         expected_command = kwargs.get('expected_command')
         extra_rpc_args = kwargs.get('extra_rpc_args')
-        expected_api_response = kwargs.get('expected_api_response')
+        mock_api_response = kwargs.get('mock_api_response')
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         mock_response = Mock()
-        mock_response.json.return_value = expected_api_response
+        mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
@@ -393,7 +393,7 @@ class TestFarmbot(unittest.TestCase):
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_debug(self):
         '''Test debug command'''
@@ -407,7 +407,7 @@ class TestFarmbot(unittest.TestCase):
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_toast(self):
         '''Test toast command'''
@@ -421,7 +421,7 @@ class TestFarmbot(unittest.TestCase):
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'toast'}}],
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_read_status(self):
         '''Test read_status command'''
@@ -434,7 +434,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {},
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_read_sensor(self):
         '''Test read_sensor command'''
@@ -454,7 +454,7 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={'mode': 0})
+            mock_api_response={'mode': 0})
 
     def test_assertion(self):
         '''Test assertion command'''
@@ -471,7 +471,7 @@ class TestFarmbot(unittest.TestCase):
                 }
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_wait(self):
         '''Test wait command'''
@@ -484,7 +484,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'milliseconds': 123},
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_unlock(self):
         '''Test unlock command'''
@@ -497,7 +497,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {},
             },
             extra_rpc_args={'priority': 9000},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_e_stop(self):
         '''Test e_stop command'''
@@ -510,7 +510,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {},
             },
             extra_rpc_args={'priority': 9000},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_find_home(self):
         '''Test find_home command'''
@@ -523,7 +523,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'axis': 'all', 'speed': 100},
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_set_home(self):
         '''Test set_home command'''
@@ -536,7 +536,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'axis': 'all'},
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_toggle_peripheral(self):
         '''Test toggle_peripheral command'''
@@ -554,7 +554,7 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_on(self):
         '''Test on command'''
@@ -574,7 +574,7 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={'mode': 0})
+            mock_api_response={'mode': 0})
 
     def test_off(self):
         '''Test off command'''
@@ -594,7 +594,7 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={'mode': 1})
+            mock_api_response={'mode': 1})
 
     def test_move(self):
         '''Test move command'''
@@ -618,7 +618,7 @@ class TestFarmbot(unittest.TestCase):
                 ],
             },
             extra_rpc_args={'priority': 600},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_reboot(self):
         '''Test reboot command'''
@@ -631,7 +631,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'package': 'farmbot_os'},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_shutdown(self):
         '''Test shutdown command'''
@@ -644,7 +644,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_axis_length(self):
         '''Test axis_length command'''
@@ -657,7 +657,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'axis': 'all'},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_control_peripheral(self):
         '''Test control_peripheral command'''
@@ -677,7 +677,7 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={'mode': 0})
+            mock_api_response={'mode': 0})
 
     def test_soil_height(self):
         '''Test soil_height command'''
@@ -690,7 +690,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'label': 'Measure Soil Height'},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_detect_weeds(self):
         '''Test detect_weeds command'''
@@ -703,7 +703,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'label': 'plant-detection'},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_calibrate_camera(self):
         '''Test calibrate_camera command'''
@@ -716,9 +716,9 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'label': 'camera-calibration'},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
-    def text_sequence(self):
+    def test_sequence(self):
         '''Test sequence command'''
         def exec_command(fb):
             fb.sequence(123)
@@ -729,7 +729,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'sequence_id': 123},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_take_photo(self):
         '''Test take_photo command'''
@@ -742,7 +742,7 @@ class TestFarmbot(unittest.TestCase):
                 'args': {},
             },
             extra_rpc_args={},
-            expected_api_response={})
+            mock_api_response={})
 
     def test_control_servo(self):
         '''Test control_servo command'''
@@ -758,7 +758,229 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            expected_api_response={'mode': 0})
+            mock_api_response={'mode': 0})
+
+    def test_get_xyz(self):
+        '''Test get_xyz command'''
+        def exec_command(fb):
+            fb.broker.broker_connect.last_message = {
+                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+            }
+            position = fb.get_xyz()
+            self.assertEqual(position, (1, 2, 3))
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={'priority': 600},
+            mock_api_response={})
+
+    def test_check_position(self):
+        '''Test check_position command: at position'''
+        def exec_command(fb):
+            fb.broker.broker_connect.last_message = {
+                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+            }
+            at_position = fb.check_position(1, 2, 3, 0)
+            self.assertTrue(at_position)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={'priority': 600},
+            mock_api_response={})
+
+    def test_check_position_false(self):
+        '''Test check_position command: not at position'''
+        def exec_command(fb):
+            fb.broker.broker_connect.last_message = {
+                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+            }
+            at_position = fb.check_position(0, 0, 0, 2)
+            self.assertFalse(at_position)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={'priority': 600},
+            mock_api_response={})
+
+    def test_mount_tool(self):
+        '''Test mount_tool command'''
+        def exec_command(fb):
+            fb.mount_tool('Weeder')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': 'mount_tool("Weeder")'},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_dismount_tool(self):
+        '''Test dismount_tool command'''
+        def exec_command(fb):
+            fb.dismount_tool()
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': 'dismount_tool()'},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_water(self):
+        '''Test water command'''
+        def exec_command(fb):
+            fb.water(123)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': """plant = api({
+                method = "GET",
+                url = "/api/points/123"
+            })
+            water(plant)"""},
+            },
+            extra_rpc_args={},
+            mock_api_response={'name': 'Mint'})
+
+    def test_dispense(self):
+        '''Test dispense command'''
+        def exec_command(fb):
+            fb.dispense(100, 'Weeder', 4)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {
+                    'lua': 'dispense(100, {tool_name = "Weeder", pin = 4})',
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    @patch('paho.mqtt.client.Client')  # temporary
+    @patch('requests.request')
+    def test_get_seed_tray_cell(self, mock_request, _mock_client):
+        '''Test get_seed_tray_cell command'''
+        mock_response = Mock()
+        mock_api_response = {
+            'pointer_type': 'ToolSlot',
+            'pullout_direction': 1,
+            'x': 0,
+            'y': 0,
+            'z': 0,
+        }
+        mock_response.json.return_value = mock_api_response
+        mock_response.status_code = 200
+        mock_request.return_value = mock_response
+        fb = Farmbot()
+        fb.set_token(MOCK_TOKEN)
+        cell = fb.get_seed_tray_cell(123, 'd4')
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/points/123',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json=None,
+        )
+        self.assertEqual(cell, {'x': -36.25, 'y': 18.75, 'z': 0})
+
+    def test_get_job(self):
+        '''Test get_job command'''
+        def exec_command(fb):
+            fb.broker.broker_connect.last_message = {
+                'jobs': {
+                    'job name': {'status': 'working'},
+                },
+            }
+            job = fb.get_job('job name')
+            self.assertEqual(job, {'status': 'working'})
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={'priority': 600},
+            mock_api_response={})
+
+    def test_set_job(self):
+        '''Test set_job command'''
+        def exec_command(fb):
+            fb.set_job('job name', 'working', 50)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': """local job_name = "job name"
+            set_job(job_name)
+
+            -- Update the job's status and percent:
+            set_job(job_name, {
+            status = "working",
+            percent = 50
+            })"""},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_complete_job(self):
+        '''Test complete_job command'''
+        def exec_command(fb):
+            fb.complete_job('job name')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': 'complete_job("job name")'},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_lua(self):
+        '''Test lua command'''
+        def exec_command(fb):
+            fb.lua('return true')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {'lua': 'return true'},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_if_statement(self):
+        '''Test if_statement command'''
+        def exec_command(fb):
+            fb.if_statement('pin10', '<', 0, 123, 456)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': '_if',
+                'args': {
+                    'lhs': 'pin10',
+                    'op': '<',
+                    'rhs': 0,
+                    '_then': {'kind': 'execute', 'args': {'sequence_id': 123}},
+                    '_else': {'kind': 'execute', 'args': {'sequence_id': 456}},
+                }
+            },
+            extra_rpc_args={},
+            mock_api_response={})
 
 
 if __name__ == '__main__':
