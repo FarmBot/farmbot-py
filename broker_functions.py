@@ -309,20 +309,18 @@ class BrokerFunctions():
         return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
-        # Check current xyz coord = user xyz coord within tolerance
-        # Return in or out of tolerance range
         user_values = [user_x, user_y, user_z]
 
         position = self.get_xyz()
         actual_vals = list(position)
 
         for user_value, actual_value in zip(user_values, actual_vals):
-            if actual_value - tolerance <= user_value <= actual_value + tolerance:
-                print(f"Farmbot is at position {position}")
-                return True
-            else:
+            if not actual_value - tolerance <= user_value <= actual_value + tolerance:
                 print(f"Farmbot is NOT at position {position}")
                 return False
+
+        print(f"Farmbot is at position {position}")
+        return True
 
     def control_peripheral(self, id, value, mode=None):
         # Change peripheral values
