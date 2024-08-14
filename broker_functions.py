@@ -537,56 +537,63 @@ class BrokerFunctions():
 
         self.lua(lua_code)
 
-    # def get_seed_tray_cell(self, tray, tray_cell):
-    #     cell = tray_cell.upper()
+    # TODO: fix read_status() not working if staging.farm.bot not open/refreshed?
 
-    #     seeder_needle_offset = 17.5
-    #     cell_spacing = 12.5
+    def get_seed_tray_cell(self, tray_id, tray_cell):
+        tray_data = self.api.get_info("points", tray_id)
 
-    #     cells = {
-    #         "A1": {"label": "A1", "x": 0, "y": 0},
-    #         "A2": {"label": "A2", "x": 0, "y": 1},
-    #         "A3": {"label": "A3", "x": 0, "y": 2},
-    #         "A4": {"label": "A4", "x": 0, "y": 3},
-    #         "B1": {"label": "B1", "x": -1, "y": 0},
-    #         "B2": {"label": "B2", "x": -1, "y": 1},
-    #         "B3": {"label": "B3", "x": -1, "y": 2},
-    #         "B4": {"label": "B4", "x": -1, "y": 3},
-    #         "C1": {"label": "C1", "x": -2, "y": 0},
-    #         "C2": {"label": "C2", "x": -2, "y": 1},
-    #         "C3": {"label": "C3", "x": -2, "y": 2},
-    #         "C4": {"label": "C4", "x": -2, "y": 3},
-    #         "D1": {"label": "D1", "x": -3, "y": 0},
-    #         "D2": {"label": "D2", "x": -3, "y": 1},
-    #         "D3": {"label": "D3", "x": -3, "y": 2},
-    #         "D4": {"label": "D4", "x": -3, "y": 3}
-    #     }
+        cell = tray_cell.upper()
 
-    #     if tray.get("pointer_type") != "ToolSlot":
-    #         raise ValueError("Seed Tray variable must be a seed tray in a slot")
-    #     elif cell not in cells:
-    #         raise ValueError("Seed Tray Cell must be one of **A1** through **D4**")
+        seeder_needle_offset = 17.5
+        cell_spacing = 12.5
 
-    #     flip = 1
-    #     if tray.get("pullout_direction") == 1:
-    #         flip = 1
-    #     elif tray.get("pullout_direction") == 2:
-    #         flip = -1
-    #     else:
-    #         raise ValueError("Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
+        cells = {
+            "A1": {"x": 0, "y": 0},
+            "A2": {"x": 0, "y": 1},
+            "A3": {"x": 0, "y": 2},
+            "A4": {"x": 0, "y": 3},
 
-    #     A1 = {
-    #         "x": tray.get("x") - seeder_needle_offset + (1.5 * cell_spacing * flip),
-    #         "y": tray.get("y") - (1.5 * cell_spacing * flip),
-    #         "z": tray.get("z")
-    #     }
+            "B1": {"x": -1, "y": 0},
+            "B2": {"x": -1, "y": 1},
+            "B3": {"x": -1, "y": 2},
+            "B4": {"x": -1, "y": 3},
 
-    #     offset = {
-    #         "x": cell_spacing * cells[cell]["x"] * flip,
-    #         "y": cell_spacing * cells[cell]["y"] * flip
-    #     }
+            "C1": {"x": -2, "y": 0},
+            "C2": {"x": -2, "y": 1},
+            "C3": {"x": -2, "y": 2},
+            "C4": {"x": -2, "y": 3},
 
-    #     return {"x": A1["x"] + offset["x"]}, {"y": A1["y"] + offset["y"]}, {"z": A1["z"]}
+            "D1": {"x": -3, "y": 0},
+            "D2": {"x": -3, "y": 1},
+            "D3": {"x": -3, "y": 2},
+            "D4": {"x": -3, "y": 3}
+        }
+
+        if tray_data["pointer_type"] != "ToolSlot":
+            raise ValueError("Seed Tray variable must be a seed tray in a slot")
+        if cell not in cells:
+            raise ValueError("Seed Tray Cell must be one of **A1** through **D4**")
+
+        flip = 1
+        if tray_data["pullout_direction"] == 1:
+            flip = 1
+        elif tray_data["pullout_direction"] == 2:
+            flip = -1
+        else:
+            raise ValueError("Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
+
+        A1 = {
+            "x": tray_data["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
+            "y": tray_data["y"] - (1.5 * cell_spacing * flip),
+            "z": tray_data["z"]
+        }
+
+        offset = {
+            "x": cell_spacing * cells[cell]["x"] * flip,
+            "y": cell_spacing * cells[cell]["y"] * flip
+        }
+
+        return {"x": A1["x"] + offset["x"], "y": A1["y"] + offset["y"], "z": A1["z"]}
 
     def sequence(self, sequence_id):
         # Execute sequence by id
