@@ -145,3 +145,45 @@ class Farmbot():
 
     def assertion(self, code, as_type, id=''):
         return self.broker.assertion(code, as_type, id)
+
+    def get_xyz(self):
+        return self.broker.get_xyz()
+
+    def check_position(self, user_x, user_y, user_z, tolerance):
+        return self.broker.check_position(user_x, user_y, user_z, tolerance)
+
+    def mark_coord(self, x, y, z, property, mark_as):
+        return self.broker.mark_coord(x, y, z, property, mark_as)
+
+    def mount_tool(self, tool_str):
+        return self.broker.mount_tool(tool_str)
+
+    def dismount_tool(self):
+        return self.broker.dismount_tool()
+
+    def water(self, point_id):
+        return self.broker.water(point_id)
+
+    def dispense(self, mL, tool_str, pin): 
+        return self.broker.dispense(mL, tool_str, pin)
+
+    def get_seed_tray_cell(self, tray, cell):
+        return self.broker.get_seed_tray_cell(tray, cell)
+
+    def sequence(self, sequence_id):
+        return self.broker.sequence(sequence_id)
+
+    def get_job(self, job_str):
+        return self.broker.get_job(job_str)
+
+    def set_job(self, job_str, status_message, value):
+        return self.broker.set_job(job_str, status_message, value)
+
+    def complete_job(self, job_str):
+        return self.broker.complete_job(job_str)
+
+    def lua(self, code_snippet):
+        return self.broker.lua(code_snippet)
+
+    def if_statement(self, variable, operator, value, then_id, else_id):
+        return self.broker.if_statement(variable, operator, value, then_id, else_id)

@@ -50,7 +50,7 @@ class BrokerFunctions():
         }
 
         self.broker_connect.publish(message)
-        self.broker_connect.listen(5, 'status')
+        self.broker_connect.listen(5, "status")
 
         status_tree = self.broker_connect.last_message
 
@@ -59,8 +59,8 @@ class BrokerFunctions():
 
     def read_sensor(self, id):
         # Get sensor data
-        peripheral_str = self.api.get_info('peripherals', id)
-        mode = peripheral_str['mode']
+        peripheral_str = self.api.get_info("peripherals", id)
+        mode = peripheral_str["mode"]
 
         message = {
             **RPC_REQUEST,
@@ -68,7 +68,7 @@ class BrokerFunctions():
                 "kind": "read_pin",
                 "args": {
                     "pin_mode": mode,
-                    "label": '---',
+                    "label": "---",
                     "pin_number": {
                         "kind": "named_pin",
                         "args": {
@@ -109,12 +109,12 @@ class BrokerFunctions():
         # No inherent return value
 
     def debug(self, message):
-        # Send 'debug' type message
+        # Send "debug" type message
         self.message(message, "debug", "ticker")
         # No inherent return value
 
     def toast(self, message):
-        # Send 'toast' type message
+        # Send "toast" type message
         self.message(message, "info", "toast")
         # No inherent return value
 
@@ -240,7 +240,7 @@ class BrokerFunctions():
         self.broker_connect.publish(move_message)
         # Return new xyz position as values
 
-    def set_home(self, axis='all'):
+    def set_home(self, axis="all"):
         # Set current xyz coord as 0,0,0
         set_home_message = {
             "kind": "rpc_request",
@@ -259,7 +259,7 @@ class BrokerFunctions():
         self.broker_connect.publish(set_home_message)
         # No inherent return value
 
-    def find_home(self, axis='all', speed=100):
+    def find_home(self, axis="all", speed=100):
         # Move to 0,0,0
         if speed > 100 or speed < 1:
             return print("ERROR: Speed constrained to 1-100.")
@@ -282,7 +282,7 @@ class BrokerFunctions():
 
         # Return new xyz position as values
 
-    def axis_length(self, axis='all'):
+    def axis_length(self, axis="all"):
         # Get axis length
         # Return axis length as values
         axis_length_message = {
@@ -301,35 +301,33 @@ class BrokerFunctions():
         # Get current xyz coord
         tree_data = self.read_status()
 
-        position = tree_data["position"]
-
-        x_val = position['x']
-        y_val = position['y']
-        z_val = position['z']
+        x_val = tree_data["location_data"]["position"]["x"]
+        y_val = tree_data["location_data"]["position"]["y"]
+        z_val = tree_data["location_data"]["position"]["z"]
 
         # Return xyz position as values
         return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
-        # Check current xyz coord = user xyz coord within tolerance
-        # Return in or out of tolerance range
         user_values = [user_x, user_y, user_z]
 
         position = self.get_xyz()
         actual_vals = list(position)
 
         for user_value, actual_value in zip(user_values, actual_vals):
-            if actual_value - tolerance <= user_value <= actual_value + tolerance:
-                print("Farmbot is at position.")
-            else:
-                print("Farmbot is NOT at position.")
+            if not actual_value - tolerance <= user_value <= actual_value + tolerance:
+                print(f"Farmbot is NOT at position {position}")
+                return False
+
+        print(f"Farmbot is at position {position}")
+        return True
 
     def control_peripheral(self, id, value, mode=None):
         # Change peripheral values
         # No inherent return value
         if mode is None:
-            peripheral_str = self.api.get_info('peripherals', id)
-            mode = peripheral_str['mode']
+            peripheral_str = self.api.get_info("peripherals", id)
+            mode = peripheral_str["mode"]
 
         control_peripheral_message = {
             **RPC_REQUEST,
@@ -517,14 +515,15 @@ class BrokerFunctions():
 
         self.lua(lua_code)
 
-    def water(self, point_id):
-        # Dispense water at all or single xyz coords
+    def water(self, plant_id):
+        # Water the given plant
         # No inherent return value
-        plants = self.api.get_info("points", point_id)
-        plant_name = plants["name"]
-
         lua_code = f"""
-            water({plant_name})
+            plant = api({{
+                method = "GET",
+                url = "/api/points/{plant_id}"
+            }})
+            water(plant)
         """
 
         self.lua(lua_code)
@@ -538,25 +537,63 @@ class BrokerFunctions():
 
         self.lua(lua_code)
 
-    def get_seed_tray_cell(self, tray, cell):
-        lua_code = f"""
-            tray = variable("Seed Tray")
-            cell_label = variable("Seed Tray Cell")
-            cell = get_seed_tray_cell({tray}, cell_label)
-            cell_depth = 5
+    # TODO: fix read_status() not working if staging.farm.bot not open/refreshed?
 
-            local cell_coordinates = " (" .. cell.x .. ", " .. cell.y .. ", " .. cell.z - cell_depth .. ")"
-            toast("Picking up seed from cell " .. cell_label .. cell_coordinates)
+    def get_seed_tray_cell(self, tray_id, tray_cell):
+        tray_data = self.api.get_info("points", tray_id)
 
-            move_absolute({{
-                x = cell.x,
-                y = cell.y,
-                z = cell.z + 25,
-                safe_z = true
-            }})
-        """
+        cell = tray_cell.upper()
 
-        self.lua(lua_code)
+        seeder_needle_offset = 17.5
+        cell_spacing = 12.5
+
+        cells = {
+            "A1": {"x": 0, "y": 0},
+            "A2": {"x": 0, "y": 1},
+            "A3": {"x": 0, "y": 2},
+            "A4": {"x": 0, "y": 3},
+
+            "B1": {"x": -1, "y": 0},
+            "B2": {"x": -1, "y": 1},
+            "B3": {"x": -1, "y": 2},
+            "B4": {"x": -1, "y": 3},
+
+            "C1": {"x": -2, "y": 0},
+            "C2": {"x": -2, "y": 1},
+            "C3": {"x": -2, "y": 2},
+            "C4": {"x": -2, "y": 3},
+
+            "D1": {"x": -3, "y": 0},
+            "D2": {"x": -3, "y": 1},
+            "D3": {"x": -3, "y": 2},
+            "D4": {"x": -3, "y": 3}
+        }
+
+        if tray_data["pointer_type"] != "ToolSlot":
+            raise ValueError("Seed Tray variable must be a seed tray in a slot")
+        if cell not in cells:
+            raise ValueError("Seed Tray Cell must be one of **A1** through **D4**")
+
+        flip = 1
+        if tray_data["pullout_direction"] == 1:
+            flip = 1
+        elif tray_data["pullout_direction"] == 2:
+            flip = -1
+        else:
+            raise ValueError("Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
+
+        A1 = {
+            "x": tray_data["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
+            "y": tray_data["y"] - (1.5 * cell_spacing * flip),
+            "z": tray_data["z"]
+        }
+
+        offset = {
+            "x": cell_spacing * cells[cell]["x"] * flip,
+            "y": cell_spacing * cells[cell]["y"] * flip
+        }
+
+        return {"x": A1["x"] + offset["x"], "y": A1["y"] + offset["y"], "z": A1["z"]}
 
     def sequence(self, sequence_id):
         # Execute sequence by id
@@ -592,7 +629,7 @@ class BrokerFunctions():
             local job_name = "{job_str}"
             set_job(job_name)
 
-            -- Update the job's status and percent:
+            -- Update the job\'s status and percent:
             set_job(job_name, {{
             status = "{status_message}",
             percent = {value}
@@ -616,14 +653,14 @@ class BrokerFunctions():
             "body": [{
                 "kind": "lua",
                 "args": {
-                    "lua": code_snippet
+                    "lua": code_snippet.strip()
                 }
             }]
         }
 
         self.broker_connect.publish(lua_message)
 
-    def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add 'do nothing' functionality
+    def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
         # Execute if statement
         # No inherent return value
         if_statement_message = {
@@ -652,7 +689,7 @@ class BrokerFunctions():
 
         self.broker_connect.publish(if_statement_message)
 
-    def assertion(self, code, as_type, id=''): # TODO: add 'continue' functionality
+    def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
         # Execute assertion
         # No inherent return value
         assertion_message = {
