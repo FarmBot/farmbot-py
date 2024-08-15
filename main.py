@@ -1,189 +1,201 @@
-from api_functions import ApiFunctions
-from broker_functions import BrokerFunctions
+"""
+Farmbot class.
+"""
+
+from imports import *
 
 class Farmbot():
     def __init__(self):
-        self.api = ApiFunctions()
-        self.broker = BrokerFunctions()
-
         self.token = None
         self.error = None
 
-    ## SETUP
+        self.echo = True
+
+    # authentication.py
 
     def set_token(self, token):
         self.token = token
 
-        # Set api token (redundant--used for tests)
-        self.api.api_connect.token = token
+        # Set API token (redundant--used for tests)
+        auth.token = token
 
-        # Set broker tokens
-        self.broker.broker_connect.token = token
-        self.broker.api.api_connect.token = token
+        # Set file tokens
+        basic.token = token
+        broker.token = token
+        camera.token = token
+        info.token = token
+        job.token = token
+        message.token = token
+        move.token = token
+        peripheral.token = token
+        resource.token = token
+        tool.token = token
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         # Call get_token() source
         # Set authentication token for all modules
 
-        token_data = self.api.get_token(email, password, server)
+        token_data = auth.get_token(email, password, server)
 
-        self.set_token(self.api.api_connect.token)
-        self.error = self.api.api_connect.error
+        self.set_token(auth.token)
+        self.error = auth.error
 
         return token_data
 
-    def connect_broker(self):
-        self.broker.broker_connect.connect()
+    # basic_commands.py
 
-    def disconnect_broker(self):
-        self.broker.broker_connect.disconnect()
-
-    def listen_broker(self, duration, channel='#'):
-        self.broker.broker_connect.listen(duration, channel)
-
-    ## INFORMATION
-
-    def get_info(self, endpoint, id=None):
-        return self.api.get_info(endpoint, id)
-
-    def set_info(self, endpoint, field, value, id=None):
-        return self.api.set_info(endpoint, field, value, id)
-
-    def group(self, id):
-        return self.api.group(id)
-
-    def curve(self, id):
-        return self.api.curve(id)
-
-    def read_status(self):
-        return self.broker.read_status()
-
-    def read_sensor(self, id):
-        return self.broker.read_sensor(id)
-
-    def safe_z(self):
-        return self.api.safe_z()
-
-    def garden_size(self):
-        return self.api.garden_size()
-
-    ## MESSAGING
-
-    def log(self, message, type=None, channel=None):
-        return self.api.log(message, type, channel)
-
-    def message(self, message, type=None, channel="ticker"):
-        return self.broker.message(message, type, channel)
-
-    def debug(self, message):
-        return self.broker.debug(message)
-
-    def toast(self, message):
-        return self.broker.toast(message)
-
-    ## BASIC COMMANDS
-
-    def wait(self, time):
-        return self.broker.wait(time)
+    def wait(self, duration):
+        return basic.wait(duration)
 
     def e_stop(self):
-        return self.broker.e_stop()
+        return basic.e_stop()
 
     def unlock(self):
-        return self.broker.unlock()
+        return basic.unlock()
 
     def reboot(self):
-        return self.broker.reboot()
+        return basic.reboot()
 
     def shutdown(self):
-        return self.broker.shutdown()
+        return basic.shutdown()
 
-    ## MOVEMENT
+    # broker.py
 
-    def move(self, x, y, z):
-        return self.broker.move(x, y, z)
+    def connect_broker(self):
+        return broker.connect()
 
-    def set_home(self, axis='all'):
-        return self.broker.set_home(axis)
+    def disconnect_broker(self):
+        return broker.disconnect()
 
-    def find_home(self, axis='all', speed=100):
-        return self.broker.find_home(axis, speed)
-
-    def axis_length(self, axis='all'):
-        return self.broker.axis_length(axis)
-
-    ## PERIPHERALS
-
-    def control_peripheral(self, id, value, mode=None):
-        return self.broker.control_peripheral(id, value, mode)
-
-    def toggle_peripheral(self, id):
-        return self.broker.toggle_peripheral(id)
-
-    def on(self, id):
-        return self.broker.on(id)
-
-    def off(self, id):
-        return self.broker.off(id)
-
-    ## BROKER COMMANDS
+    # camera.py
 
     def calibrate_camera(self):
-        return self.broker.calibrate_camera()
-
-    def control_servo(self, pin, angle):
-        return self.broker.control_servo(pin, angle)
+        return camera.calibrate_camera()
 
     def take_photo(self):
-        return self.broker.take_photo()
+        return camera.take_photo()
+
+    # information.py
+
+    def get_info(self, endpoint, id=None):
+        return info.get_info(endpoint, id)
+
+    def set_info(self, endpoint, field, value, id=None):
+        return info.set_info(endpoint, field, value, id)
+
+    def safe_z(self):
+        return info.safe_z()
+
+    def garden_size(self):
+        return info.garden_size()
+
+    def group(self, id=None):
+        return info.group(id)
+
+    def curve(self, id=None):
+        return info.curve(id)
 
     def soil_height(self):
-        return self.broker.soil_height()
+        return info.soil_height()
 
-    def detect_weeds(self):
-        return self.broker.detect_weeds()
+    def read_status(self):
+        return info.read_status()
 
-    def assertion(self, code, as_type, id=''):
-        return self.broker.assertion(code, as_type, id)
+    def read_sensor(self, id):
+        return info.read_sensor(id)
 
-    def get_xyz(self):
-        return self.broker.get_xyz()
-
-    def check_position(self, user_x, user_y, user_z, tolerance):
-        return self.broker.check_position(user_x, user_y, user_z, tolerance)
-
-    def mark_coord(self, x, y, z, property, mark_as):
-        return self.broker.mark_coord(x, y, z, property, mark_as)
-
-    def mount_tool(self, tool_str):
-        return self.broker.mount_tool(tool_str)
-
-    def dismount_tool(self):
-        return self.broker.dismount_tool()
-
-    def water(self, point_id):
-        return self.broker.water(point_id)
-
-    def dispense(self, mL, tool_str, pin): 
-        return self.broker.dispense(mL, tool_str, pin)
-
-    def get_seed_tray_cell(self, tray, cell):
-        return self.broker.get_seed_tray_cell(tray, cell)
-
-    def sequence(self, sequence_id):
-        return self.broker.sequence(sequence_id)
+    # jobs.py
 
     def get_job(self, job_str):
-        return self.broker.get_job(job_str)
+        return job.get_job(job_str)
 
     def set_job(self, job_str, status_message, value):
-        return self.broker.set_job(job_str, status_message, value)
+        return job.set_job(job_str, status_message, value)
 
     def complete_job(self, job_str):
-        return self.broker.complete_job(job_str)
+        return job.complete_job(job_str)
+
+    # messages.py
+
+    def log(self, message_str, type=None, channel=None):
+        return message.log(message_str, type, channel)
+
+    def message(self, message_str, type=None, channel="ticker"):
+        return message.message(message_str, type, channel)
+
+    def debug(self, message_str):
+        return message.debug(message_str)
+
+    def toast(self, message_str):
+        return message.toast(message_str)
+
+    # movements.py
+
+    def move(self, x, y, z):
+        return move.move(x, y, z)
+
+    def set_home(self, axis="all"):
+        return move.set_home(axis)
+
+    def find_home(self, axis="all", speed=100):
+        return move.find_home(axis, speed)
+
+    def axis_length(self, axis="all"):
+        return move.axis_length(axis)
+
+    def get_xyz(self):
+        return move.get_xyz()
+
+    def check_position(self, user_x, user_y, user_z, tolerance):
+        return move.check_position(user_x, user_y, user_z, tolerance)
+
+    # peripherals.py
+
+    def control_servo(self, pin, angle):
+        return peripheral.control_servo(pin, angle)
+
+    def control_peripheral(self, id, value, mode=None):
+        return peripheral.control_peripheral(id, value, mode)
+
+    def toggle_peripheral(self, id):
+        return peripheral.toggle_peripheral(id)
+
+    def on(self, id):
+        return peripheral.on(id)
+
+    def off(self, id):
+        return peripheral.off(id)
+
+    # resources.py
+
+    def mark_coord(self, x, y, z, property, mark_as):
+        return resource.mark_coord(x, y, z, property, mark_as)
+
+    def sequence(self, sequence_id):
+        return resource.sequence(sequence_id)
+
+    def get_seed_tray_cell(self, tray_id, tray_cell):
+        return resource.get_seed_tray_cell(tray_id, tray_cell)
+
+    def detect_weeds(self):
+        return resource.detect_weeds()
 
     def lua(self, code_snippet):
-        return self.broker.lua(code_snippet)
+        return resource.lua(code_snippet)
 
     def if_statement(self, variable, operator, value, then_id, else_id):
-        return self.broker.if_statement(variable, operator, value, then_id, else_id)
+        return resource.if_statement(variable, operator, value, then_id, else_id)
+
+    # tools.py
+
+    def mount_tool(self, tool_str):
+        return tool.mount_tool(tool_str)
+
+    def dismount_tool(self):
+        return tool.dismount_tool()
+
+    def water(self, plant_id):
+        return tool.water(plant_id)
+
+    def dispense(self, mL, tool_str, pin):
+        return tool.dispense(mL, tool_str, pin)

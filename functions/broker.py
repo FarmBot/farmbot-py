@@ -1,9 +1,17 @@
-import threading
-import json
-import time
+"""
+BrokerConnect class.
+"""
 
-from datetime import datetime
-import paho.mqtt.client as mqtt
+# └── functions/broker.py
+#     ├── [BROKER] connect()
+#     ├── [BROKER] disconnect()
+#     ├── [BROKER] publish()
+#     ├── [BROKER] on_connect()
+#     ├── [BROKER] on_message
+#     ├── [BROKER] start_listen()
+#     └── [BROKER] stop_listen()
+
+from .imports import *
 
 class BrokerConnect():
     def __init__(self):
@@ -12,7 +20,16 @@ class BrokerConnect():
 
         self.last_message = None
 
-    ## FUNCTIONS -- SENDING MESSAGES
+    # def connect() --> connect to message broker to send messages
+    # def disconnect() --> disconnect from message broker
+
+    # def publish() --> send message via message broker
+
+    # def on_connect() --> subscribe to messages from specific broker channel
+    # def on_message() --> update message queue with latest response
+
+    # def start_listen() --> start listening to broker channel (print each message if echo == true)
+    # def stop_listen() --> stop listening to broker channel
 
     def connect(self):
         """Establish persistent connection with message broker."""
@@ -48,8 +65,6 @@ class BrokerConnect():
             f'bot/{self.token["token"]["unencoded"]["bot"]}/from_clients',
             payload=json.dumps(message)
         )
-
-    ## FUNCTIONS -- RECEIVING MESSAGES
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Subscribe to specified message broker channel."""

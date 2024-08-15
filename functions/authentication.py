@@ -1,17 +1,22 @@
-import sys
-import json
-import requests
+"""
+Autentication class.
+"""
 
-class ApiConnect():
+# └── functions/authentication.py
+#     ├── [API] token_handling()
+#     ├── [API] get_token()
+#     ├── [API] check_token()
+#     ├── [API] request_handling()
+#     └── [API] request()
+
+from .imports import *
+
+class Authentication():
     def __init__(self):
         self.token = None
         self.error = None
 
-    ## ERROR HANDLING
-
     def request_handling(self, response):
-        """Handle errors relating to bad endpoints and user requests."""
-
         error_messages = {
             404: "The specified endpoint does not exist.",
             400: "The specified ID is invalid or you do not have access to it.",
@@ -29,11 +34,7 @@ class ApiConnect():
         else:
             self.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
-    ## FUNCTIONS
-
-    def get_token(self, email, password, server):
-        """Fetch user authentication token via API."""
-
+    def get_token(self, email, password, server="https://my.farm.bot"):
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
@@ -41,7 +42,7 @@ class ApiConnect():
             # Handle HTTP status codes
             if response.status_code == 200:
                 token_data = response.json()
-                self.token = token_data # TODO
+                self.token = token_data # TODO: simplify?
                 self.error = None
                 return token_data
             elif response.status_code == 404:
@@ -65,15 +66,11 @@ class ApiConnect():
         return
 
     def check_token(self):
-        """Ensure user authentication token has been generated and persists."""
-
         if self.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
     def request(self, method, endpoint, database_id, payload=None):
-        """Send requests to the API using various methods."""
-
         self.check_token()
 
         # use 'GET' method to view endpoint data

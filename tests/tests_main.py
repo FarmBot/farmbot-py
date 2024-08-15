@@ -1,5 +1,5 @@
 """
-Farmbot Unit Tests
+Farmbot class unit tests.
 """
 
 import json
@@ -18,7 +18,6 @@ MOCK_TOKEN = {
         'encoded': 'encoded_token_value'
     }
 }
-
 
 class TestFarmbot(unittest.TestCase):
     """Farmbot tests"""
