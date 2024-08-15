@@ -17,10 +17,9 @@ from .broker import BrokerConnect
 from .information import Information
 
 class Resources():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
-        self.info = Information(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
+        self.info = Information(state)
 
     def mark_coord(self, x, y, z, property, mark_as): # TODO: Fix "label" and TODO: rename mark_point()
         # Mark xyz coordinate

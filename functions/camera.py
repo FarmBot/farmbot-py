@@ -10,10 +10,10 @@ Camera class.
 from .imports import *
 from .broker import BrokerConnect
 
+
 class Camera():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
 
     def calibrate_camera(self):
         # Execute calibrate camera script

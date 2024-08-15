@@ -18,10 +18,9 @@ from .broker import BrokerConnect
 from .authentication import Authentication
 
 class Information():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
-        self.auth = Authentication(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
+        self.auth = Authentication(state)
 
     def get_info(self, endpoint, id=None):
         # Get endpoint info
@@ -116,7 +115,7 @@ class Information():
         self.broker.publish(status_message)
         self.broker.listen(5, "status")
 
-        status_tree = self.broker.last_message
+        status_tree = self.broker.state.last_message
 
         # Return status as json object: status[""]
         return status_tree

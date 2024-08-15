@@ -13,12 +13,11 @@ BrokerConnect class.
 
 from .imports import *
 
-class BrokerConnect():
-    def __init__(self, token):
-        self.token = token
-        self.client = None
 
-        self.last_message = None
+class BrokerConnect():
+    def __init__(self, state):
+        self.state = state
+        self.client = None
 
     # def connect() --> connect to message broker to send messages
     # def disconnect() --> disconnect from message broker
@@ -36,12 +35,12 @@ class BrokerConnect():
 
         self.client = mqtt.Client()
         self.client.username_pw_set(
-            username=self.token['token']['unencoded']['bot'],
-            password=self.token['token']['encoded']
+            username=self.state.token['token']['unencoded']['bot'],
+            password=self.state.token['token']['encoded']
         )
 
         self.client.connect(
-            self.token['token']['unencoded']['mqtt'],
+            self.state.token['token']['unencoded']['mqtt'],
             port=1883,
             keepalive=60
         )
@@ -62,24 +61,27 @@ class BrokerConnect():
             self.connect()
 
         self.client.publish(
-            f'bot/{self.token["token"]["unencoded"]["bot"]}/from_clients',
+            f'bot/{self.state.token["token"]
+                   ["unencoded"]["bot"]}/from_clients',
             payload=json.dumps(message)
         )
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Subscribe to specified message broker channel."""
-        self.client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/{channel}")
+        self.client.subscribe(
+            f"bot/{self.state.token['token']['unencoded']['bot']}/{channel}")
 
     def on_message(self, _client, _userdata, msg):
         """Update message queue with latest broker response."""
-        self.last_message = json.loads(msg.payload)
+        self.state.last_message = json.loads(msg.payload)
 
     def show_connect(self, client, *_args):
         # Subscribe to all channels
-        client.subscribe(f"bot/{self.token['token']['unencoded']['bot']}/#")
+        client.subscribe(
+            f"bot/{self.state.token['token']['unencoded']['bot']}/#")
 
     def show_message(self, _client, _userdata, msg):
-        self.last_message = msg.payload
+        self.state.last_message = msg.payload
         print('-' * 100)
         # Print channel
         print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
@@ -93,7 +95,8 @@ class BrokerConnect():
             self.connect()
 
         # Wrap on_connect to pass channel argument
-        self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(client, userdata, flags, rc, channel)
+        self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(
+            client, userdata, flags, rc, channel)
         self.client.on_message = self.on_message
 
         self.client.loop_start()

@@ -11,10 +11,10 @@ Autentication class.
 
 from .imports import *
 
+
 class Authentication():
-    def __init__(self, token):
-        self.token = token
-        self.error = None
+    def __init__(self, state):
+        self.state = state
 
     def request_handling(self, response):
         error_messages = {
@@ -28,45 +28,51 @@ class Authentication():
         if response.status_code == 200:
             return 200
         elif 400 <= response.status_code < 500:
-            self.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
+            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {
+                                          error_messages.get(response.status_code, response.reason)}", indent=2)
         elif 500 <= response.status_code < 600:
-            self.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
+            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {
+                                          response.text}", indent=2)
         else:
-            self.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
+            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {
+                                          response.text}", indent=2)
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
-            response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+            response = requests.post(
+                f'{server}/api/tokens', headers=headers, json=user)
             # Handle HTTP status codes
             if response.status_code == 200:
                 token_data = response.json()
-                self.token = token_data # TODO: simplify?
-                self.error = None
+                self.state.token = token_data  # TODO: simplify?
+                self.state.error = None
                 return token_data
             elif response.status_code == 404:
-                self.error = "HTTP ERROR: The server address does not exist."
+                self.state.error = "HTTP ERROR: The server address does not exist."
             elif response.status_code == 422:
-                self.error = "HTTP ERROR: Incorrect email address or password."
+                self.state.error = "HTTP ERROR: Incorrect email address or password."
             else:
-                self.error = f"HTTP ERROR: Unexpected status code {response.status_code}"
+                self.state.error = f"HTTP ERROR: Unexpected status code {
+                    response.status_code}"
         # Handle DNS resolution errors
         except requests.exceptions.RequestException as e:
             if isinstance(e, requests.exceptions.ConnectionError):
-                self.error = "DNS ERROR: The server address does not exist."
+                self.state.error = "DNS ERROR: The server address does not exist."
             elif isinstance(e, requests.exceptions.Timeout):
-                self.error = "DNS ERROR: The request timed out."
+                self.state.error = "DNS ERROR: The request timed out."
             elif isinstance(e, requests.exceptions.RequestException):
-                self.error = "DNS ERROR: There was a problem with the request."
+                self.state.error = "DNS ERROR: There was a problem with the request."
         except Exception as e:
-            self.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
+            self.state.error = f"DNS ERROR: An unexpected error occurred: {
+                str(e)}"
 
-        self.token = None
+        self.state.token = None
         return
 
     def check_token(self):
-        if self.token is None:
+        if self.state.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
@@ -79,16 +85,19 @@ class Authentication():
         # use 'DELETE' method to delete endpoint data (hidden)
 
         if database_id is None:
-            url = f'https:{self.token["token"]["unencoded"]["iss"]}/api/{endpoint}'
+            url = f'https:{self.state.token["token"]
+                           ["unencoded"]["iss"]}/api/{endpoint}'
         else:
-            url = f'https:{self.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
+            url = f'https:{
+                self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
 
-        headers = {'authorization': self.token['token']['encoded'], 'content-type': 'application/json'}
+        headers = {
+            'authorization': self.state.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.request(method, url, headers=headers, json=payload)
 
         if self.request_handling(response) == 200:
-            self.error = None
+            self.state.error = None
             request_data = response.json()
             return request_data
         else:
-            return self.error
+            return self.state.error

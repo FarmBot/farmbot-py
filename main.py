@@ -4,73 +4,42 @@ Farmbot class.
 
 from imports import *
 
-class Farmbot():
+
+class State():
     def __init__(self):
         self.token = None
         self.error = None
+        self.last_message = None
 
+
+class Farmbot():
+    def __init__(self):
+        self.state = State()
         self.echo = True
 
         # Initialize other components without the token initially
-        self.auth = Authentication(self.token)
-        self.basic = BasicCommands(self.token)
-        self.broker = BrokerConnect(self.token)
-        self.camera = Camera(self.token)
-        self.info = Information(self.token)
-        self.jobs = JobHandling(self.token)
-        self.messages = MessageHandling(self.token)
-        self.movements = MovementControls(self.token)
-        self.peripherals = Peripherals(self.token)
-        self.resources = Resources(self.token)
-        self.tools = ToolControls(self.token)
+        self.auth = Authentication(self.state)
+        self.basic = BasicCommands(self.state)
+        self.broker = BrokerConnect(self.state)
+        self.camera = Camera(self.state)
+        self.info = Information(self.state)
+        self.jobs = JobHandling(self.state)
+        self.messages = MessageHandling(self.state)
+        self.movements = MovementControls(self.state)
+        self.peripherals = Peripherals(self.state)
+        self.resources = Resources(self.state)
+        self.tools = ToolControls(self.state)
 
     # authentication.py
 
     def set_token(self, token):
-        self.token = token
-
-        # Set API token (redundant--used for tests)
-        self.auth.token = token
-
-        # Propagate token to all components
-        self.basic.token = token
-        self.broker.token = token
-        self.camera.token = token
-        self.info.token = token
-        self.jobs.token = token
-        self.messages.token = token
-        self.movements.token = token
-        self.peripherals.token = token
-        self.resources.token = token
-        self.tools.token = token
-
-        # Also set token for nested instances
-        self.basic.broker.token = token
-        self.camera.broker.token = token
-        self.info.broker.token = token
-        self.info.auth.token = token
-        self.jobs.broker.token = token
-        self.jobs.info.token = token
-        self.jobs.resource.token = token
-        self.messages.broker.token = token
-        self.messages.auth.token = token
-        self.movements.broker.token = token
-        self.movements.info.token = token
-        self.peripherals.broker.token = token
-        self.peripherals.info.token = token
-        self.resources.broker.token = token
-        self.resources.info.token = token
-        self.tools.broker.token = token
-        self.tools.resource.token = token
+        self.state.token = token
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         # Call get_token() source
         # Set authentication token for all modules
 
         token_data = self.auth.get_token(email, password, server)
-
-        self.set_token(self.auth.token)
-        self.error = self.auth.error
 
         return token_data
 

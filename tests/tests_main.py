@@ -19,6 +19,7 @@ MOCK_TOKEN = {
     }
 }
 
+
 class TestFarmbot(unittest.TestCase):
     """Farmbot tests"""
 
@@ -39,7 +40,7 @@ class TestFarmbot(unittest.TestCase):
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.token, expected_token)
+        self.assertEqual(fb.state.token, expected_token)
 
     @patch('requests.post')
     def test_get_token_custom_server(self, mock_post):
@@ -59,7 +60,7 @@ class TestFarmbot(unittest.TestCase):
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.token, expected_token)
+        self.assertEqual(fb.state.token, expected_token)
 
     @patch('requests.post')
     def test_get_token_bad_email(self, mock_post):
@@ -77,8 +78,8 @@ class TestFarmbot(unittest.TestCase):
                            'password': 'test_pass_123'}}
         )
         self.assertEqual(
-            fb.error, 'HTTP ERROR: Incorrect email address or password.')
-        self.assertIsNone(fb.token)
+            fb.state.error, 'HTTP ERROR: Incorrect email address or password.')
+        self.assertIsNone(fb.state.token)
 
     @patch('requests.post')
     def test_get_token_bad_server(self, mock_post):
@@ -97,8 +98,8 @@ class TestFarmbot(unittest.TestCase):
                            'password': 'test_pass_123'}}
         )
         self.assertEqual(
-            fb.error, 'HTTP ERROR: The server address does not exist.')
-        self.assertIsNone(fb.token)
+            fb.state.error, 'HTTP ERROR: The server address does not exist.')
+        self.assertIsNone(fb.state.token)
 
     @patch('requests.request')
     def test_get_info_endpoint_only(self, mock_request):
@@ -762,7 +763,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz(self):
         '''Test get_xyz command'''
         def exec_command(fb):
-            fb.broker.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             position = fb.get_xyz()
@@ -779,7 +780,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position(self):
         '''Test check_position command: at position'''
         def exec_command(fb):
-            fb.broker.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(1, 2, 3, 0)
@@ -796,7 +797,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
         def exec_command(fb):
-            fb.broker.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(0, 0, 0, 2)
@@ -900,7 +901,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job(self):
         '''Test get_job command'''
         def exec_command(fb):
-            fb.broker.last_message = {
+            fb.state.last_message = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },

@@ -13,12 +13,12 @@ from .broker import BrokerConnect
 from .information import Information
 from .resources import Resources
 
+
 class JobHandling():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
-        self.info = Information(token)
-        self.resource = Resources(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
+        self.info = Information(state)
+        self.resource = Resources(state)
 
     def get_job(self, job_str):
         # Get all or single job by name

@@ -14,10 +14,9 @@ from .broker import BrokerConnect
 from .information import Information
 
 class Peripherals():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
-        self.info = Information(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
+        self.info = Information(state)
 
     def control_servo(self, pin, angle):
         # Change servo values

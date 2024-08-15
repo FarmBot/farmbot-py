@@ -12,10 +12,10 @@ BasicCommands class.
 from .imports import *
 from .broker import BrokerConnect
 
+
 class BasicCommands():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
 
     def wait(self, duration):
         # Tell bot to wait for some time

@@ -13,10 +13,9 @@ from .broker import BrokerConnect
 from .authentication import Authentication
 
 class MessageHandling():
-    def __init__(self, token):
-        self.token = token
-        self.broker = BrokerConnect(token)
-        self.auth = Authentication(token)
+    def __init__(self, state):
+        self.broker = BrokerConnect(state)
+        self.auth = Authentication(state)
 
     def log(self, message_str, type=None, channel=None):
         # Send new log message via API
