@@ -762,7 +762,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz(self):
         '''Test get_xyz command'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.broker.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             position = fb.get_xyz()
@@ -779,7 +779,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position(self):
         '''Test check_position command: at position'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.broker.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(1, 2, 3, 0)
@@ -796,7 +796,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.broker.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(0, 0, 0, 2)
@@ -900,7 +900,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job(self):
         '''Test get_job command'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.broker.last_message = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
