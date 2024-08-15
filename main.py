@@ -218,6 +218,9 @@ class Farmbot():
     def if_statement(self, variable, operator, value, then_id, else_id):
         return self.resources.if_statement(variable, operator, value, then_id, else_id)
 
+    def assertion(self, code, as_type, id=""):
+        return self.resources.assertion(code, as_type, id)
+
     # tools.py
 
     def mount_tool(self, tool_str):

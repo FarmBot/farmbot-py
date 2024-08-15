@@ -312,7 +312,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test disconnect_broker command'''
         mock_client = Mock()
         fb = Farmbot()
-        fb.broker.broker_connect.client = mock_client
+        fb.broker.client = mock_client
         fb.disconnect_broker()
         mock_client.loop_stop.assert_called_once()
         mock_client.disconnect.assert_called_once()
