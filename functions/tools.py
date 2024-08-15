@@ -14,11 +14,10 @@ from .broker import BrokerConnect
 from .resources import Resources
 
 class ToolControls():
-    def __init__(self):
-        self.token = None
-
-        self.broker = BrokerConnect()
-        self.resource = Resources()
+    def __init__(self, token):
+        self.token = token
+        self.broker = BrokerConnect(token)
+        self.resource = Resources(token)
 
     # TODO: verify_tool() --> get broker message example
         # Verify tool exists at xyz coord

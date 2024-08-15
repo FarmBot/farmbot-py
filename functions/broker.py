@@ -14,8 +14,8 @@ BrokerConnect class.
 from .imports import *
 
 class BrokerConnect():
-    def __init__(self):
-        self.token = None
+    def __init__(self, token):
+        self.token = token
         self.client = None
 
         self.last_message = None

@@ -13,9 +13,9 @@ from .imports import *
 from .broker import BrokerConnect
 
 class BasicCommands():
-    def __init__(self):
-        self.token = None
-        self.broker = BrokerConnect()
+    def __init__(self, token):
+        self.token = token
+        self.broker = BrokerConnect(token)
 
     def wait(self, duration):
         # Tell bot to wait for some time

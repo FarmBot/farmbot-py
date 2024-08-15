@@ -15,11 +15,10 @@ from .broker import BrokerConnect
 from .information import Information
 
 class MovementControls():
-    def __init__(self):
-        self.token = None
-
-        self.broker = BrokerConnect()
-        self.info = Information()
+    def __init__(self, token):
+        self.token = token
+        self.broker = BrokerConnect(token)
+        self.info = Information(token)
 
     def move(self, x, y, z):
         def axis_overwrite(axis, value):

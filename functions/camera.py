@@ -11,9 +11,9 @@ from .imports import *
 from .broker import BrokerConnect
 
 class Camera():
-    def __init__(self):
-        self.token = None
-        self.broker = BrokerConnect()
+    def __init__(self, token):
+        self.token = token
+        self.broker = BrokerConnect(token)
 
     def calibrate_camera(self):
         # Execute calibrate camera script

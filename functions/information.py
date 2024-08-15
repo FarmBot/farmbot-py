@@ -18,11 +18,10 @@ from .broker import BrokerConnect
 from .authentication import Authentication
 
 class Information():
-    def __init__(self):
-        self.token = None
-
-        self.broker = BrokerConnect()
-        self.auth = Authentication()
+    def __init__(self, token):
+        self.token = token
+        self.broker = BrokerConnect(token)
+        self.auth = Authentication(token)
 
     def get_info(self, endpoint, id=None):
         # Get endpoint info

@@ -12,8 +12,8 @@ Autentication class.
 from .imports import *
 
 class Authentication():
-    def __init__(self):
-        self.token = None
+    def __init__(self, token):
+        self.token = token
         self.error = None
 
     def request_handling(self, response):
