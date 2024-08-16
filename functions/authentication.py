@@ -40,10 +40,9 @@ class Authentication():
             response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
             # Handle HTTP status codes
             if response.status_code == 200:
-                token_data = response.json()
-                self.state.token = token_data  # TODO: simplify?
+                self.state.token = response.json()
                 self.state.error = None
-                return token_data
+                return response.json()
             elif response.status_code == 404:
                 self.state.error = "HTTP ERROR: The server address does not exist."
             elif response.status_code == 422:
@@ -87,7 +86,6 @@ class Authentication():
 
         if self.request_handling(response) == 200:
             self.state.error = None
-            request_data = response.json()
-            return request_data
+            return response.json()
         else:
             return self.state.error
