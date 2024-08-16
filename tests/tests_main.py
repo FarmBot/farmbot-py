@@ -110,7 +110,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         # Call with endpoint only
         response = fb.get_info('device')
         mock_request.assert_called_once_with(
@@ -133,7 +133,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         # Call with specific ID
         response = fb.get_info('peripherals', '12345')
         mock_request.assert_called_once_with(
@@ -155,7 +155,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         device_info = fb.set_info('device', 'name', 'new name')
         mock_request.assert_has_calls([call(
             'PATCH',
@@ -188,7 +188,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         group_info = fb.group(12345)
         mock_request.assert_called_once_with(
             'GET',
@@ -209,7 +209,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         curve_info = fb.curve(12345)
         mock_request.assert_called_once_with(
             'GET',
@@ -230,7 +230,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         safe_height = fb.safe_z()
         mock_request.assert_called_once_with(
             'GET',
@@ -256,7 +256,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         garden_size = fb.garden_size()
         mock_request.assert_called_once_with(
             'GET',
@@ -276,7 +276,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         fb.log('test message', 'info', ['toast'])
         mock_request.assert_called_once_with(
             'POST',
@@ -298,7 +298,7 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         fb.connect_broker()
         mock_client.username_pw_set.assert_called_once_with(
             username='device_0',
@@ -324,7 +324,7 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         fb.start_listen()
         mock_client.on_connect('', '', '', '')
 
@@ -360,7 +360,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         execute_command(fb)
         expected_payload = {
             'kind': 'rpc_request',
@@ -883,7 +883,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         cell = fb.get_seed_tray_cell(123, 'd4')
         mock_request.assert_called_once_with(
             'GET',

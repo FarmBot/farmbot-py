@@ -9,11 +9,11 @@ class State():
         self.token = None
         self.error = None
         self.last_message = None
+        self.verbosity = 1
 
 class Farmbot():
     def __init__(self):
         self.state = State()
-        self.echo = True
 
         # Initialize other components without the token initially
         self.auth = Authentication(self.state)
@@ -28,16 +28,11 @@ class Farmbot():
         self.resources = Resources(self.state)
         self.tools = ToolControls(self.state)
 
-    def set_token(self, token):
-        self.state.token = token
+    def set_verbosity(self, value):
+        if value <= -1 or value >= 3:
+            return print("ERROR: verbosity must be between 0-2")
 
-    def set_echo(self, value):
-        if value is True:
-            self.echo = True
-        elif value is False:
-            self.echo = False
-        else:
-            return print("ERROR: `Echo` can only be True or False.")
+        self.state.verbosity = value
 
     # authentication.py
 
