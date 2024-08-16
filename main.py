@@ -9,7 +9,7 @@ class State():
         self.token = None
         self.error = None
         self.last_message = None
-        self.verbosity = 1
+        self.verbosity = 2
 
 class Farmbot():
     def __init__(self):

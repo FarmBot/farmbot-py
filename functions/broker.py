@@ -18,17 +18,6 @@ class BrokerConnect():
         self.state = state
         self.client = None
 
-    # def connect() --> connect to message broker to send messages
-    # def disconnect() --> disconnect from message broker
-
-    # def publish() --> send message via message broker
-
-    # def on_connect() --> subscribe to messages from specific broker channel
-    # def on_message() --> update message queue with latest response
-
-    # def start_listen() --> start listening to broker channel (print each message if echo == true)
-    # def stop_listen() --> stop listening to broker channel
-
     def connect(self):
         self.client = mqtt.Client()
         self.client.username_pw_set(

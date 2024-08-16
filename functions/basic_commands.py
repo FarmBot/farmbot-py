@@ -17,7 +17,13 @@ class BasicCommands():
         self.broker = BrokerConnect(state)
 
     def wait(self, duration):
-        # Tell bot to wait for some time
+        verbosity_level = {
+            1: lambda: print("`wait` called"),
+            2: lambda: print(f"Waiting for {duration} milliseconds...")
+        }
+
+        verbosity_level[self.broker.state.verbosity]()
+
         wait_message = {
             "kind": "rpc_request",
             "args": {
@@ -31,13 +37,17 @@ class BasicCommands():
                 }
             }]
         }
+
         self.broker.publish(wait_message)
 
-        # No inherent return value
-        return print("Waiting for "+str(duration)+" milliseconds...")
-
     def e_stop(self):
-        # Tell bot to emergency stop
+        verbosity_level = {
+            1: lambda: print("`e_stop` called"),
+            2: lambda: print(f"Triggered device emergency stop at: {datetime.now()}")
+        }
+
+        verbosity_level[self.broker.state.verbosity]()
+
         stop_message = {
             "kind": "rpc_request",
             "args": {
@@ -49,13 +59,17 @@ class BasicCommands():
                 "args": {}
             }]
         }
+
         self.broker.publish(stop_message)
 
-        # No inherent return value
-        return print("Triggered device emergency stop.")
-
     def unlock(self):
-        # Tell bot to unlock
+        verbosity_level = {
+            1: lambda: print("`unlock` called"),
+            2: lambda: print(f"Triggered device unlock at: {datetime.now()}")
+        }
+
+        verbosity_level[self.broker.state.verbosity]()
+
         unlock_message = {
             "kind": "rpc_request",
             "args": {
@@ -67,14 +81,17 @@ class BasicCommands():
                 "args": {}
             }]
         }
+
         self.broker.publish(unlock_message)
 
-        # No inherent return value
-        return print("Triggered device unlock.")
-
     def reboot(self):
-        # Tell bot to reboot
-        # No inherent return value
+        verbosity_level = {
+            1: lambda: print("`reboot` called"),
+            2: lambda: print(f"Triggered device reboot at: {datetime.now()}")
+        }
+
+        verbosity_level[self.broker.state.verbosity]()
+
         reboot_message = {
             **RPC_REQUEST,
             "body": [{
@@ -86,11 +103,15 @@ class BasicCommands():
         }
 
         self.broker.publish(reboot_message)
-        return print("Triggered device reboot.")
 
     def shutdown(self):
-        # Tell bot to shutdown
-        # No inherent return value
+        verbosity_level = {
+            1: lambda: print("`shutdown` called"),
+            2: lambda: print(f"Triggered device shutdown at: {datetime.now()}")
+        }
+
+        verbosity_level[self.broker.state.verbosity]()
+
         shutdown_message = {
             **RPC_REQUEST,
             "body": [{
@@ -100,4 +121,3 @@ class BasicCommands():
         }
 
         self.broker.publish(shutdown_message)
-        return print("Triggered device shutdown.")

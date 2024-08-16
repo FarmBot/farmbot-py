@@ -23,21 +23,28 @@ class Information():
         self.auth = Authentication(state)
 
     def get_info(self, endpoint, id=None):
-        # Get endpoint info
         endpoint_data = self.auth.request('GET', endpoint, id)
-        # Return endpoint info as json object: endpoint[""]
+
+        verbosity_level = {
+            1: lambda: print("`get_info` called"),
+            2: lambda: (
+                print(json.dumps(endpoint_data[f"{id}"], indent=4)) if id else None,
+                print(json.dumps(endpoint_data, indent=4))
+            )
+        }
+
+        verbosity_level[self.auth.state.verbosity]()
+
         return endpoint_data
 
     def set_info(self, endpoint, field, value, id=None):
-        # Edit endpoint info
         new_value = {
             field: value
         }
+
         self.auth.request('PATCH', endpoint, id, new_value)
 
-        # Return endpoint info as json object: endpoint[""]
-        new_endpoint_data = self.auth.request('GET', endpoint, id)
-        return new_endpoint_data
+        return self.get_info(endpoint, id)
 
     def safe_z(self):
         # Get safe z height via get_info()
