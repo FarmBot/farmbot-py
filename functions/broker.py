@@ -13,7 +13,6 @@ BrokerConnect class.
 
 from .imports import *
 
-
 class BrokerConnect():
     def __init__(self, state):
         self.state = state
@@ -60,11 +59,7 @@ class BrokerConnect():
         if self.client is None:
             self.connect()
 
-        self.client.publish(
-            f'bot/{self.state.token["token"]
-                   ["unencoded"]["bot"]}/from_clients',
-            payload=json.dumps(message)
-        )
+        self.client.publish(f'bot/{self.state.token["token"]["unencoded"]["bot"]}/from_clients', payload=json.dumps(message))
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Subscribe to specified message broker channel."""

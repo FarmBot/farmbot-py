@@ -12,7 +12,6 @@ BasicCommands class.
 from .imports import *
 from .broker import BrokerConnect
 
-
 class BasicCommands():
     def __init__(self, state):
         self.broker = BrokerConnect(state)

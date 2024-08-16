@@ -14,7 +14,6 @@ from .imports import *
 from .broker import BrokerConnect
 from .information import Information
 
-
 class MovementControls():
     def __init__(self, state):
         self.broker = BrokerConnect(state)

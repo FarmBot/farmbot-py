@@ -13,7 +13,6 @@ from .broker import BrokerConnect
 from .information import Information
 from .resources import Resources
 
-
 class JobHandling():
     def __init__(self, state):
         self.broker = BrokerConnect(state)

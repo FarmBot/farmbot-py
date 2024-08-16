@@ -4,18 +4,18 @@ Farmbot class.
 
 from imports import *
 
-
 class State():
     def __init__(self):
         self.token = None
         self.error = None
+
         self.last_message = None
 
+        self.echo = True
 
 class Farmbot():
     def __init__(self):
         self.state = State()
-        self.echo = True
 
         # Initialize other components without the token initially
         self.auth = Authentication(self.state)
@@ -30,18 +30,21 @@ class Farmbot():
         self.resources = Resources(self.state)
         self.tools = ToolControls(self.state)
 
-    # authentication.py
-
     def set_token(self, token):
         self.state.token = token
 
+    def set_echo(self, value):
+        if value is True:
+            self.state.echo = True
+        elif value is False:
+            self.state.echo = False
+        else:
+            return print("ERROR: `Echo` can only be True or False.")
+
+    # authentication.py
+
     def get_token(self, email, password, server="https://my.farm.bot"):
-        # Call get_token() source
-        # Set authentication token for all modules
-
-        token_data = self.auth.get_token(email, password, server)
-
-        return token_data
+        return self.auth.get_token(email, password, server)
 
     # basic_commands.py
 

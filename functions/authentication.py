@@ -11,7 +11,6 @@ Autentication class.
 
 from .imports import *
 
-
 class Authentication():
     def __init__(self, state):
         self.state = state
@@ -28,21 +27,17 @@ class Authentication():
         if response.status_code == 200:
             return 200
         elif 400 <= response.status_code < 500:
-            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {
-                                          error_messages.get(response.status_code, response.reason)}", indent=2)
+            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
         elif 500 <= response.status_code < 600:
-            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {
-                                          response.text}", indent=2)
+            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
         else:
-            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {
-                                          response.text}", indent=2)
+            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
-            response = requests.post(
-                f'{server}/api/tokens', headers=headers, json=user)
+            response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
             # Handle HTTP status codes
             if response.status_code == 200:
                 token_data = response.json()
@@ -54,8 +49,7 @@ class Authentication():
             elif response.status_code == 422:
                 self.state.error = "HTTP ERROR: Incorrect email address or password."
             else:
-                self.state.error = f"HTTP ERROR: Unexpected status code {
-                    response.status_code}"
+                self.state.error = f"HTTP ERROR: Unexpected status code {response.status_code}"
         # Handle DNS resolution errors
         except requests.exceptions.RequestException as e:
             if isinstance(e, requests.exceptions.ConnectionError):
@@ -65,11 +59,10 @@ class Authentication():
             elif isinstance(e, requests.exceptions.RequestException):
                 self.state.error = "DNS ERROR: There was a problem with the request."
         except Exception as e:
-            self.state.error = f"DNS ERROR: An unexpected error occurred: {
-                str(e)}"
+            self.state.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
 
         self.state.token = None
-        return
+        return self.state.error
 
     def check_token(self):
         if self.state.token is None:
@@ -85,14 +78,11 @@ class Authentication():
         # use 'DELETE' method to delete endpoint data (hidden)
 
         if database_id is None:
-            url = f'https:{self.state.token["token"]
-                           ["unencoded"]["iss"]}/api/{endpoint}'
+            url = f'https:{self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}'
         else:
-            url = f'https:{
-                self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
+            url = f'https:{self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
 
-        headers = {
-            'authorization': self.state.token['token']['encoded'], 'content-type': 'application/json'}
+        headers = {'authorization': self.state.token['token']['encoded'], 'content-type': 'application/json'}
         response = requests.request(method, url, headers=headers, json=payload)
 
         if self.request_handling(response) == 200:

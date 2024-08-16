@@ -15,17 +15,3 @@ from functions.movements import MovementControls
 from functions.peripherals import Peripherals
 from functions.resources import Resources
 from functions.tools import ToolControls
-
-# Classes
-
-# auth = Authentication()
-# basic = BasicCommands()
-# broker = BrokerConnect()
-# camera = Camera()
-# info = Information()
-# job = JobHandling()
-# message = MessageHandling()
-# move = MovementControls()
-# peripheral = Peripherals()
-# resource = Resources()
-# tool = ToolControls()
