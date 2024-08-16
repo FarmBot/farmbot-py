@@ -30,8 +30,6 @@ class BrokerConnect():
     # def stop_listen() --> stop listening to broker channel
 
     def connect(self):
-        """Establish persistent connection with message broker."""
-
         self.client = mqtt.Client()
         self.client.username_pw_set(
             username=self.state.token['token']['unencoded']['bot'],
@@ -47,14 +45,11 @@ class BrokerConnect():
         self.client.loop_start()
 
     def disconnect(self):
-        """Disconnect from the message broker."""
-
         if self.client is not None:
             self.client.loop_stop()
             self.client.disconnect()
 
     def publish(self, message):
-        """Send Celery Script messages via message broker."""
 
         if self.client is None:
             self.connect()
@@ -62,60 +57,29 @@ class BrokerConnect():
         self.client.publish(f'bot/{self.state.token["token"]["unencoded"]["bot"]}/from_clients', payload=json.dumps(message))
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
-        """Subscribe to specified message broker channel."""
         self.client.subscribe(
             f"bot/{self.state.token['token']['unencoded']['bot']}/{channel}")
 
     def on_message(self, _client, _userdata, msg):
-        """Update message queue with latest broker response."""
         self.state.last_message = json.loads(msg.payload)
 
-    def show_connect(self, client, *_args):
-        # Subscribe to all channels
-        client.subscribe(
-            f"bot/{self.state.token['token']['unencoded']['bot']}/#")
+        # print('-' * 100)
+        # # Print channel
+        # print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
+        # # Print message
+        # print(json.dumps(json.loads(msg.payload), indent=4))
 
-    def show_message(self, _client, _userdata, msg):
-        self.state.last_message = msg.payload
-        print('-' * 100)
-        # Print channel
-        print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
-        # Print message
-        print(json.dumps(json.loads(msg.payload), indent=4))
-
-    def listen(self, duration, channel):
-        """Listen to messages via message broker."""
-
+    def start_listen(self, channel="#"):
+        # Subscribe to all channels with "#"
         if self.client is None:
             self.connect()
 
         # Wrap on_connect to pass channel argument
-        self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(
-            client, userdata, flags, rc, channel)
+        self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(client, userdata, flags, rc, channel)
         self.client.on_message = self.on_message
 
         self.client.loop_start()
 
-        # Listen to messages for duration (seconds)
-        time.sleep(duration)
-
-        self.client.loop_stop()
-        self.client.disconnect()
-
-    def start_listening(self):
-        print("Now listening to message broker...")
-
-        if self.client is None:
-            self.connect()
-
-        # Wrap on_connect to pass channel argument
-        self.client.on_connect = self.show_connect
-        self.client.on_message = self.show_message
-
-        self.client.loop_start()
-
-    def stop_listening(self):
-        print("Stopped listening to message broker...")
-
+    def stop_listen(self):
         self.client.loop_stop()
         self.client.disconnect()

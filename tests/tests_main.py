@@ -319,13 +319,13 @@ class TestFarmbot(unittest.TestCase):
         mock_client.disconnect.assert_called_once()
 
     @patch('paho.mqtt.client.Client')
-    def test_listen_broker(self, mock_mqtt):
-        '''Test listen_broker command'''
+    def test_start_listen(self, mock_mqtt):
+        '''Test start_listen command'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         fb = Farmbot()
         fb.set_token(MOCK_TOKEN)
-        fb.listen_broker(1)
+        fb.start_listen()
         mock_client.on_connect('', '', '', '')
 
         class MockMessage:
@@ -342,8 +342,6 @@ class TestFarmbot(unittest.TestCase):
             keepalive=60)
         mock_client.subscribe.assert_called_once_with('bot/device_0/#')
         mock_client.loop_start.assert_called()
-        mock_client.loop_stop.assert_called_once()
-        mock_client.disconnect.assert_called_once()
 
     @patch('requests.request')
     @patch('paho.mqtt.client.Client')

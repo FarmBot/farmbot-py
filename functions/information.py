@@ -111,9 +111,11 @@ class Information():
                     "args": {}
             }]
         }
-
         self.broker.publish(status_message)
-        self.broker.listen(5, "status")
+
+        self.broker.start_listen("status")
+        time.sleep(5)
+        self.broker.stop_listen()
 
         status_tree = self.broker.state.last_message
 

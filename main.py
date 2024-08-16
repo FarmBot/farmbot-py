@@ -8,14 +8,12 @@ class State():
     def __init__(self):
         self.token = None
         self.error = None
-
         self.last_message = None
-
-        self.echo = True
 
 class Farmbot():
     def __init__(self):
         self.state = State()
+        self.echo = True
 
         # Initialize other components without the token initially
         self.auth = Authentication(self.state)
@@ -35,9 +33,9 @@ class Farmbot():
 
     def set_echo(self, value):
         if value is True:
-            self.state.echo = True
+            self.echo = True
         elif value is False:
-            self.state.echo = False
+            self.echo = False
         else:
             return print("ERROR: `Echo` can only be True or False.")
 
@@ -70,6 +68,12 @@ class Farmbot():
 
     def disconnect_broker(self):
         return self.broker.disconnect()
+
+    def start_listen(self, channel="#"):
+        return self.broker.start_listen(channel)
+
+    def stop_listen(self):
+        return self.broker.stop_listen()
 
     # camera.py
 
