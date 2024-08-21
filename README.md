@@ -73,6 +73,14 @@ bot.get_token("email", "password")
 
 ### Configure function output verbosity
 
+Set the level of verbosity of function outputs to change the level of information shown when functions are called.
+
+| Verbosity | Example using `e_stop()` |
+| :--- | :--- |
+| `0` The function will return with no output. | No output. |
+| `1` The name of the function will be output. | `e_stop called` |
+| `2` The name of the function will be output with additional information about the return value. | `Triggered device emergency stop at: 2024-08-21 11:16:18.547813` |
+
 ## :compass: Functions
 
 ```
@@ -106,7 +114,7 @@ sidecar-starter-pack/
 ### authentication.py
 
 | class `Authentication()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `get_token()` | [API] Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
 | `check_token()` | [API] Ensure the token persists throughout sidecar. |
 | `request_handling()` | [API] Handle errors associated with different endpoint errors. |
@@ -118,7 +126,7 @@ sidecar-starter-pack/
 ### basic_commands.py
 
 | class `BasicCommands()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `wait()` | [BROKER] Pauses execution for a certain number of milliseconds. |
 | `e_stop()` | [BROKER] Emergency locks (E-stops) the Farmduino microcontroller and resets peripheral pins to OFF. |
 | `unlock()` | [BROKER] Unlocks a locked (E-stopped) device. |
@@ -128,7 +136,7 @@ sidecar-starter-pack/
 ### broker.py
 
 | class `BrokerConnect()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `connect()` | [BROKER] Establish persistent connection to send messages via message broker. |
 | `disconnect()` | [BROKER] Disconnect from the message broker. |
 | `publish()` | [BROKER] Publish messages containing CeleryScript via the message broker. |
@@ -140,7 +148,7 @@ sidecar-starter-pack/
 ### camera.py
 
 | class `Camera()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `calibrate_camera()` | [BROKER] Performs camera calibration. This action will reset camera calibration settings. |
 | `take_photo()` | [BROKER] Takes a photo using the device camera and uploads it to the web app. |
 <!--- | `photo_grid()` | [BROKER] Returns metadata object about point grid required to perform a scan of the full garden. | --->
@@ -148,7 +156,7 @@ sidecar-starter-pack/
 ### information.py
 
 | class `Information()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `get_info()` | [API] Get information about a specific endpoint. |
 | `set_info()` | [API] Change information contained within an endpoint. |
 | `safe_z()` | [API] Returns the highest safe point along the z-axis. |
@@ -168,7 +176,7 @@ sidecar-starter-pack/
 ### jobs.py
 
 | class `JobHandling()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `get_job()` | [BROKER] Retrieves the status or details of the specified job. |
 | `set_job()` | [BROKER] Initiates or modifies job with given parameters. |
 | `complete_job()` | [BROKER] Marks job as completed and triggers any associated actions. |
@@ -176,7 +184,7 @@ sidecar-starter-pack/
 ### messages.py
 
 | class `MessageHandling()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `log()` | [API] Sends new log message via the API. Requires the page to be refreshed before appearing. |
 | `message()` | [BROKER] Sends new log message via the message broker. |
 | `debug()` | [BROKER] Sends debug message used for developer information or troubleshooting. |
@@ -185,7 +193,7 @@ sidecar-starter-pack/
 ### movements.py
 
 | class `MovementControls()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `move()` | [BROKER] Moves to the specified (x, y, z) coordinate. |
 | `set_home()` | [BROKER] Sets the current position as the home position for a specific axis. |
 | `find_home()` | [BROKER] Moves the device to the home position for a specified axis. |
@@ -196,7 +204,7 @@ sidecar-starter-pack/
 ### peripherals.py
 
 | class `Peripherals()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `control_servo()` | [BROKER] Set servo angle between 0-100 degrees. |
 | `control_peripheral()` | [BROKER] Set peripheral value (ON/OFF or slider value from 0-255) and mode (digital or analog). |
 | `toggle_peripheral()` | [BROKER] Toggles the state of a specific peripheral between 'on' (100%) and 'off' (0%). |
@@ -206,25 +214,25 @@ sidecar-starter-pack/
 ### resources.py
 
 | class `Resources()` | Description |
-| --- | --- |
+| :--- | :--- |
 | `mark_coord()` | [BROKER] Marks (x, y, z) coordinate with specified label. |
-<!--- | `sort_points()` | [BROKER] Sorts list of points (e.g., plants, weeds) based on specified criteria. | --->
 | `sequence()` | [BROKER] Executes a predefined sequence. |
 | `get_seed_tray_cell()` | [BROKER] Identifies and returns the location of specified cell in the seed tray. |
 | `detect_weeds()` | [BROKER] Scans the garden to detect weeds. |
 | `lua()` | [BROKER] Executes custom Lua code snippets to perform complex tasks or automations. |
 | `if_statement()` | [BROKER] Performs conditional check and executes actions based on the outcome. |
 | `assertion()` | [BROKER] Evaluates an expression. |
+<!--- | `sort_points()` | [BROKER] Sorts list of points (e.g., plants, weeds) based on specified criteria. | --->
 
 ### tools.py
 
 | class `ToolControls()` | Description |
-| --- | --- |
-<!--- | `verify_tool()` | [BROKER] Verifies if tool is mounted to UTM via tool verification pin and MOUNTED TOOL field in FarmBot’s state tree. | --->
+| :--- | :--- |
 | `mount_tool()` | [BROKER] Mounts the given tool and pulls it out of assigned slot. |
 | `dismount_tool()` | [BROKER] Dismounts the currently mounted tool into assigned slot. |
 | `water()` | [BROKER] Moves to and waters plant based on age and assigned watering curve. |
 | `dispense()` | [BROKER] Dispenses user-defined amount of liquid in milliliters. |
+<!--- | `verify_tool()` | [BROKER] Verifies if tool is mounted to UTM via tool verification pin and MOUNTED TOOL field in FarmBot’s state tree. | --->
 
 ## :toolbox: Developer Info
 
