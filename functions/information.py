@@ -27,12 +27,7 @@ class Information():
 
         endpoint_data = self.auth.request('GET', endpoint, id)
 
-        verbosity_level = {
-            1: lambda: print("`get_info` called"),
-            2: lambda: print(json.dumps(endpoint_data, indent=4))
-        }
-
-        verbosity_level[self.auth.state.verbosity]()
+        self.broker.state.print_status("get_info()", endpoint_json=endpoint_data)
 
         return endpoint_data
 
@@ -44,7 +39,11 @@ class Information():
         }
 
         self.auth.request('PATCH', endpoint, id, new_value)
-        return self.get_info(endpoint, id)
+        endpoint_data = self.get_info(endpoint, id)
+
+        self.broker.state.print_status("set_info()", endpoint_json=endpoint_data)
+
+        return endpoint_data
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""

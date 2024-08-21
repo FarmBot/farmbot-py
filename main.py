@@ -11,6 +11,16 @@ class State():
         self.last_message = None
         self.verbosity = 2
 
+    def print_status(self, function, endpoint_json=None, description=None):
+        """Handle changes to output based on user-defined verbosity."""
+
+        if self.verbosity >= 1:
+            return print(f"`{function}` called")
+        if self.verbosity >= 2 and endpoint_json:
+            return print(json.dumps(endpoint_json, indent=4))
+        if self.verbosity >= 2 and description:
+            return print(description)
+
 class Farmbot():
     def __init__(self):
         self.state = State()

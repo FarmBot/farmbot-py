@@ -19,12 +19,7 @@ class BasicCommands():
     def wait(self, duration):
         """Pauses execution for a certain number of milliseconds."""
 
-        verbosity_level = {
-            1: lambda: print("`wait` called"),
-            2: lambda: print(f"Waiting for {duration} milliseconds...")
-        }
-
-        verbosity_level[self.broker.state.verbosity]()
+        self.broker.state.print_status("wait()", description=f"Waiting for {duration} milliseconds...")
 
         wait_message = {
             "kind": "rpc_request",
@@ -46,12 +41,7 @@ class BasicCommands():
     def e_stop(self):
         """Emergency locks (E-stops) the Farmduino microcontroller."""
 
-        verbosity_level = {
-            1: lambda: print("`e_stop` called"),
-            2: lambda: print(f"Triggered device emergency stop at: {datetime.now()}")
-        }
-
-        verbosity_level[self.broker.state.verbosity]()
+        self.broker.state.print_status("e_stop()", description=f"Triggered device emergency stop at: {datetime.now()}")
 
         stop_message = {
             "kind": "rpc_request",
@@ -71,12 +61,7 @@ class BasicCommands():
     def unlock(self):
         """Unlocks a locked (E-stopped) device."""
 
-        verbosity_level = {
-            1: lambda: print("`unlock` called"),
-            2: lambda: print(f"Triggered device unlock at: {datetime.now()}")
-        }
-
-        verbosity_level[self.broker.state.verbosity]()
+        self.broker.state.print_status("unlock()", description=f"Triggered device unlock at: {datetime.now()}")
 
         unlock_message = {
             "kind": "rpc_request",
@@ -96,12 +81,7 @@ class BasicCommands():
     def reboot(self):
         """Reboots the FarmBot OS and reinitializes the device."""
 
-        verbosity_level = {
-            1: lambda: print("`reboot` called"),
-            2: lambda: print(f"Triggered device reboot at: {datetime.now()}")
-        }
-
-        verbosity_level[self.broker.state.verbosity]()
+        self.broker.state.print_status("reboot()", description=f"Triggered device reboot at: {datetime.now()}")
 
         reboot_message = {
             **RPC_REQUEST,
@@ -119,12 +99,7 @@ class BasicCommands():
     def shutdown(self):
         """Shuts down the FarmBot OS and turns the device off."""
 
-        verbosity_level = {
-            1: lambda: print("`shutdown` called"),
-            2: lambda: print(f"Triggered device shutdown at: {datetime.now()}")
-        }
-
-        verbosity_level[self.broker.state.verbosity]()
+        self.broker.state.print_status("shutdown()", description=f"Triggered device shutdown at: {datetime.now()}")
 
         shutdown_message = {
             **RPC_REQUEST,
