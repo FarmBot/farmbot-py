@@ -4,7 +4,8 @@ Information class.
 
 # └── functions/information
 #     ├── [API] get_info()
-#     ├── [API] set_info()
+#     ├── [API] edit_info()
+#     ├── [API] add_info()
 #     ├── [API] safe_z()
 #     ├── [API] garden_size()
 #     ├── [API] group()
@@ -25,23 +26,30 @@ class Information():
     def get_info(self, endpoint, id=None):
         """Get information about a specific endpoint."""
 
-        endpoint_data = self.auth.request('GET', endpoint, id)
+        endpoint_data = self.auth.request("GET", endpoint, id)
 
         self.broker.state.print_status("get_info()", endpoint_json=endpoint_data)
 
         return endpoint_data
 
-    def set_info(self, endpoint, field, value, id=None):
+    def edit_info(self, endpoint, new_data, id=None):
         """Change information contained within an endpoint."""
 
-        new_value = {
-            field: value
-        }
-
-        self.auth.request('PATCH', endpoint, id, new_value)
+        self.auth.request("PATCH", endpoint, database_id=id, payload=new_data)
         endpoint_data = self.get_info(endpoint, id)
 
-        self.broker.state.print_status("set_info()", endpoint_json=endpoint_data)
+        self.broker.state.print_status("edit_info()", endpoint_json=endpoint_data)
+
+        return endpoint_data
+
+    def add_info(self, endpoint, new_data, id=None):
+        """Create new informated contained within an endpoint."""
+
+        self.auth.request("POST", endpoint, database_id=id, payload=new_data)
+
+        endpoint_data = self.get_info(endpoint, id)
+
+        self.broker.state.print_status("add_info()", endpoint_json=endpoint_data)
 
         return endpoint_data
 

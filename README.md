@@ -84,6 +84,19 @@ bot.set_verbosity(2)
 | `1` The name of the function will be output. | `e_stop called` |
 | `2` The name of the function will be output with additional information about the return value. | `Triggered device emergency stop at: 2024-08-21 11:16:18.547813` |
 
+### Test 1: Add a new plant to your garden
+
+This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/web-app/rest-api).
+
+### Test 2: Turn your LED strip on and off
+
+This test will help familiarize you with sending commands via the [Message Broker](https://developer.farm.bot/docs/message-broker).
+```
+on(7)           # Turn ON pin 7 (LED strip)
+wait(2000)      # Wait 2000 milliseconds
+off(7)          # Turn OFF pin 7 (LED strip)
+```
+
 ## :compass: Functions
 
 ```
