@@ -159,7 +159,7 @@ sidecar-starter-pack/
 > Making requests other than `GET` to the API will permanently alter the data in your account. `DELETE` and `POST` requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
 
 > [!NOTE]
-> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/v15/docs/web-app/api-docs).
+> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/docs/web-app/api-docs).
 
 | class `Information()` | Description |
 | :--- | :--- |
@@ -239,7 +239,7 @@ sidecar-starter-pack/
 ### Formatting message broker messages
 
 > [!NOTE]
-> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/v15/docs/celery-script/nodes.html) which require special formatting.
+> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/docs/celery-script/nodes.html) which require special formatting.
 
 ```
 message = {
