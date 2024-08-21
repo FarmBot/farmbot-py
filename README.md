@@ -74,6 +74,9 @@ bot.get_token("email", "password")
 ### Configure function output verbosity
 
 Set the level of verbosity of function outputs to change the level of information shown when functions are called.
+```
+bot.set_verbosity(2)
+```
 
 | Verbosity | Example using `e_stop()` |
 | :--- | :--- |
@@ -108,30 +111,27 @@ sidecar-starter-pack/
 └── README.md
 ```
 
-> [!TIP]
-> Functions marked with [API] communicate with the Farm Designer web app via the [REST API](https://developer.farm.bot/v15/docs/web-app/rest-api.html) and those marked with [BROKER] communicate with the FarmBot via the [message broker](https://developer.farm.bot/v15/docs/message-broker).
-
 ### authentication.py
-
-| class `Authentication()` | Description |
-| :--- | :--- |
-| `get_token()` | [API] Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
-| `check_token()` | [API] Ensure the token persists throughout sidecar. |
-| `request_handling()` | [API] Handle errors associated with different endpoint errors. |
-| `request()` | [API] Make requests to API endpoints using different methods. |
 
 > [!CAUTION]
 > Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
+
+| class `Authentication()` | Description |
+| :--- | :--- |
+| `get_token()` | <a href="https://developer.farm.bot/v15/docs/web-app/rest-api.html"><img src="https://img.shields.io/badge/REST%20API-FF9500"/></a> Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
+| `check_token()` | <a href="https://developer.farm.bot/v15/docs/web-app/rest-api.html"><img src="https://img.shields.io/badge/REST%20API-FF9500"/></a> Ensure the token persists throughout sidecar. |
+| `request_handling()` | <a href="https://developer.farm.bot/v15/docs/web-app/rest-api.html"><img src="https://img.shields.io/badge/REST%20API-FF9500"/></a> Handle errors associated with different endpoint errors. |
+| `request()` | <a href="https://developer.farm.bot/v15/docs/web-app/rest-api.html"><img src="https://img.shields.io/badge/REST%20API-FF9500"/></a> Make requests to API endpoints using different methods. |
 
 ### basic_commands.py
 
 | class `BasicCommands()` | Description |
 | :--- | :--- |
-| `wait()` | [BROKER] Pauses execution for a certain number of milliseconds. |
-| `e_stop()` | [BROKER] Emergency locks (E-stops) the Farmduino microcontroller and resets peripheral pins to OFF. |
-| `unlock()` | [BROKER] Unlocks a locked (E-stopped) device. |
-| `reboot()` | [BROKER] Reboots the FarmBot OS and reinitializes the device. |
-| `shutdown()` | [BROKER] Shuts down the FarmBot OS, turning the device off. |
+| `wait()` | <a href="https://developer.farm.bot/v15/docs/message-broker"><img src="https://img.shields.io/badge/Message%20Broker-66BF34"/></a> Pauses execution for a certain number of milliseconds. |
+| `e_stop()` | <a href="https://developer.farm.bot/v15/docs/message-broker"><img src="https://img.shields.io/badge/Message%20Broker-66BF34"/></a> Emergency locks (E-stops) the Farmduino microcontroller and resets peripheral pins to OFF. |
+| `unlock()` | <a href="https://developer.farm.bot/v15/docs/message-broker"><img src="https://img.shields.io/badge/Message%20Broker-66BF34"/></a> Unlocks a locked (E-stopped) device. |
+| `reboot()` | <a href="https://developer.farm.bot/v15/docs/message-broker"><img src="https://img.shields.io/badge/Message%20Broker-66BF34"/></a> Reboots the FarmBot OS and reinitializes the device. |
+| `shutdown()` | <a href="https://developer.farm.bot/v15/docs/message-broker"><img src="https://img.shields.io/badge/Message%20Broker-66BF34"/></a> Shuts down the FarmBot OS, turning the device off. |
 
 ### broker.py
 
@@ -155,6 +155,12 @@ sidecar-starter-pack/
 
 ### information.py
 
+> [!CAUTION]
+> Making requests other than `GET` to the API will permanently alter the data in your account. `DELETE` and `POST` requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
+
+> [!NOTE]
+> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/v15/docs/web-app/api-docs).
+
 | class `Information()` | Description |
 | :--- | :--- |
 | `get_info()` | [API] Get information about a specific endpoint. |
@@ -166,12 +172,6 @@ sidecar-starter-pack/
 | `soil_height()` | [BROKER] Use the camera to determine soil height at the current location. |
 | `read_status()` | [BROKER] Returns the FarmBot status tree. |
 | `read_sensor()` | [BROKER] Reads the given pin by id. |
-
-> [!CAUTION]
-> Making requests other than `GET` to the API will permanently alter the data in your account. `DELETE` and `POST` requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
-
-> [!NOTE]
-> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/v15/docs/web-app/api-docs).
 
 ### jobs.py
 
