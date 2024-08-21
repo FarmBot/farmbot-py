@@ -116,7 +116,7 @@ sidecar-starter-pack/
 > [!CAUTION]
 > Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
 
-| class `Authentication()` | Description |
+| $${\color{orange}class \space `Authentication()`}$$ | Description |
 | :--- | :--- |
 | `get_token()` | Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
 | `check_token()` | Ensure the token persists throughout sidecar. |
