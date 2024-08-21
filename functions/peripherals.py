@@ -19,8 +19,8 @@ class Peripherals():
         self.info = Information(state)
 
     def control_servo(self, pin, angle):
-        # Change servo values
-        # No inherent return value
+        """Set servo angle between 0-100 degrees."""
+
         if angle < 0 or angle > 180:
             return print("ERROR: Servo angle constrained to 0-180 degrees.")
         else:
@@ -35,11 +35,12 @@ class Peripherals():
                 }]
             }
 
-            self.broker.publish(control_servo_message)
+        self.broker.publish(control_servo_message)
+        return
 
     def control_peripheral(self, id, value, mode=None):
-        # Change peripheral values
-        # No inherent return value
+        """Set peripheral value and mode."""
+
         if mode is None:
             peripheral_str = self.info.get_info("peripherals", id)
             mode = peripheral_str["mode"]
@@ -63,10 +64,11 @@ class Peripherals():
         }
 
         self.broker.publish(control_peripheral_message)
+        return
 
     def toggle_peripheral(self, id):
-        # Toggle peripheral on or off
-        # Return status
+        """Toggles the state of a specific peripheral between `on` and `off`."""
+
         toggle_peripheral_message = {
             **RPC_REQUEST,
             "body": [{
@@ -84,10 +86,11 @@ class Peripherals():
         }
 
         self.broker.publish(toggle_peripheral_message)
+        return # TODO: return status
 
     def on(self, id):
-        # Set peripheral to on
-        # Return status
+        """Turns specified peripheral `on` (100%)."""
+
         peripheral_str = self.info.get_info("peripherals", id)
         mode = peripheral_str["mode"]
 
@@ -96,7 +99,11 @@ class Peripherals():
         elif mode == 0:
             self.control_peripheral(id, 1)
 
+        return # TODO: return status
+
     def off(self, id):
-        # Set peripheral to off
-        # Return status
+        """Turns specified peripheral `off` (0%)."""
+
         self.control_peripheral(id, 0)
+
+        return # TODO: return status

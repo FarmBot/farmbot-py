@@ -3,7 +3,6 @@ Autentication class.
 """
 
 # └── functions/authentication.py
-#     ├── [API] token_handling()
 #     ├── [API] get_token()
 #     ├── [API] check_token()
 #     ├── [API] request_handling()
@@ -15,25 +14,9 @@ class Authentication():
     def __init__(self, state):
         self.state = state
 
-    def request_handling(self, response):
-        error_messages = {
-            404: "The specified endpoint does not exist.",
-            400: "The specified ID is invalid or you do not have access to it.",
-            401: "The user`s token has expired or is invalid.",
-            502: "Please check your internet connection and try again."
-        }
-
-        # Handle HTTP status codes
-        if response.status_code == 200:
-            return 200
-        elif 400 <= response.status_code < 500:
-            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
-        elif 500 <= response.status_code < 600:
-            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
-        else:
-            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
-
     def get_token(self, email, password, server="https://my.farm.bot"):
+        """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
+
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
@@ -64,11 +47,38 @@ class Authentication():
         return self.state.error
 
     def check_token(self):
+        """Ensure the token persists throughout sidecar."""
+
         if self.state.token is None:
             print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
+        return
+
+    def request_handling(self, response):
+        """Handle errors associated with different endpoint errors."""
+        error_messages = {
+            404: "The specified endpoint does not exist.",
+            400: "The specified ID is invalid or you do not have access to it.",
+            401: "The user`s token has expired or is invalid.",
+            502: "Please check your internet connection and try again."
+        }
+
+        # Handle HTTP status codes
+        if response.status_code == 200:
+            return 200
+        elif 400 <= response.status_code < 500:
+            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
+        elif 500 <= response.status_code < 600:
+            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
+        else:
+            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
+
+        return
+
     def request(self, method, endpoint, database_id, payload=None):
+        """Make requests to API endpoints using different methods."""
+
         self.check_token()
 
         # use 'GET' method to view endpoint data

@@ -18,31 +18,31 @@ class ToolControls():
         self.broker = BrokerConnect(state)
         self.resource = Resources(state)
 
-    # TODO: verify_tool() --> get broker message example
-        # Verify tool exists at xyz coord
-        # Return xyz coord and info(?)
+    # TODO: verify_tool()
 
     def mount_tool(self, tool_str):
-        # Mount tool at xyz coord
-        # No inherent return value
+        """Mounts the given tool and pulls it out of assigned slot."""
+
         lua_code = f"""
             mount_tool("{tool_str}")
         """
 
         self.resource.lua(lua_code)
+        return
 
     def dismount_tool(self):
-        # Dismount tool (at xyz coord?)
-        # No inherent return value
+        """Dismounts the currently mounted tool into assigned slot."""
+
         lua_code = """
             dismount_tool()
         """
 
         self.resource.lua(lua_code)
+        return
 
     def water(self, plant_id):
-        # Water the given plant
-        # No inherent return value
+        """Moves to and waters plant based on age and assigned watering curve."""
+
         lua_code = f"""
             plant = api({{
                 method = "GET",
@@ -52,12 +52,14 @@ class ToolControls():
         """
 
         self.resource.lua(lua_code)
+        return
 
     def dispense(self, mL, tool_str, pin):
-        # Dispense from source at all or single xyz coords
-        # No inherent return value
+        """Dispenses user-defined amount of liquid in milliliters."""
+
         lua_code = f"""
             dispense({mL}, {{tool_name = "{tool_str}", pin = {pin}}})
         """
 
         self.resource.lua(lua_code)
+        return

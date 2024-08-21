@@ -17,6 +17,8 @@ class BasicCommands():
         self.broker = BrokerConnect(state)
 
     def wait(self, duration):
+        """Pauses execution for a certain number of milliseconds."""
+
         verbosity_level = {
             1: lambda: print("`wait` called"),
             2: lambda: print(f"Waiting for {duration} milliseconds...")
@@ -39,8 +41,11 @@ class BasicCommands():
         }
 
         self.broker.publish(wait_message)
+        return
 
     def e_stop(self):
+        """Emergency locks (E-stops) the Farmduino microcontroller."""
+
         verbosity_level = {
             1: lambda: print("`e_stop` called"),
             2: lambda: print(f"Triggered device emergency stop at: {datetime.now()}")
@@ -61,8 +66,11 @@ class BasicCommands():
         }
 
         self.broker.publish(stop_message)
+        return
 
     def unlock(self):
+        """Unlocks a locked (E-stopped) device."""
+
         verbosity_level = {
             1: lambda: print("`unlock` called"),
             2: lambda: print(f"Triggered device unlock at: {datetime.now()}")
@@ -83,8 +91,11 @@ class BasicCommands():
         }
 
         self.broker.publish(unlock_message)
+        return
 
     def reboot(self):
+        """Reboots the FarmBot OS and reinitializes the device."""
+
         verbosity_level = {
             1: lambda: print("`reboot` called"),
             2: lambda: print(f"Triggered device reboot at: {datetime.now()}")
@@ -103,8 +114,11 @@ class BasicCommands():
         }
 
         self.broker.publish(reboot_message)
+        return
 
     def shutdown(self):
+        """Shuts down the FarmBot OS and turns the device off."""
+
         verbosity_level = {
             1: lambda: print("`shutdown` called"),
             2: lambda: print(f"Triggered device shutdown at: {datetime.now()}")
@@ -121,3 +135,4 @@ class BasicCommands():
         }
 
         self.broker.publish(shutdown_message)
+        return

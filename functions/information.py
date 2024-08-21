@@ -23,14 +23,13 @@ class Information():
         self.auth = Authentication(state)
 
     def get_info(self, endpoint, id=None):
+        """Get information about a specific endpoint."""
+
         endpoint_data = self.auth.request('GET', endpoint, id)
 
         verbosity_level = {
             1: lambda: print("`get_info` called"),
-            2: lambda: (
-                print(json.dumps(endpoint_data[f"{id}"], indent=4)) if id else None,
-                print(json.dumps(endpoint_data, indent=4))
-            )
+            2: lambda: print(json.dumps(endpoint_data, indent=4))
         }
 
         verbosity_level[self.auth.state.verbosity]()
@@ -38,23 +37,26 @@ class Information():
         return endpoint_data
 
     def set_info(self, endpoint, field, value, id=None):
+        """Change information contained within an endpoint."""
+
         new_value = {
             field: value
         }
 
         self.auth.request('PATCH', endpoint, id, new_value)
-
         return self.get_info(endpoint, id)
 
     def safe_z(self):
-        # Get safe z height via get_info()
+        """Returns the highest safe point along the z-axis."""
+
         config_data = self.get_info('fbos_config')
         z_value = config_data["safe_height"]
-        # Return safe z height as value
+
         return z_value
 
     def garden_size(self):
-        # Get garden size parameters via get_info()
+        """Returns x-axis length, y-axis length, and area of garden bed."""
+
         json_data = self.get_info('firmware_config')
 
         x_steps = json_data['movement_axis_nr_steps_x']
@@ -67,32 +69,31 @@ class Information():
         length_y = y_steps / y_mm
         area = length_x * length_y
 
-        # Return garden size parameters as values
         return length_x, length_y, area
 
     def group(self, id=None):
-        # Get all groups or single by id
+        """Returns all group info or single by id."""
+
         if id is None:
             group_data = self.get_info("point_groups")
         else:
             group_data = self.get_info('point_groups', id)
 
-        # Return group as json object: group[""]
         return group_data
 
     def curve(self, id=None):
-        # Get all curves or single by id
+        """Returns all curve info or single by id."""
+
         if id is None:
             curve_data = self.get_info("curves")
         else:
             curve_data = self.get_info('curves', id)
 
-        # Return curve as json object: curve[""]
         return curve_data
 
     def soil_height(self):
-        # Execute soil height scripts
-        # Return soil height as value
+        """Use the camera to determine soil height at the current location."""
+
         soil_height_message = {
             **RPC_REQUEST,
             "body": [{
@@ -104,9 +105,11 @@ class Information():
         }
 
         self.broker.publish(soil_height_message)
+        return # TODO: return soil height as value
 
     def read_status(self):
-        # Get device status tree
+        """Returns the FarmBot status tree."""
+
         status_message = {
             "kind": "rpc_request",
             "args": {
@@ -125,12 +128,11 @@ class Information():
         self.broker.stop_listen()
 
         status_tree = self.broker.state.last_message
-
-        # Return status as json object: status[""]
         return status_tree
 
     def read_sensor(self, id):
-        # Get sensor data
+        """Reads the given pin by id."""
+
         peripheral_str = self.get_info("peripherals", id)
         mode = peripheral_str["mode"]
 
@@ -153,4 +155,4 @@ class Information():
         }
 
         self.broker.publish(sensor_message)
-        # Return sensor as json object: sensor[""]
+        return # TODO

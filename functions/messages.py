@@ -18,7 +18,8 @@ class MessageHandling():
         self.auth = Authentication(state)
 
     def log(self, message_str, type=None, channel=None):
-        # Send new log message via API
+        """Sends new log message via the API."""
+
         log_message = {
             "message": message_str,
             "type": type, # https://software.farm.bot/v15/app/intro/jobs-and-logs#log-types
@@ -29,9 +30,11 @@ class MessageHandling():
         id = None
 
         self.auth.request('POST', endpoint, id, log_message)
-        # No inherent return value
+        return
 
     def message(self, message_str, type=None, channel="ticker"):
+        """Sends new log message via the message broker."""
+
         message = {
             "kind": "rpc_request",
             "args": {
@@ -54,14 +57,16 @@ class MessageHandling():
         }
 
         self.broker.publish(message)
-        # No inherent return value
+        return
 
     def debug(self, message_str):
-        # Send "debug" type message
+        """Sends debug message used for developer information or troubleshooting."""
+
         self.message(message_str, "debug", "ticker")
-        # No inherent return value
+        return
 
     def toast(self, message_str):
-        # Send "toast" type message
+        """Sends a message that pops up on the user interface briefly."""
+
         self.message(message_str, "info", "toast")
-        # No inherent return value
+        return

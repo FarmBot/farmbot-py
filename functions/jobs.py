@@ -20,7 +20,8 @@ class JobHandling():
         self.resource = Resources(state)
 
     def get_job(self, job_str):
-        # Get all or single job by name
+        """Retrieves the status or details of the specified job."""
+
         status_data = self.info.read_status()
 
         if job_str is None:
@@ -28,10 +29,11 @@ class JobHandling():
         else:
             jobs = status_data["jobs"][job_str]
 
-        # Return job as json object: job[""]
         return jobs
 
     def set_job(self, job_str, status_message, value):
+        """Initiates or modifies job with given parameters."""
+
         lua_code = f"""
             local job_name = "{job_str}"
             set_job(job_name)
@@ -44,10 +46,14 @@ class JobHandling():
         """
 
         self.resource.lua(lua_code)
+        return
 
     def complete_job(self, job_str):
+        """Marks job as completed and triggers any associated actions."""
+
         lua_code = f"""
             complete_job("{job_str}")
         """
 
         self.resource.lua(lua_code)
+        return

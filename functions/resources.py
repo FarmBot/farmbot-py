@@ -22,8 +22,8 @@ class Resources():
         self.info = Information(state)
 
     def mark_coord(self, x, y, z, property, mark_as): # TODO: Fix "label" and TODO: rename mark_point()
-        # Mark xyz coordinate
-        # Return new xyz coord value(s)
+        """Marks (x, y, z) coordinate with specified label."""
+
         mark_coord_message = {
             **RPC_REQUEST,
             "body": [{
@@ -46,12 +46,13 @@ class Resources():
             }]
         }
 
+        return # TODO: return new xyz coord value(s)
+
     # TODO: sort_points(points, method)
-    # TODO: sort(points, method)
 
     def sequence(self, sequence_id):
-        # Execute sequence by id
-        # No inherent return value
+        """Executes a predefined sequence."""
+
         sequence_message = {
             **RPC_REQUEST,
             "body": [{
@@ -63,8 +64,11 @@ class Resources():
         }
 
         self.broker.publish(sequence_message)
+        return
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
+        """Identifies and returns the location of specified cell in the seed tray."""
+
         tray_data = self.info.get_info("points", tray_id)
 
         cell = tray_cell.upper()
@@ -121,8 +125,8 @@ class Resources():
         return {"x": A1["x"] + offset["x"], "y": A1["y"] + offset["y"], "z": A1["z"]}
 
     def detect_weeds(self):
-        # Execute detect weeds script
-        # Return array of weeds with xyz coords
+        """Scans the garden to detect weeds."""
+
         detect_weeds_message = {
             **RPC_REQUEST,
             "body": [{
@@ -134,10 +138,11 @@ class Resources():
         }
 
         self.broker.publish(detect_weeds_message)
+        return # TODO: return array of weeds with xyz coords
 
     def lua(self, code_snippet):
-        # Send custom code snippet
-        # No inherent return value
+        """Executes custom Lua code snippets to perform complex tasks or automations."""
+
         lua_message = {
             **RPC_REQUEST,
             "body": [{
@@ -149,10 +154,11 @@ class Resources():
         }
 
         self.broker.publish(lua_message)
+        return
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
-        # Execute if statement
-        # No inherent return value
+        """Performs conditional check and executes actions based on the outcome."""
+
         if_statement_message = {
             **RPC_REQUEST,
             "body": [{
@@ -178,10 +184,11 @@ class Resources():
         }
 
         self.broker.publish(if_statement_message)
+        return
 
     def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
-        # Execute assertion
-        # No inherent return value
+        """Evaluates an expression."""
+
         assertion_message = {
             **RPC_REQUEST,
             "body": [{
@@ -200,3 +207,4 @@ class Resources():
         }
 
         self.broker.publish(assertion_message)
+        return
