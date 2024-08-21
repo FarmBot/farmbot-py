@@ -1,5 +1,5 @@
 """
-Farmbot Unit Tests
+Farmbot class unit tests.
 """
 
 import json
@@ -40,7 +40,7 @@ class TestFarmbot(unittest.TestCase):
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.token, expected_token)
+        self.assertEqual(fb.state.token, expected_token)
 
     @patch('requests.post')
     def test_get_token_custom_server(self, mock_post):
@@ -60,7 +60,7 @@ class TestFarmbot(unittest.TestCase):
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.token, expected_token)
+        self.assertEqual(fb.state.token, expected_token)
 
     @patch('requests.post')
     def test_get_token_bad_email(self, mock_post):
@@ -78,8 +78,8 @@ class TestFarmbot(unittest.TestCase):
                            'password': 'test_pass_123'}}
         )
         self.assertEqual(
-            fb.error, 'HTTP ERROR: Incorrect email address or password.')
-        self.assertIsNone(fb.token)
+            fb.state.error, 'HTTP ERROR: Incorrect email address or password.')
+        self.assertIsNone(fb.state.token)
 
     @patch('requests.post')
     def test_get_token_bad_server(self, mock_post):
@@ -98,8 +98,8 @@ class TestFarmbot(unittest.TestCase):
                            'password': 'test_pass_123'}}
         )
         self.assertEqual(
-            fb.error, 'HTTP ERROR: The server address does not exist.')
-        self.assertIsNone(fb.token)
+            fb.state.error, 'HTTP ERROR: The server address does not exist.')
+        self.assertIsNone(fb.state.token)
 
     @patch('requests.request')
     def test_get_info_endpoint_only(self, mock_request):
@@ -110,7 +110,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         # Call with endpoint only
         response = fb.get_info('device')
         mock_request.assert_called_once_with(
@@ -133,7 +133,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         # Call with specific ID
         response = fb.get_info('peripherals', '12345')
         mock_request.assert_called_once_with(
@@ -155,7 +155,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         device_info = fb.set_info('device', 'name', 'new name')
         mock_request.assert_has_calls([call(
             'PATCH',
@@ -188,7 +188,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         group_info = fb.group(12345)
         mock_request.assert_called_once_with(
             'GET',
@@ -209,7 +209,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         curve_info = fb.curve(12345)
         mock_request.assert_called_once_with(
             'GET',
@@ -230,7 +230,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         safe_height = fb.safe_z()
         mock_request.assert_called_once_with(
             'GET',
@@ -256,7 +256,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         garden_size = fb.garden_size()
         mock_request.assert_called_once_with(
             'GET',
@@ -276,7 +276,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         fb.log('test message', 'info', ['toast'])
         mock_request.assert_called_once_with(
             'POST',
@@ -298,7 +298,7 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         fb.connect_broker()
         mock_client.username_pw_set.assert_called_once_with(
             username='device_0',
@@ -313,19 +313,19 @@ class TestFarmbot(unittest.TestCase):
         '''Test disconnect_broker command'''
         mock_client = Mock()
         fb = Farmbot()
-        fb.broker.broker_connect.client = mock_client
+        fb.broker.client = mock_client
         fb.disconnect_broker()
         mock_client.loop_stop.assert_called_once()
         mock_client.disconnect.assert_called_once()
 
     @patch('paho.mqtt.client.Client')
-    def test_listen_broker(self, mock_mqtt):
-        '''Test listen_broker command'''
+    def test_start_listen(self, mock_mqtt):
+        '''Test start_listen command'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
-        fb.listen_broker(1)
+        fb.state.token = MOCK_TOKEN
+        fb.start_listen()
         mock_client.on_connect('', '', '', '')
 
         class MockMessage:
@@ -342,8 +342,6 @@ class TestFarmbot(unittest.TestCase):
             keepalive=60)
         mock_client.subscribe.assert_called_once_with('bot/device_0/#')
         mock_client.loop_start.assert_called()
-        mock_client.loop_stop.assert_called_once()
-        mock_client.disconnect.assert_called_once()
 
     @patch('requests.request')
     @patch('paho.mqtt.client.Client')
@@ -362,7 +360,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         execute_command(fb)
         expected_payload = {
             'kind': 'rpc_request',
@@ -763,7 +761,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz(self):
         '''Test get_xyz command'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             position = fb.get_xyz()
@@ -780,7 +778,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position(self):
         '''Test check_position command: at position'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(1, 2, 3, 0)
@@ -797,7 +795,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = fb.check_position(0, 0, 0, 2)
@@ -885,7 +883,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_request.return_value = mock_response
         fb = Farmbot()
-        fb.set_token(MOCK_TOKEN)
+        fb.state.token = MOCK_TOKEN
         cell = fb.get_seed_tray_cell(123, 'd4')
         mock_request.assert_called_once_with(
             'GET',
@@ -901,7 +899,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job(self):
         '''Test get_job command'''
         def exec_command(fb):
-            fb.broker.broker_connect.last_message = {
+            fb.state.last_message = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
