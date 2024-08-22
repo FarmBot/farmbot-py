@@ -89,25 +89,25 @@ bot.set_verbosity(2)
 This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/web-app/rest-api).
 ```
 new_cabbage = {
-    "name": "Cabbage",
-    "pointer_type": "Plant",
-    "x": 400,
-    "y": 300,
-    "z": 0,
-    "openfarm_slug": "cabbage",
-    "plant_stage": "planned",
+    "name": "Cabbage",              # Point name
+    "pointer_type": "Plant",        # Point type
+    "x": 400,                       # x-coordinate
+    "y": 300,                       # y-coordinate
+    "z": 0,                         # z-coordinate
+    "openfarm_slug": "cabbage",     # Plant type
+    "plant_stage": "planned",       # Point status
 }
 
-fb.add_info("points", new_cabbage)
+bot.add_info("points", new_cabbage) # Add plant to endpoint
 ```
 
 ### Test 2: Turn your LED strip on and off
 
 This test will help familiarize you with sending commands via the [Message Broker](https://developer.farm.bot/docs/message-broker).
 ```
-on(7)           # Turn ON pin 7 (LED strip)
-wait(2000)      # Wait 2000 milliseconds
-off(7)          # Turn OFF pin 7 (LED strip)
+bot.on(7)           # Turn ON pin 7 (LED strip)
+bot.wait(2000)      # Wait 2000 milliseconds
+bot.off(7)          # Turn OFF pin 7 (LED strip)
 ```
 
 ## :compass: Functions
