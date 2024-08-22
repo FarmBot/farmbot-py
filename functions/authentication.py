@@ -92,9 +92,7 @@ class Authentication():
             url = f'https:{self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
 
         headers = {'authorization': self.state.token['token']['encoded'], 'content-type': 'application/json'}
-
-        session = requests.Session()
-        response = session.request(method, url, headers=headers, json=payload)
+        response = requests.request(method, url, headers=headers, json=payload)
 
         if self.request_handling(response) == 200:
             self.state.error = None
