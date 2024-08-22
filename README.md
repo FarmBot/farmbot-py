@@ -87,6 +87,19 @@ bot.set_verbosity(2)
 ### Test 1: Add a new plant to your garden
 
 This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/web-app/rest-api).
+```
+new_cabbage = {
+    "name": "Cabbage",
+    "pointer_type": "Plant",
+    "x": 400,
+    "y": 300,
+    "z": 0,
+    "openfarm_slug": "cabbage",
+    "plant_stage": "planned",
+}
+
+fb.add_info("points", new_cabbage)
+```
 
 ### Test 2: Turn your LED strip on and off
 
