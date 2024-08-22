@@ -42,12 +42,12 @@ class Information():
 
         return endpoint_data
 
-    def add_info(self, endpoint, new_data, id=None):
+    def add_info(self, endpoint, new_data):
         """Create new informated contained within an endpoint."""
 
-        self.auth.request("POST", endpoint, database_id=id, payload=new_data)
+        self.auth.request("POST", endpoint, database_id=None, payload=new_data)
 
-        endpoint_data = self.get_info(endpoint, id)
+        endpoint_data = self.get_info(endpoint, id=None)
 
         self.broker.state.print_status("add_info()", endpoint_json=endpoint_data)
 
