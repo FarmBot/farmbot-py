@@ -118,6 +118,7 @@ class Information():
     def read_status(self):
         """Returns the FarmBot status tree."""
 
+        self.broker.start_listen("status")
         status_message = {
             "kind": "rpc_request",
             "args": {
@@ -131,8 +132,7 @@ class Information():
         }
         self.broker.publish(status_message)
 
-        self.broker.start_listen("status")
-        time.sleep(15)
+        time.sleep(5)
         self.broker.stop_listen()
 
         status_tree = self.broker.state.last_message

@@ -66,6 +66,8 @@ class BrokerConnect():
 
         self.client.subscribe(
             f"bot/{self.state.token['token']['unencoded']['bot']}/{channel}")
+        
+        self.state.print_status("on_connect()", description=f"Connected to message broker channel {channel}")
 
     def on_message(self, _client, _userdata, msg):
         """Callback function when message received from message broker."""
@@ -85,6 +87,7 @@ class BrokerConnect():
         self.client.on_message = self.on_message
 
         self.client.loop_start()
+        self.state.print_status("start_listen()", description=f"Now listening to message broker channel {channel}.")
 
     def stop_listen(self):
         """End subscription to all message broker channels."""
@@ -92,4 +95,5 @@ class BrokerConnect():
         self.client.loop_stop()
         self.client.disconnect()
 
+        self.state.print_status("stop_listen()", description="Stopped listening to all message broker channels.")
         return
