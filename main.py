@@ -16,10 +16,10 @@ class State():
 
         if self.verbosity >= 1:
             print(f"`{function}` called")
-        if self.verbosity >= 2 and endpoint_json:
-            print(json.dumps(endpoint_json, indent=4))
         if self.verbosity >= 2 and description:
             print(description)
+        if self.verbosity >= 2 and endpoint_json:
+            print(json.dumps(endpoint_json, indent=4))
 
 class Farmbot():
     def __init__(self):

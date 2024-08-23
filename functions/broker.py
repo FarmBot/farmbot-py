@@ -34,6 +34,11 @@ class BrokerConnect():
         )
 
         self.client.loop_start()
+        
+        if self.client is None:
+            self.state.print_status("connect()", description="There was an error connecting to the message broker...")
+        else:
+            self.state.print_status("request()", description="Connected to message broker.")
 
     def disconnect(self):
         """Disconnect from the message broker."""
@@ -41,6 +46,9 @@ class BrokerConnect():
         if self.client is not None:
             self.client.loop_stop()
             self.client.disconnect()
+
+        if self.client is None:
+            self.state.print_status("disoconnect()", description="Disconnected from message broker.")
 
         return
 
@@ -64,9 +72,7 @@ class BrokerConnect():
 
         self.state.last_message = json.loads(msg.payload)
 
-        # print('-' * 100)
-        # print(f'{msg.topic} ({datetime.now().strftime("%Y-%m-%d %H:%M:%S")})\n')
-        # print(json.dumps(json.loads(msg.payload), indent=4))
+        self.state.print_status("on_message()", endpoint_json=json.loads(msg.payload), description=f"TOPIC: {msg.topic} ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
 
     def start_listen(self, channel="#"):
         """Establish persistent subscription to message broker channels."""

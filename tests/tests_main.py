@@ -148,7 +148,7 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch('requests.request')
-    def test_set_info(self, mock_request):
+    def test_edit_info(self, mock_request):
         """test set_info function"""
         mock_response = Mock()
         mock_response.status_code = 200
@@ -156,7 +156,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.return_value = mock_response
         fb = Farmbot()
         fb.state.token = MOCK_TOKEN
-        device_info = fb.set_info('device', 'name', 'new name')
+        device_info = fb.edit_info('device', {'name': 'new name'})
         mock_request.assert_has_calls([call(
             'PATCH',
             'https://my.farm.bot/api/device',
@@ -894,7 +894,7 @@ class TestFarmbot(unittest.TestCase):
             },
             json=None,
         )
-        self.assertEqual(cell, {'x': -36.25, 'y': 18.75, 'z': 0})
+        self.assertEqual(cell, (-36.25, 18.75, 0))
 
     def test_get_job(self):
         '''Test get_job command'''

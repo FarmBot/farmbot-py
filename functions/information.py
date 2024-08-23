@@ -29,7 +29,6 @@ class Information():
         endpoint_data = self.auth.request("GET", endpoint, id)
 
         self.broker.state.print_status("get_info()", endpoint_json=endpoint_data)
-
         return endpoint_data
 
     def edit_info(self, endpoint, new_data, id=None):
@@ -39,7 +38,6 @@ class Information():
         endpoint_data = self.get_info(endpoint, id)
 
         self.broker.state.print_status("edit_info()", endpoint_json=endpoint_data)
-
         return endpoint_data
 
     def add_info(self, endpoint, new_data):
@@ -50,7 +48,6 @@ class Information():
         endpoint_data = self.get_info(endpoint, id=None)
 
         self.broker.state.print_status("add_info()", endpoint_json=endpoint_data)
-
         return endpoint_data
 
     def safe_z(self):
@@ -59,6 +56,7 @@ class Information():
         config_data = self.get_info('fbos_config')
         z_value = config_data["safe_height"]
 
+        self.broker.state.print_status("safe_z()", description=f"Safe z={z_value}")
         return z_value
 
     def garden_size(self):
@@ -76,6 +74,7 @@ class Information():
         length_y = y_steps / y_mm
         area = length_x * length_y
 
+        self.broker.state.print_status("garden_size()", description=f"X-axis length={length_x}\n Y-axis length={length_y}\n Area={area}")
         return length_x, length_y, area
 
     def group(self, id=None):
@@ -86,6 +85,7 @@ class Information():
         else:
             group_data = self.get_info('point_groups', id)
 
+        self.broker.state.print_status("group()", endpoint_json=group_data)
         return group_data
 
     def curve(self, id=None):
@@ -96,6 +96,7 @@ class Information():
         else:
             curve_data = self.get_info('curves', id)
 
+        self.broker.state.print_status("curve()", endpoint_json=curve_data)
         return curve_data
 
     def soil_height(self):
@@ -112,7 +113,7 @@ class Information():
         }
 
         self.broker.publish(soil_height_message)
-        return # TODO: return soil height as value
+        return # TODO: return soil height as value(?)
 
     def read_status(self):
         """Returns the FarmBot status tree."""
@@ -131,10 +132,12 @@ class Information():
         self.broker.publish(status_message)
 
         self.broker.start_listen("status")
-        time.sleep(5)
+        time.sleep(15)
         self.broker.stop_listen()
 
         status_tree = self.broker.state.last_message
+
+        self.broker.state.print_status("read_status()", endpoint_json=status_tree)
         return status_tree
 
     def read_sensor(self, id):
@@ -162,4 +165,4 @@ class Information():
         }
 
         self.broker.publish(sensor_message)
-        return # TODO
+        return # TODO return sensor output(?)

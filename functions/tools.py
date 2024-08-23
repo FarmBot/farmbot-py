@@ -28,6 +28,8 @@ class ToolControls():
         """
 
         self.resource.lua(lua_code)
+
+        self.broker.state.print_status("mount_tool()", description=f"Mounted tool {tool_str}.")
         return
 
     def dismount_tool(self):
@@ -38,6 +40,8 @@ class ToolControls():
         """
 
         self.resource.lua(lua_code)
+
+        self.broker.state.print_status("mount_tool()", description="Dismounted tool.")
         return
 
     def water(self, plant_id):
@@ -52,6 +56,8 @@ class ToolControls():
         """
 
         self.resource.lua(lua_code)
+
+        self.broker.state.print_status("mount_tool()", description=f"Watering plant {plant_id}...")
         return
 
     def dispense(self, mL, tool_str, pin):
@@ -62,4 +68,6 @@ class ToolControls():
         """
 
         self.resource.lua(lua_code)
+
+        self.broker.state.print_status("mount_tool()", description=f"Dispensing {mL} from tool {tool_str}...")
         return

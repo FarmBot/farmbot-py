@@ -15,6 +15,7 @@ Resources class.
 from .imports import *
 from .broker import BrokerConnect
 from .information import Information
+from .movements import MovementControls
 
 class Resources():
     def __init__(self, state):
@@ -46,7 +47,7 @@ class Resources():
             }]
         }
 
-        return # TODO: return new xyz coord value(s)
+        return
 
     # TODO: sort_points(points, method)
 
@@ -64,6 +65,8 @@ class Resources():
         }
 
         self.broker.publish(sequence_message)
+
+        self.broker.state.print_status("sequence()", description=f"Triggered sequence {sequence_id} at {datetime.now()}.")
         return
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
@@ -122,7 +125,12 @@ class Resources():
             "y": cell_spacing * cells[cell]["y"] * flip
         }
 
-        return {"x": A1["x"] + offset["x"], "y": A1["y"] + offset["y"], "z": A1["z"]}
+        curr_x = A1["x"] + offset["x"]
+        curr_y = A1["y"] + offset["y"]
+        curr_z = A1["z"]
+
+        self.broker.state.print_status("get_seed_tray_cell()", description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
+        return curr_x, curr_y, curr_z
 
     def detect_weeds(self):
         """Scans the garden to detect weeds."""
@@ -154,6 +162,8 @@ class Resources():
         }
 
         self.broker.publish(lua_message)
+
+        self.broker.state.print_status("lua()", description=f"Triggered lua code execution at {datetime.now()}.")
         return
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
@@ -184,6 +194,8 @@ class Resources():
         }
 
         self.broker.publish(if_statement_message)
+
+        self.broker.state.print_status("if_statement()", description=f"Triggered if statement at {datetime.now()}.")
         return
 
     def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
@@ -207,4 +219,6 @@ class Resources():
         }
 
         self.broker.publish(assertion_message)
+
+        self.broker.state.print_status("assertion()", description=f"Triggered assertion at {datetime.now()}.")
         return
