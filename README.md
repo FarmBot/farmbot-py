@@ -86,7 +86,7 @@ bot.set_verbosity(2)
 
 ### Test 1: Add a new plant to your garden
 
-This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/web-app/rest-api).
+This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/rest-api).
 ```
 new_cabbage = {
     "name": "Cabbage",              # Point name
@@ -185,7 +185,7 @@ sidecar-starter-pack/
 > Making requests other than `GET` to the API will permanently alter the data in your account. `DELETE` and `POST` requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
 
 > [!NOTE]
-> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/docs/web-app/api-docs).
+> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/docs/api-docs).
 
 | class `Information()` | Description |
 | :--- | :--- |

@@ -29,7 +29,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status("mount_tool()", description=f"Mounted tool {tool_str}.")
+        self.broker.state.print_status("mount_tool()", description=f"Mounted {tool_str} tool.")
         return
 
     def dismount_tool(self):
