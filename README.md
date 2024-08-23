@@ -84,6 +84,32 @@ bot.set_verbosity(2)
 | `1` The name of the function will be output. | `e_stop called` |
 | `2` The name of the function will be output with additional information about the return value. | `Triggered device emergency stop at: 2024-08-21 11:16:18.547813` |
 
+### Test 1: Add a new plant to your garden
+
+This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/rest-api).
+```
+new_cabbage = {
+    "name": "Cabbage",              # Point name
+    "pointer_type": "Plant",        # Point type
+    "x": 400,                       # x-coordinate
+    "y": 300,                       # y-coordinate
+    "z": 0,                         # z-coordinate
+    "openfarm_slug": "cabbage",     # Plant type
+    "plant_stage": "planned",       # Point status
+}
+
+bot.add_info("points", new_cabbage) # Add plant to endpoint
+```
+
+### Test 2: Turn your LED strip on and off
+
+This test will help familiarize you with sending commands via the [Message Broker](https://developer.farm.bot/docs/message-broker).
+```
+bot.on(7)           # Turn ON pin 7 (LED strip)
+bot.wait(2000)      # Wait 2000 milliseconds
+bot.off(7)          # Turn OFF pin 7 (LED strip)
+```
+
 ## :compass: Functions
 
 ```
@@ -159,7 +185,7 @@ sidecar-starter-pack/
 > Making requests other than `GET` to the API will permanently alter the data in your account. `DELETE` and `POST` requests may destroy data that cannot be recovered. Altering data through the API may cause account instability.
 
 > [!NOTE]
-> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/v15/docs/web-app/api-docs).
+> Not sure which endpoint to access? [Find the list here](https://developer.farm.bot/docs/api-docs).
 
 | class `Information()` | Description |
 | :--- | :--- |
@@ -239,7 +265,7 @@ sidecar-starter-pack/
 ### Formatting message broker messages
 
 > [!NOTE]
-> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/v15/docs/celery-script/nodes.html) which require special formatting.
+> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/docs/celery-script/nodes.html) which require special formatting.
 
 ```
 message = {

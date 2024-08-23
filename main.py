@@ -11,6 +11,16 @@ class State():
         self.last_message = None
         self.verbosity = 2
 
+    def print_status(self, function, endpoint_json=None, description=None):
+        """Handle changes to output based on user-defined verbosity."""
+
+        if self.verbosity >= 1:
+            print(f"`{function}` called")
+        if self.verbosity >= 2 and description:
+            print(description)
+        if self.verbosity >= 2 and endpoint_json:
+            print(json.dumps(endpoint_json, indent=4))
+
 class Farmbot():
     def __init__(self):
         self.state = State()
@@ -96,9 +106,13 @@ class Farmbot():
         """Get information about a specific endpoint."""
         return self.info.get_info(endpoint, id)
 
-    def set_info(self, endpoint, field, value, id=None):
+    def edit_info(self, endpoint, new_data, id=None):
         """Change information contained within an endpoint."""
-        return self.info.set_info(endpoint, field, value, id)
+        return self.info.edit_info(endpoint, new_data, id)
+
+    def add_info(self, endpoint, new_data):
+        """Create new information contained within an endpoint."""
+        return self.info.add_info(endpoint, new_data)
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""

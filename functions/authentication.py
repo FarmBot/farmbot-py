@@ -25,6 +25,7 @@ class Authentication():
             if response.status_code == 200:
                 self.state.token = response.json()
                 self.state.error = None
+                self.state.print_status("get_token()", description=f"Sucessfully fetched token from {server}.")
                 return response.json()
             elif response.status_code == 404:
                 self.state.error = "HTTP ERROR: The server address does not exist."
@@ -44,19 +45,21 @@ class Authentication():
             self.state.error = f"DNS ERROR: An unexpected error occurred: {str(e)}"
 
         self.state.token = None
+        self.state.print_status("get_token()", description=self.state.error)
         return self.state.error
 
     def check_token(self):
         """Ensure the token persists throughout sidecar."""
 
         if self.state.token is None:
-            print("ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
+            self.state.print_status("check_token()", description="ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
         return
 
     def request_handling(self, response):
         """Handle errors associated with different endpoint errors."""
+
         error_messages = {
             404: "The specified endpoint does not exist.",
             400: "The specified ID is invalid or you do not have access to it.",
@@ -66,6 +69,7 @@ class Authentication():
 
         # Handle HTTP status codes
         if response.status_code == 200:
+            self.state.print_status("check_token()", description="Successfully sent request via API.")
             return 200
         elif 400 <= response.status_code < 500:
             self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
@@ -74,6 +78,7 @@ class Authentication():
         else:
             self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
+        self.state.print_status("request_handling()", description=self.state.error)
         return
 
     def request(self, method, endpoint, database_id, payload=None):
@@ -96,6 +101,8 @@ class Authentication():
 
         if self.request_handling(response) == 200:
             self.state.error = None
+            self.state.print_status("request()", description="Successfully returned request contents.")
             return response.json()
         else:
+            self.state.print_status("request()", description="There was an error processing the request...")
             return self.state.error

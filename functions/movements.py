@@ -3,11 +3,11 @@ MovementControls class.
 """
 
 # └── functions/movements.py
+#     ├── [BROKER] get_xyz()
 #     ├── [BROKER] move()
 #     ├── [BROKER] set_home()
 #     ├── [BROKER] find_home()
 #     ├── [BROKER] axis_length()
-#     ├── [BROKER] get_xyz()
 #     └── [BROKER] check_position()
 
 from .imports import *
@@ -54,7 +54,9 @@ class MovementControls():
         }
 
         self.broker.publish(move_message)
-        return # TODO: return new xyz position as values
+
+        self.broker.state.print_status("move()", description=f"Moved to coordinates: ({x}, {y}, {z}).")
+        return x, y, z
 
     def set_home(self, axis="all"):
         """Sets the current position as the home position for a specific axis."""
@@ -74,6 +76,8 @@ class MovementControls():
         }
 
         self.broker.publish(set_home_message)
+
+        self.broker.state.print_status("set_home()", description="Updated home coordinate.")
         return
 
     def find_home(self, axis="all", speed=100):
@@ -98,7 +102,8 @@ class MovementControls():
             }
             self.broker.publish(message)
 
-        return # TODO: return new xyz position as values
+        self.broker.state.print_status("find_home()", description="Moved to home position.")
+        return
 
     def axis_length(self, axis="all"):
         """Returns the length of a specified axis."""
@@ -114,7 +119,7 @@ class MovementControls():
         }
 
         self.broker.publish(axis_length_message)
-        return # TODO: return axis length as values
+        return # TODO: return axis length as values(?)
 
     def get_xyz(self):
         """Returns the current (x, y, z) coordinates of the FarmBot."""
@@ -125,6 +130,7 @@ class MovementControls():
         y_val = tree_data["location_data"]["position"]["y"]
         z_val = tree_data["location_data"]["position"]["z"]
 
+        self.broker.state.print_status("get_xyz()", description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
         return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
@@ -133,12 +139,13 @@ class MovementControls():
         user_values = [user_x, user_y, user_z]
 
         position = self.get_xyz()
+        x_val, y_val, z_val = position
         actual_vals = list(position)
 
         for user_value, actual_value in zip(user_values, actual_vals):
             if not actual_value - tolerance <= user_value <= actual_value + tolerance:
-                print(f"Farmbot is NOT at position {position}")
+                self.broker.state.print_status("check_position()", description=f"Farmbot is NOT at position\n Current coordinates: ({x_val}, {y_val}, {z_val}).")
                 return False
 
-        print(f"Farmbot is at position {position}")
+        self.broker.state.print_status("check_position()", description=f"Farmbot is at position: ({x_val}, {y_val}, {z_val}).")
         return True
