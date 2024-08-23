@@ -132,7 +132,7 @@ class Information():
         }
         self.broker.publish(status_message)
 
-        time.sleep(5)
+        time.sleep(15)
         self.broker.stop_listen()
 
         status_tree = self.broker.state.last_message

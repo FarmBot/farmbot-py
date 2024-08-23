@@ -19,18 +19,6 @@ class MovementControls():
         self.broker = BrokerConnect(state)
         self.info = Information(state)
 
-    def get_xyz(self):
-        """Returns the current (x, y, z) coordinates of the FarmBot."""
-
-        tree_data = self.info.read_status()
-
-        x_val = tree_data["location_data"]["position"]["x"]
-        y_val = tree_data["location_data"]["position"]["y"]
-        z_val = tree_data["location_data"]["position"]["z"]
-
-        self.broker.state.print_status("get_xyz()", description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
-        return x_val, y_val, z_val
-
     def move(self, x, y, z):
         """Moves to the specified (x, y, z) coordinate."""
 
@@ -67,10 +55,8 @@ class MovementControls():
 
         self.broker.publish(move_message)
 
-        x_val, y_val, z_val = self.get_xyz()
-
-        self.broker.state.print_status("move()", description=f"Moved to coordinates: ({x_val}, {y_val}, {z_val}).")
-        return x_val, y_val, z_val
+        self.broker.state.print_status("move()", description=f"Moved to coordinates: ({x}, {y}, {z}).")
+        return x, y, z
 
     def set_home(self, axis="all"):
         """Sets the current position as the home position for a specific axis."""
@@ -116,10 +102,8 @@ class MovementControls():
             }
             self.broker.publish(message)
 
-        x_val, y_val, z_val = self.get_xyz()
-
-        self.broker.state.print_status("find_home()", description=f"Moved to home: ({x_val}, {y_val}, {z_val}).")
-        return x_val, y_val, z_val
+        self.broker.state.print_status("find_home()", description="Moved to home position.")
+        return
 
     def axis_length(self, axis="all"):
         """Returns the length of a specified axis."""
@@ -136,6 +120,18 @@ class MovementControls():
 
         self.broker.publish(axis_length_message)
         return # TODO: return axis length as values(?)
+
+    def get_xyz(self):
+        """Returns the current (x, y, z) coordinates of the FarmBot."""
+
+        tree_data = self.info.read_status()
+
+        x_val = tree_data["location_data"]["position"]["x"]
+        y_val = tree_data["location_data"]["position"]["y"]
+        z_val = tree_data["location_data"]["position"]["z"]
+
+        self.broker.state.print_status("get_xyz()", description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
+        return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
         """Verifies position of the FarmBot within specified tolerance range."""
