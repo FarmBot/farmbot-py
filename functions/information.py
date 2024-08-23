@@ -41,7 +41,7 @@ class Information():
         return endpoint_data
 
     def add_info(self, endpoint, new_data):
-        """Create new informated contained within an endpoint."""
+        """Create new information contained within an endpoint."""
 
         self.auth.request("POST", endpoint, database_id=None, payload=new_data)
 
