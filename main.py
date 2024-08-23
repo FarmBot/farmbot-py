@@ -111,7 +111,7 @@ class Farmbot():
         return self.info.edit_info(endpoint, new_data, id)
 
     def add_info(self, endpoint, new_data):
-        """Create new informated contained within an endpoint."""
+        """Create new information contained within an endpoint."""
         return self.info.add_info(endpoint, new_data)
 
     def safe_z(self):
