@@ -29,7 +29,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status("mount_tool()", description=f"Mounted {tool_str} tool.")
+        self.broker.state.print_status("mount_tool()", description=f"Mounting {tool_str} tool.")
         return
 
     def dismount_tool(self):
@@ -41,7 +41,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status("mount_tool()", description="Dismounted tool.")
+        self.broker.state.print_status("mount_tool()", description="Dismounting tool.")
         return
 
     def water(self, plant_id):
