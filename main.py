@@ -75,13 +75,9 @@ class Farmbot():
         """Disconnect from the message broker."""
         return self.broker.disconnect()
 
-    def start_listen(self, channel="#"):
-        """Establish persistent subscription to message broker channels."""
-        return self.broker.start_listen(channel)
-
-    def stop_listen(self):
-        """End subscription to all message broker channels."""
-        return self.broker.stop_listen()
+    def listen(self, duration, channel="#"):
+        """Listen to a message broker channel for the provided duration in seconds."""
+        return self.broker.listen(duration, channel)
 
     # camera.py
 

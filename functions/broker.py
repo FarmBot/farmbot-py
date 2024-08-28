@@ -9,7 +9,8 @@ BrokerConnect class.
 #     ├── [BROKER] on_connect()
 #     ├── [BROKER] on_message
 #     ├── [BROKER] start_listen()
-#     └── [BROKER] stop_listen()
+#     ├── [BROKER] stop_listen()
+#     └── [BROKER] listen()
 
 import time
 import json
@@ -120,7 +121,7 @@ class BrokerConnect():
         self.state.print_status(description="Stopped listening to all message broker channels.")
 
     def listen(self, duration, channel):
-        """Listen to message broker for a certain number of seconds."""
+        """Listen to a message broker channel for the provided duration in seconds."""
         self.state.print_status(description=f"Listening to message broker for {duration} seconds...")
         start_time = datetime.now()
         self.start_listen(channel)

@@ -167,6 +167,7 @@ sidecar-starter-pack/
 | `on_message()` | Callback function triggered when a message is received from the message broker. |
 | `start_listen()` | Establish persistent subscription to message broker channels. |
 | `stop_listen()` | End subscription to all message broker channels. |
+| `listen()` | Listen to a message broker channel for the provided duration in seconds. |
 
 ### camera.py
 
