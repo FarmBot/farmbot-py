@@ -1,8 +1,8 @@
 """
-Authentication class.
+ApiConnect class.
 """
 
-# └── functions/authentication.py
+# └── functions/api.py
 #     ├── [API] get_token()
 #     ├── [API] check_token()
 #     ├── [API] request_handling()
@@ -40,8 +40,8 @@ class HTMLResponseParser(HTMLParser):
             self.is_header = False
 
 
-class Authentication():
-    """Authentication class for FarmBot API."""
+class ApiConnect():
+    """Connect class for FarmBot API."""
     def __init__(self, state):
         self.state = state
 

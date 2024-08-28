@@ -12,7 +12,7 @@ Authentication and communication utilities for FarmBot sidecars
     * [Get your authentication token](#get-your-authentication-token)
     * [Configure function output verbosity](#configure-function-output-verbosity)
 * [Functions](#compass-functions)
-    * [authentication.py](#authenticationpy)
+    * [api.py](#api)
     * [basic_commands.py](#basic_commandspy)
     * [broker.py](#brokerpy)
     * [camera.py](#camerapy)
@@ -115,7 +115,7 @@ bot.off(7)          # Turn OFF pin 7 (LED strip)
 sidecar-starter-pack/
 ├── functions/
 │   ├── __init_.py
-│   ├── authentication.py
+│   ├── api.py
 │   ├── basic_commands.py
 │   ├── broker.py
 │   ├── camera.py
@@ -134,12 +134,12 @@ sidecar-starter-pack/
 └── README.md
 ```
 
-### authentication.py
+### api.py
 
 > [!CAUTION]
 > Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
 
-| class `Authentication()` | Description |
+| class `ApiConnect()` | Description |
 | :--- | :--- |
 | `get_token()` | Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
 | `check_token()` | Ensure the token persists throughout sidecar. |

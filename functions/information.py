@@ -15,19 +15,19 @@ Information class.
 #     └── [BROKER] read_sensor()
 
 from .broker import BrokerConnect
-from .authentication import Authentication
+from .api import ApiConnect
 
 class Information():
     """Information class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
-        self.auth = Authentication(state)
+        self.api = ApiConnect(state)
 
     def get_info(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
         self.broker.state.print_status(description=f"Retrieving {endpoint} information.")
 
-        endpoint_data = self.auth.request("GET", endpoint, database_id)
+        endpoint_data = self.api.request("GET", endpoint, database_id)
 
         self.broker.state.print_status(update_only=True, endpoint_json=endpoint_data)
 
@@ -37,7 +37,7 @@ class Information():
         """Change information contained within an endpoint."""
         self.broker.state.print_status(description=f"Editing {endpoint}.")
 
-        result = self.auth.request("PATCH", endpoint, database_id=database_id, payload=new_data)
+        result = self.api.request("PATCH", endpoint, database_id=database_id, payload=new_data)
 
         self.broker.state.print_status(update_only=True, endpoint_json=result)
 
@@ -47,7 +47,7 @@ class Information():
         """Create new information contained within an endpoint."""
         self.broker.state.print_status(description=f"Adding new data to {endpoint}.")
 
-        result = self.auth.request("POST", endpoint, database_id=None, payload=new_data)
+        result = self.api.request("POST", endpoint, database_id=None, payload=new_data)
 
         self.broker.state.print_status(update_only=True, endpoint_json=result)
 

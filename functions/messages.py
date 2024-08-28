@@ -9,7 +9,7 @@ MessageHandling class.
 #     └── [BROKER] toast()
 
 from .broker import BrokerConnect
-from .authentication import Authentication
+from .api import ApiConnect
 
 MESSAGE_TYPES = ["assertion", "busy", "debug",
                  "error", "fun", "info", "success", "warn"]
@@ -29,7 +29,7 @@ class MessageHandling():
     """Message handling class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
-        self.auth = Authentication(state)
+        self.api = ApiConnect(state)
 
     def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
@@ -45,7 +45,7 @@ class MessageHandling():
         endpoint = 'logs'
         database_id = None
 
-        self.auth.request('POST', endpoint, database_id, log_message)
+        self.api.request('POST', endpoint, database_id, log_message)
 
         self.broker.state.print_status(description="New log message sent via API.")
 

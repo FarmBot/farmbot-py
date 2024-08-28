@@ -3,7 +3,7 @@ Farmbot class.
 """
 
 from state import State
-from functions.authentication import Authentication
+from functions.api import ApiConnect
 from functions.basic_commands import BasicCommands
 from functions.broker import BrokerConnect
 from functions.camera import Camera
@@ -21,7 +21,7 @@ class Farmbot():
         self.state = State()
 
         # Initialize other components without the token initially
-        self.auth = Authentication(self.state)
+        self.api = ApiConnect(self.state)
         self.basic = BasicCommands(self.state)
         self.broker = BrokerConnect(self.state)
         self.camera = Camera(self.state)
@@ -37,11 +37,11 @@ class Farmbot():
         """Set output verbosity level."""
         self.state.verbosity = value
 
-    # authentication.py
+    # api.py
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
-        return self.auth.get_token(email, password, server)
+        return self.api.get_token(email, password, server)
 
     # basic_commands.py
 
