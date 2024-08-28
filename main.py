@@ -35,9 +35,6 @@ class Farmbot():
 
     def set_verbosity(self, value):
         """Set output verbosity level."""
-        if value <= -1 or value >= 3:
-            print("ERROR: verbosity must be between 0-2")
-
         self.state.verbosity = value
 
     # authentication.py
