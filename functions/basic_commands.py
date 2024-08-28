@@ -19,6 +19,7 @@ RPC_REQUEST = {
 }
 
 class BasicCommands():
+    """Basic commands class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
 
@@ -42,7 +43,6 @@ class BasicCommands():
         }
 
         self.broker.publish(wait_message)
-        return
 
     def e_stop(self):
         """Emergency locks (E-stops) the Farmduino microcontroller."""
@@ -62,7 +62,6 @@ class BasicCommands():
         }
 
         self.broker.publish(stop_message)
-        return
 
     def unlock(self):
         """Unlocks a locked (E-stopped) device."""
@@ -82,10 +81,9 @@ class BasicCommands():
         }
 
         self.broker.publish(unlock_message)
-        return
 
     def reboot(self):
-        """Reboots the FarmBot OS and reinitializes the device."""
+        """Reboots the FarmBot OS and re-initializes the device."""
 
         self.broker.state.print_status(description="Triggered device reboot")
 
@@ -100,7 +98,6 @@ class BasicCommands():
         }
 
         self.broker.publish(reboot_message)
-        return
 
     def shutdown(self):
         """Shuts down the FarmBot OS and turns the device off."""
@@ -116,4 +113,3 @@ class BasicCommands():
         }
 
         self.broker.publish(shutdown_message)
-        return

@@ -26,23 +26,24 @@ RPC_REQUEST = {
 }
 
 class Information():
+    """Information class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.auth = Authentication(state)
 
-    def get_info(self, endpoint, id=None):
+    def get_info(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
 
-        endpoint_data = self.auth.request("GET", endpoint, id)
+        endpoint_data = self.auth.request("GET", endpoint, database_id)
 
         self.broker.state.print_status(endpoint_json=endpoint_data)
         return endpoint_data
 
-    def edit_info(self, endpoint, new_data, id=None):
+    def edit_info(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
 
-        self.auth.request("PATCH", endpoint, database_id=id, payload=new_data)
-        endpoint_data = self.get_info(endpoint, id)
+        self.auth.request("PATCH", endpoint, database_id=database_id, payload=new_data)
+        endpoint_data = self.get_info(endpoint, database_id)
 
         self.broker.state.print_status(endpoint_json=endpoint_data)
         return endpoint_data
@@ -52,7 +53,7 @@ class Information():
 
         self.auth.request("POST", endpoint, database_id=None, payload=new_data)
 
-        endpoint_data = self.get_info(endpoint, id=None)
+        endpoint_data = self.get_info(endpoint, database_id=None)
 
         self.broker.state.print_status(endpoint_json=endpoint_data)
         return endpoint_data
@@ -84,24 +85,24 @@ class Information():
         self.broker.state.print_status(description=f"X-axis length={length_x}\n Y-axis length={length_y}\n Area={area}")
         return length_x, length_y, area
 
-    def group(self, id=None):
+    def group(self, group_id=None):
         """Returns all group info or single by id."""
 
-        if id is None:
+        if group_id is None:
             group_data = self.get_info("point_groups")
         else:
-            group_data = self.get_info('point_groups', id)
+            group_data = self.get_info('point_groups', group_id)
 
         self.broker.state.print_status(endpoint_json=group_data)
         return group_data
 
-    def curve(self, id=None):
+    def curve(self, curve_id=None):
         """Returns all curve info or single by id."""
 
-        if id is None:
+        if curve_id is None:
             curve_data = self.get_info("curves")
         else:
-            curve_data = self.get_info('curves', id)
+            curve_data = self.get_info('curves', curve_id)
 
         self.broker.state.print_status(endpoint_json=curve_data)
         return curve_data
@@ -120,7 +121,6 @@ class Information():
         }
 
         self.broker.publish(soil_height_message)
-        return # TODO: return soil height as value(?)
 
     def read_status(self):
         """Returns the FarmBot status tree."""
@@ -147,10 +147,10 @@ class Information():
         self.broker.state.print_status(endpoint_json=status_tree)
         return status_tree
 
-    def read_sensor(self, id):
+    def read_sensor(self, peripheral_id):
         """Reads the given pin by id."""
 
-        peripheral_str = self.get_info("peripherals", id)
+        peripheral_str = self.get_info("peripherals", peripheral_id)
         mode = peripheral_str["mode"]
 
         sensor_message = {
@@ -164,7 +164,7 @@ class Information():
                         "kind": "named_pin",
                         "args": {
                             "pin_type": "Peripheral",
-                            "pin_id": id
+                            "pin_id": peripheral_id,
                         }
                     }
                 }
@@ -172,4 +172,3 @@ class Information():
         }
 
         self.broker.publish(sensor_message)
-        return # TODO return sensor output(?)

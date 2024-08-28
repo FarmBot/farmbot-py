@@ -23,11 +23,12 @@ RPC_REQUEST = {
 }
 
 class Resources():
+    """Resources class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
 
-    def mark_coord(self, x, y, z, property, mark_as): # TODO: Fix "label" and TODO: rename mark_point()
+    def mark_coord(self, x, y, z, field, mark_as): # TODO: Fix "label" and TODO: rename mark_point()
         """Marks (x, y, z) coordinate with specified label."""
 
         mark_coord_message = {
@@ -45,14 +46,12 @@ class Resources():
                 "body": [{
                     "kind": "pair",
                     "args": {
-                        "label": property,
+                        "label": field,
                         "value": mark_as
                     }
                 }]
             }]
         }
-
-        return
 
     # TODO: sort_points(points, method)
 
@@ -72,7 +71,6 @@ class Resources():
         self.broker.publish(sequence_message)
 
         self.broker.state.print_status(description="Triggered sequence {sequence_id} .")
-        return
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
@@ -119,7 +117,7 @@ class Resources():
         else:
             raise ValueError("Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
 
-        A1 = {
+        a1 = {
             "x": tray_data["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
             "y": tray_data["y"] - (1.5 * cell_spacing * flip),
             "z": tray_data["z"]
@@ -130,9 +128,9 @@ class Resources():
             "y": cell_spacing * cells[cell]["y"] * flip
         }
 
-        curr_x = A1["x"] + offset["x"]
-        curr_y = A1["y"] + offset["y"]
-        curr_z = A1["z"]
+        curr_x = a1["x"] + offset["x"]
+        curr_y = a1["y"] + offset["y"]
+        curr_z = a1["z"]
 
         self.broker.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
         return curr_x, curr_y, curr_z
@@ -151,7 +149,6 @@ class Resources():
         }
 
         self.broker.publish(detect_weeds_message)
-        return # TODO: return array of weeds with xyz coords
 
     def lua(self, code_snippet):
         """Executes custom Lua code snippets to perform complex tasks or automations."""
@@ -169,7 +166,6 @@ class Resources():
         self.broker.publish(lua_message)
 
         self.broker.state.print_status(description="Triggered lua code execution .")
-        return
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
         """Performs conditional check and executes actions based on the outcome."""
@@ -201,9 +197,8 @@ class Resources():
         self.broker.publish(if_statement_message)
 
         self.broker.state.print_status(description="Triggered if statement .")
-        return
 
-    def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
+    def assertion(self, code, as_type, sequence_id=""): # TODO: add "continue" functionality
         """Evaluates an expression."""
 
         assertion_message = {
@@ -215,7 +210,7 @@ class Resources():
                     "_then": {
                         "kind": "execute",
                         "args": {
-                            "sequence_id": id # Recovery sequence ID
+                            "sequence_id": sequence_id # Recovery sequence ID
                         }
                     },
                     "assertion_type": as_type # If test fails, do this
@@ -226,4 +221,3 @@ class Resources():
         self.broker.publish(assertion_message)
 
         self.broker.state.print_status(description="Triggered assertion .")
-        return

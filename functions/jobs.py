@@ -13,6 +13,7 @@ from .information import Information
 from .resources import Resources
 
 class JobHandling():
+    """Job handling class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -48,7 +49,6 @@ class JobHandling():
         self.resource.lua(lua_code)
 
         self.broker.state.print_status(description=f"Marked job {job_str} as {value}% complete.")
-        return
 
     def complete_job(self, job_str):
         """Marks job as completed and triggers any associated actions."""
@@ -60,4 +60,3 @@ class JobHandling():
         self.resource.lua(lua_code)
 
         self.broker.state.print_status(description=f"Marked job {job_str} as `complete`.")
-        return

@@ -20,6 +20,7 @@ RPC_REQUEST = {
 }
 
 class Peripherals():
+    """Peripherals class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -29,28 +30,28 @@ class Peripherals():
 
         if angle < 0 or angle > 180:
             return print("ERROR: Servo angle constrained to 0-180 degrees.")
-        else:
-            control_servo_message = {
-                **RPC_REQUEST,
-                "body": [{
-                    "kind": "set_servo_angle",
-                    "args": {
-                        "pin_number": pin,
-                        "pin_value": angle # From 0 to 180
-                    }
-                }]
-            }
+
+        control_servo_message = {
+            **RPC_REQUEST,
+            "body": [{
+                "kind": "set_servo_angle",
+                "args": {
+                    "pin_number": pin,
+                    "pin_value": angle # From 0 to 180
+                }
+            }]
+        }
 
         self.broker.publish(control_servo_message)
 
         self.broker.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
-    def control_peripheral(self, id, value, mode=None):
+    def control_peripheral(self, peripheral_id, value, mode=None):
         """Set peripheral value and mode."""
 
         if mode is None:
-            peripheral_str = self.info.get_info("peripherals", id)
+            peripheral_str = self.info.get_info("peripherals", peripheral_id)
             mode = peripheral_str["mode"]
 
         control_peripheral_message = {
@@ -64,7 +65,7 @@ class Peripherals():
                         "kind": "named_pin",
                         "args": {
                             "pin_type": "Peripheral",
-                            "pin_id": id
+                            "pin_id": peripheral_id,
                         }
                     }
                 }
@@ -73,10 +74,9 @@ class Peripherals():
 
         self.broker.publish(control_peripheral_message)
 
-        self.broker.state.print_status(description=f"Set peripheral {id} to {value} with mode={mode}.")
-        return
+        self.broker.state.print_status(description=f"Set peripheral {peripheral_id} to {value} with mode={mode}.")
 
-    def toggle_peripheral(self, id):
+    def toggle_peripheral(self, peripheral_id):
         """Toggles the state of a specific peripheral between `on` and `off`."""
 
         toggle_peripheral_message = {
@@ -88,7 +88,7 @@ class Peripherals():
                         "kind": "named_pin",
                         "args": {
                             "pin_type": "Peripheral",
-                            "pin_id": id
+                            "pin_id": peripheral_id,
                         }
                     }
                 }
@@ -97,27 +97,26 @@ class Peripherals():
 
         self.broker.publish(toggle_peripheral_message)
 
-        self.broker.state.print_status(description=f"Triggered toggle peripheral {id}.")
-        return
+        self.broker.state.print_status(description=f"Triggered toggle peripheral {peripheral_id}.")
 
-    def on(self, id):
+    def on(self, peripheral_id):
         """Turns specified peripheral `on` (100%)."""
 
-        peripheral_str = self.info.get_info("peripherals", id)
+        peripheral_str = self.info.get_info("peripherals", peripheral_id)
         mode = peripheral_str["mode"]
 
         if mode == 1:
-            self.control_peripheral(id, 255)
+            self.control_peripheral(peripheral_id, 255)
         elif mode == 0:
-            self.control_peripheral(id, 1)
+            self.control_peripheral(peripheral_id, 1)
 
-        self.broker.state.print_status(description=f"Turned ON peripheral {id}.")
+        self.broker.state.print_status(description=f"Turned ON peripheral {peripheral_id}.")
         return
 
-    def off(self, id):
+    def off(self, peripheral_id):
         """Turns specified peripheral `off` (0%)."""
 
-        self.control_peripheral(id, 0)
+        self.control_peripheral(peripheral_id, 0)
 
-        self.broker.state.print_status(description=f"Turned OFF peripheral {id}.")
+        self.broker.state.print_status(description=f"Turned OFF peripheral {peripheral_id}.")
         return

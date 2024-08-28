@@ -1,5 +1,5 @@
 """
-Autentication class.
+Authentication class.
 """
 
 # └── functions/authentication.py
@@ -13,6 +13,7 @@ import json
 import requests
 
 class Authentication():
+    """Authentication class for FarmBot API."""
     def __init__(self, state):
         self.state = state
 
@@ -27,7 +28,7 @@ class Authentication():
             if response.status_code == 200:
                 self.state.token = response.json()
                 self.state.error = None
-                self.state.print_status(description=f"Sucessfully fetched token from {server}.")
+                self.state.print_status(description=f"Successfully fetched token from {server}.")
                 return response.json()
             elif response.status_code == 404:
                 self.state.error = "HTTP ERROR: The server address does not exist."
@@ -57,8 +58,6 @@ class Authentication():
             self.state.print_status(description="ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
             sys.exit(1)
 
-        return
-
     def request_handling(self, response):
         """Handle errors associated with different endpoint errors."""
 
@@ -73,7 +72,7 @@ class Authentication():
         if response.status_code == 200:
             self.state.print_status(description="Successfully sent request via API.")
             return 200
-        elif 400 <= response.status_code < 500:
+        if 400 <= response.status_code < 500:
             self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
         elif 500 <= response.status_code < 600:
             self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
@@ -81,7 +80,7 @@ class Authentication():
             self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
 
         self.state.print_status(description=self.state.error)
-        return
+        return response.status_code
 
     def request(self, method, endpoint, database_id, payload=None):
         """Make requests to API endpoints using different methods."""
@@ -105,6 +104,5 @@ class Authentication():
             self.state.error = None
             self.state.print_status(description="Successfully returned request contents.")
             return response.json()
-        else:
-            self.state.print_status(description="There was an error processing the request...")
-            return self.state.error
+        self.state.print_status(description="There was an error processing the request...")
+        return self.state.error

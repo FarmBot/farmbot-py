@@ -16,6 +16,7 @@ from datetime import datetime
 import paho.mqtt.client as mqtt
 
 class BrokerConnect():
+    """Broker connection class."""
     def __init__(self, state):
         self.state = state
         self.client = None
@@ -52,7 +53,6 @@ class BrokerConnect():
         if self.client is None:
             self.state.print_status(description="Disconnected from message broker.")
 
-        return
 
     def publish(self, message):
         """Publish messages containing CeleryScript via the message broker."""
@@ -61,7 +61,6 @@ class BrokerConnect():
             self.connect()
 
         self.client.publish(f'bot/{self.state.token["token"]["unencoded"]["bot"]}/from_clients', payload=json.dumps(message))
-        return
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Callback function when connection to message broker is successful."""
@@ -98,4 +97,3 @@ class BrokerConnect():
         self.client.disconnect()
 
         self.state.print_status(description="Stopped listening to all message broker channels.")
-        return

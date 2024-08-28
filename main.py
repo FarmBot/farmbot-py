@@ -16,6 +16,7 @@ from functions.resources import Resources
 from functions.tools import ToolControls
 
 class Farmbot():
+    """Farmbot class."""
     def __init__(self):
         self.state = State()
 
@@ -33,8 +34,9 @@ class Farmbot():
         self.tools = ToolControls(self.state)
 
     def set_verbosity(self, value):
+        """Set output verbosity level."""
         if value <= -1 or value >= 3:
-            return print("ERROR: verbosity must be between 0-2")
+            print("ERROR: verbosity must be between 0-2")
 
         self.state.verbosity = value
 
@@ -59,7 +61,7 @@ class Farmbot():
         return self.basic.unlock()
 
     def reboot(self):
-        """Reboots the FarmBot OS and reinitializes the device."""
+        """Reboots the FarmBot OS and re-initializes the device."""
         return self.basic.reboot()
 
     def shutdown(self):
@@ -96,13 +98,13 @@ class Farmbot():
 
     # information.py
 
-    def get_info(self, endpoint, id=None):
+    def get_info(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
-        return self.info.get_info(endpoint, id)
+        return self.info.get_info(endpoint, database_id)
 
-    def edit_info(self, endpoint, new_data, id=None):
+    def edit_info(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
-        return self.info.edit_info(endpoint, new_data, id)
+        return self.info.edit_info(endpoint, new_data, database_id)
 
     def add_info(self, endpoint, new_data):
         """Create new information contained within an endpoint."""
@@ -116,13 +118,13 @@ class Farmbot():
         """Returns x-axis length, y-axis length, and area of garden bed."""
         return self.info.garden_size()
 
-    def group(self, id=None):
+    def group(self, group_id=None):
         """Returns all group info or single by id."""
-        return self.info.group(id)
+        return self.info.group(group_id)
 
-    def curve(self, id=None):
+    def curve(self, curve_id=None):
         """Returns all curve info or single by id."""
-        return self.info.curve(id)
+        return self.info.curve(curve_id)
 
     def soil_height(self):
         """Use the camera to determine soil height at the current location."""
@@ -132,9 +134,9 @@ class Farmbot():
         """Returns the FarmBot status tree."""
         return self.info.read_status()
 
-    def read_sensor(self, id):
+    def read_sensor(self, peripheral_id):
         """Reads the given pin by id."""
-        return self.info.read_sensor(id)
+        return self.info.read_sensor(peripheral_id)
 
     # jobs.py
 
@@ -152,13 +154,13 @@ class Farmbot():
 
     # messages.py
 
-    def log(self, message_str, type=None, channel=None):
+    def log(self, message_str, message_type=None, channel=None):
         """Sends new log message via the API."""
-        return self.messages.log(message_str, type, channel)
+        return self.messages.log(message_str, message_type, channel)
 
-    def message(self, message_str, type=None, channel="ticker"):
+    def message(self, message_str, message_type=None, channel="ticker"):
         """Sends new log message via the message broker."""
-        return self.messages.message(message_str, type, channel)
+        return self.messages.message(message_str, message_type, channel)
 
     def debug(self, message_str):
         """Sends debug message used for developer information or troubleshooting."""
@@ -200,27 +202,27 @@ class Farmbot():
         """Set servo angle between 0-100 degrees."""
         return self.peripherals.control_servo(pin, angle)
 
-    def control_peripheral(self, id, value, mode=None):
+    def control_peripheral(self, peripheral_id, value, mode=None):
         """Set peripheral value and mode."""
-        return self.peripherals.control_peripheral(id, value, mode)
+        return self.peripherals.control_peripheral(peripheral_id, value, mode)
 
-    def toggle_peripheral(self, id):
+    def toggle_peripheral(self, peripheral_id):
         """Toggles the state of a specific peripheral between `on` and `off`."""
-        return self.peripherals.toggle_peripheral(id)
+        return self.peripherals.toggle_peripheral(peripheral_id)
 
-    def on(self, id):
+    def on(self, peripheral_id):
         """Turns specified peripheral `on` (100%)."""
-        return self.peripherals.on(id)
+        return self.peripherals.on(peripheral_id)
 
-    def off(self, id):
+    def off(self, peripheral_id):
         """Turns specified peripheral `off` (0%)."""
-        return self.peripherals.off(id)
+        return self.peripherals.off(peripheral_id)
 
     # resources.py
 
-    def mark_coord(self, x, y, z, property, mark_as):
+    def mark_coord(self, x, y, z, field, mark_as):
         """Marks (x, y, z) coordinate with specified label."""
-        return self.resources.mark_coord(x, y, z, property, mark_as)
+        return self.resources.mark_coord(x, y, z, field, mark_as)
 
     def sequence(self, sequence_id):
         """Executes a predefined sequence."""
@@ -242,9 +244,9 @@ class Farmbot():
         """Performs conditional check and executes actions based on the outcome."""
         return self.resources.if_statement(variable, operator, value, then_id, else_id)
 
-    def assertion(self, code, as_type, id=""):
+    def assertion(self, code, as_type, sequence_id=""):
         """Evaluates an expression."""
-        return self.resources.assertion(code, as_type, id)
+        return self.resources.assertion(code, as_type, sequence_id)
 
     # tools.py
 
@@ -260,6 +262,6 @@ class Farmbot():
         """Moves to and waters plant based on age and assigned watering curve."""
         return self.tools.water(plant_id)
 
-    def dispense(self, mL, tool_str, pin):
+    def dispense(self, milliliters, tool_str, pin):
         """Dispenses user-defined amount of liquid in milliliters."""
-        return self.tools.dispense(mL, tool_str, pin)
+        return self.tools.dispense(milliliters, tool_str, pin)

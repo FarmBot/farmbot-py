@@ -17,6 +17,7 @@ RPC_REQUEST = {
 }
 
 class Camera():
+    """Camera class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
 
@@ -36,7 +37,6 @@ class Camera():
         }
 
         self.broker.publish(calibrate_message)
-        return
 
     def take_photo(self):
         """Takes photo using the device camera and uploads it to the web app."""
@@ -52,6 +52,5 @@ class Camera():
         }
 
         self.broker.publish(photo_message)
-        return
 
     # TODO: photo_grid()

@@ -21,6 +21,7 @@ RPC_REQUEST = {
 }
 
 class MovementControls():
+    """MovementControls class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -84,32 +85,30 @@ class MovementControls():
         self.broker.publish(set_home_message)
 
         self.broker.state.print_status(description="Updated home coordinate.")
-        return
 
     def find_home(self, axis="all", speed=100):
         """Moves the device to the home position for a specified axis."""
 
         if speed > 100 or speed < 1:
             return print("ERROR: Speed constrained to 1-100.")
-        else:
-            message = {
-                "kind": "rpc_request",
+
+        message = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+                "priority": 600
+            },
+            "body": [{
+                "kind": "find_home",
                 "args": {
-                    "label": "",
-                    "priority": 600
-                },
-                "body": [{
-                    "kind": "find_home",
-                    "args": {
-                        "axis": axis,
-                        "speed": speed
-                    }
-                }]
-            }
-            self.broker.publish(message)
+                    "axis": axis,
+                    "speed": speed
+                }
+            }]
+        }
+        self.broker.publish(message)
 
         self.broker.state.print_status(description="Moved to home position.")
-        return
 
     def axis_length(self, axis="all"):
         """Returns the length of a specified axis."""
@@ -125,7 +124,6 @@ class MovementControls():
         }
 
         self.broker.publish(axis_length_message)
-        return # TODO: return axis length as values(?)
 
     def get_xyz(self):
         """Returns the current (x, y, z) coordinates of the FarmBot."""
