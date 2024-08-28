@@ -541,6 +541,16 @@ class TestFarmbot(unittest.TestCase):
         mock_client.loop_stop.assert_called()
         mock_client.disconnect.assert_called()
 
+    @patch('paho.mqtt.client.Client')
+    def test_listen_clear_last(self, mock_mqtt):
+        '''Test listen command: clear last message'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.state.last_message = "message"
+        self.fb.state.test_env = False
+        self.fb.listen(1)
+        self.assertIsNone(self.fb.state.last_message)
+
     @patch('requests.request')
     @patch('paho.mqtt.client.Client')
     def send_command_test_helper(self, *args, **kwargs):
