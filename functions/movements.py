@@ -13,13 +13,6 @@ MovementControls class.
 from .broker import BrokerConnect
 from .information import Information
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class MovementControls():
     """MovementControls class."""
     def __init__(self, state):
@@ -44,21 +37,16 @@ class MovementControls():
             }
 
         move_message = {
-            "kind": "rpc_request",
-            "args": {
-                "label": "",
-                "priority": 600
-            },
-            "body": [{
-                "kind": "move",
-                "args": {},
-                "body": [
-                    axis_overwrite("x", x),
-                    axis_overwrite("y", y),
-                    axis_overwrite("z", z)
-                ]
-            }]
+            "kind": "move",
+            "args": {},
+            "body": [
+                axis_overwrite("x", x),
+                axis_overwrite("y", y),
+                axis_overwrite("z", z)
+            ]
         }
+
+        move_message = self.broker.wrap_message(move_message, priority=600)
 
         self.broker.publish(move_message)
 
@@ -69,19 +57,12 @@ class MovementControls():
         """Sets the current position as the home position for a specific axis."""
 
         set_home_message = {
-            "kind": "rpc_request",
+            "kind": "zero",
             "args": {
-                "label": "",
-                "priority": 600
-            },
-            "body": [{
-                "kind": "zero",
-                "args": {
-                    "axis": axis
-                }
-            }]
+                "axis": axis
+            }
         }
-
+        set_home_message = self.broker.wrap_message(set_home_message, priority=600)
         self.broker.publish(set_home_message)
 
         self.broker.state.print_status(description="Updated home coordinate.")
@@ -93,19 +74,13 @@ class MovementControls():
             return print("ERROR: Speed constrained to 1-100.")
 
         message = {
-            "kind": "rpc_request",
+            "kind": "find_home",
             "args": {
-                "label": "",
-                "priority": 600
-            },
-            "body": [{
-                "kind": "find_home",
-                "args": {
-                    "axis": axis,
-                    "speed": speed
-                }
-            }]
+                "axis": axis,
+                "speed": speed
+            }
         }
+        message = self.broker.wrap_message(message, priority=600)
         self.broker.publish(message)
 
         self.broker.state.print_status(description="Moved to home position.")
@@ -114,13 +89,10 @@ class MovementControls():
         """Returns the length of a specified axis."""
 
         axis_length_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "calibrate",
-                "args": {
-                    "axis": axis
-                }
-            }]
+            "kind": "calibrate",
+            "args": {
+                "axis": axis
+            }
         }
 
         self.broker.publish(axis_length_message)

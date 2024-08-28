@@ -9,13 +9,6 @@ Camera class.
 
 from .broker import BrokerConnect
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class Camera():
     """Camera class."""
     def __init__(self, state):
@@ -27,13 +20,10 @@ class Camera():
         self.broker.state.print_status(description="Triggered camera calibration")
 
         calibrate_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "execute_script",
-                "args": {
-                    "label": "camera-calibration"
-                },
-            }]
+            "kind": "execute_script",
+            "args": {
+                "label": "camera-calibration"
+            },
         }
 
         self.broker.publish(calibrate_message)
@@ -44,11 +34,8 @@ class Camera():
         self.broker.state.print_status(description="Took a photo")
 
         photo_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "take_photo",
-                "args": {}
-            }]
+            "kind": "take_photo",
+            "args": {}
         }
 
         self.broker.publish(photo_message)

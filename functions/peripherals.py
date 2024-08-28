@@ -12,13 +12,6 @@ Peripherals class.
 from .broker import BrokerConnect
 from .information import Information
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class Peripherals():
     """Peripherals class."""
     def __init__(self, state):
@@ -32,14 +25,11 @@ class Peripherals():
             return print("ERROR: Servo angle constrained to 0-180 degrees.")
 
         control_servo_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "set_servo_angle",
-                "args": {
-                    "pin_number": pin,
-                    "pin_value": angle # From 0 to 180
-                }
-            }]
+            "kind": "set_servo_angle",
+            "args": {
+                "pin_number": pin,
+                "pin_value": angle # From 0 to 180
+            }
         }
 
         self.broker.publish(control_servo_message)
@@ -55,21 +45,18 @@ class Peripherals():
             mode = peripheral_str["mode"]
 
         control_peripheral_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "write_pin",
-                "args": {
-                    "pin_value": value, # Controls ON/OFF or slider value from 0-255
-                    "pin_mode": mode, # Controls digital (0) or analog (1) mode
-                    "pin_number": {
-                        "kind": "named_pin",
-                        "args": {
-                            "pin_type": "Peripheral",
-                            "pin_id": peripheral_id,
-                        }
+            "kind": "write_pin",
+            "args": {
+                "pin_value": value, # Controls ON/OFF or slider value from 0-255
+                "pin_mode": mode, # Controls digital (0) or analog (1) mode
+                "pin_number": {
+                    "kind": "named_pin",
+                    "args": {
+                        "pin_type": "Peripheral",
+                        "pin_id": peripheral_id,
                     }
                 }
-            }]
+            }
         }
 
         self.broker.publish(control_peripheral_message)
@@ -80,19 +67,16 @@ class Peripherals():
         """Toggles the state of a specific peripheral between `on` and `off`."""
 
         toggle_peripheral_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "toggle_pin",
-                "args": {
-                    "pin_number": {
-                        "kind": "named_pin",
-                        "args": {
-                            "pin_type": "Peripheral",
-                            "pin_id": peripheral_id,
-                        }
+            "kind": "toggle_pin",
+            "args": {
+                "pin_number": {
+                    "kind": "named_pin",
+                    "args": {
+                        "pin_type": "Peripheral",
+                        "pin_id": peripheral_id,
                     }
                 }
-            }]
+            }
         }
 
         self.broker.publish(toggle_peripheral_message)

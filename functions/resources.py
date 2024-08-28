@@ -15,13 +15,6 @@ Resources class.
 from .broker import BrokerConnect
 from .information import Information
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class Resources():
     """Resources class."""
     def __init__(self, state):
@@ -32,24 +25,21 @@ class Resources():
         """Marks (x, y, z) coordinate with specified label."""
 
         mark_coord_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "update_resource",
-                "args": {
-                    "resource": {
-                        "kind": "identifier",
-                        "args": {
-                            "label": "test_location" # What is happening here??
-                        }
-                    }
-                },
-                "body": [{
-                    "kind": "pair",
+            "kind": "update_resource",
+            "args": {
+                "resource": {
+                    "kind": "identifier",
                     "args": {
-                        "label": field,
-                        "value": mark_as
+                        "label": "test_location" # What is happening here??
                     }
-                }]
+                }
+            },
+            "body": [{
+                "kind": "pair",
+                "args": {
+                    "label": field,
+                    "value": mark_as
+                }
             }]
         }
 
@@ -59,13 +49,10 @@ class Resources():
         """Executes a predefined sequence."""
 
         sequence_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "execute",
-                "args": {
-                    "sequence_id": sequence_id
-                }
-            }]
+            "kind": "execute",
+            "args": {
+                "sequence_id": sequence_id
+            }
         }
 
         self.broker.publish(sequence_message)
@@ -139,13 +126,10 @@ class Resources():
         """Scans the garden to detect weeds."""
 
         detect_weeds_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "execute_script",
-                "args": {
-                    "label": "plant-detection"
-                }
-            }]
+            "kind": "execute_script",
+            "args": {
+                "label": "plant-detection"
+            }
         }
 
         self.broker.publish(detect_weeds_message)
@@ -154,13 +138,10 @@ class Resources():
         """Executes custom Lua code snippets to perform complex tasks or automations."""
 
         lua_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "lua",
-                "args": {
-                    "lua": code_snippet.strip()
-                }
-            }]
+            "kind": "lua",
+            "args": {
+                "lua": code_snippet.strip()
+            }
         }
 
         self.broker.publish(lua_message)
@@ -171,27 +152,24 @@ class Resources():
         """Performs conditional check and executes actions based on the outcome."""
 
         if_statement_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "_if",
-                "args": {
-                    "lhs": variable,
-                    "op": operator,
-                    "rhs": value,
-                    "_then": {
-                        "kind": "execute",
-                        "args": {
-                            "sequence_id": then_id
-                        }
-                    },
-                    "_else": {
-                        "kind": "execute",
-                        "args": {
-                            "sequence_id": else_id
-                        }
+            "kind": "_if",
+            "args": {
+                "lhs": variable,
+                "op": operator,
+                "rhs": value,
+                "_then": {
+                    "kind": "execute",
+                    "args": {
+                        "sequence_id": then_id
+                    }
+                },
+                "_else": {
+                    "kind": "execute",
+                    "args": {
+                        "sequence_id": else_id
                     }
                 }
-            }]
+            }
         }
 
         self.broker.publish(if_statement_message)
@@ -202,20 +180,17 @@ class Resources():
         """Evaluates an expression."""
 
         assertion_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "assertion",
-                "args": {
-                    "lua": code,
-                    "_then": {
-                        "kind": "execute",
-                        "args": {
-                            "sequence_id": sequence_id # Recovery sequence ID
-                        }
-                    },
-                    "assertion_type": as_type # If test fails, do this
-                }
-            }]
+            "kind": "assertion",
+            "args": {
+                "lua": code,
+                "_then": {
+                    "kind": "execute",
+                    "args": {
+                        "sequence_id": sequence_id # Recovery sequence ID
+                    }
+                },
+                "assertion_type": as_type # If test fails, do this
+            }
         }
 
         self.broker.publish(assertion_message)

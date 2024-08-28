@@ -53,12 +53,29 @@ class BrokerConnect():
         if self.client is None:
             self.state.print_status(description="Disconnected from message broker.")
 
+    def wrap_message(self, message, priority=None):
+        """Wrap message in CeleryScript format."""
+        rpc = {
+            "kind": "rpc_request",
+            "args": {
+                "label": "",
+            },
+            "body": [message],
+        }
+
+        if priority is not None:
+            rpc['args']['priority'] = priority
+
+        return rpc
 
     def publish(self, message):
         """Publish messages containing CeleryScript via the message broker."""
 
         if self.client is None:
             self.connect()
+
+        if message["kind"] != "rpc_request":
+            message = self.wrap_message(message)
 
         self.client.publish(f'bot/{self.state.token["token"]["unencoded"]["bot"]}/from_clients', payload=json.dumps(message))
 

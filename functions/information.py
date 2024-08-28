@@ -18,13 +18,6 @@ import time
 from .broker import BrokerConnect
 from .authentication import Authentication
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class Information():
     """Information class."""
     def __init__(self, state):
@@ -111,13 +104,10 @@ class Information():
         """Use the camera to determine soil height at the current location."""
 
         soil_height_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "execute_script",
-                "args": {
-                    "label": "Measure Soil Height"
-                }
-            }]
+            "kind": "execute_script",
+            "args": {
+                "label": "Measure Soil Height"
+            }
         }
 
         self.broker.publish(soil_height_message)
@@ -127,16 +117,10 @@ class Information():
 
         self.broker.start_listen("status")
         status_message = {
-            "kind": "rpc_request",
-            "args": {
-                "label": "",
-                "priority": 600
-            },
-            "body": [{
-                    "kind": "read_status",
-                    "args": {}
-            }]
+            "kind": "read_status",
+            "args": {}
         }
+        status_message = self.broker.wrap_message(status_message, priority=600)
         self.broker.publish(status_message)
 
         time.sleep(15)
@@ -154,21 +138,18 @@ class Information():
         mode = peripheral_str["mode"]
 
         sensor_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "read_pin",
-                "args": {
-                    "pin_mode": mode,
-                    "label": "---",
-                    "pin_number": {
-                        "kind": "named_pin",
-                        "args": {
-                            "pin_type": "Peripheral",
-                            "pin_id": peripheral_id,
-                        }
+            "kind": "read_pin",
+            "args": {
+                "pin_mode": mode,
+                "label": "---",
+                "pin_number": {
+                    "kind": "named_pin",
+                    "args": {
+                        "pin_type": "Peripheral",
+                        "pin_id": peripheral_id,
                     }
                 }
-            }]
+            }
         }
 
         self.broker.publish(sensor_message)

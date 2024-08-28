@@ -11,13 +11,6 @@ BasicCommands class.
 
 from .broker import BrokerConnect
 
-RPC_REQUEST = {
-    "kind": "rpc_request",
-    "args": {
-        "label": "",
-    }
-}
-
 class BasicCommands():
     """Basic commands class."""
     def __init__(self, state):
@@ -29,18 +22,13 @@ class BasicCommands():
         self.broker.state.print_status(description=f"Waiting for {duration} milliseconds...")
 
         wait_message = {
-            "kind": "rpc_request",
+            "kind": "wait",
             "args": {
-                "label": "",
-                "priority": 600
-            },
-            "body": [{
-                "kind": "wait",
-                "args": {
-                    "milliseconds": duration
-                }
-            }]
+                "milliseconds": duration
+            }
         }
+
+        wait_message = self.broker.wrap_message(wait_message, priority=600)
 
         self.broker.publish(wait_message)
 
@@ -50,17 +38,11 @@ class BasicCommands():
         self.broker.state.print_status(description="Triggered device emergency stop")
 
         stop_message = {
-            "kind": "rpc_request",
-            "args": {
-                "label": "",
-                "priority": 9000
-            },
-            "body": [{
-                "kind": "emergency_lock",
-                "args": {}
-            }]
+            "kind": "emergency_lock",
+            "args": {}
         }
 
+        stop_message = self.broker.wrap_message(stop_message, priority=9000)
         self.broker.publish(stop_message)
 
     def unlock(self):
@@ -69,17 +51,11 @@ class BasicCommands():
         self.broker.state.print_status(description="Triggered device unlock")
 
         unlock_message = {
-            "kind": "rpc_request",
-            "args": {
-                "label": "",
-                "priority": 9000
-            },
-            "body": [{
-                "kind": "emergency_unlock",
-                "args": {}
-            }]
+            "kind": "emergency_unlock",
+            "args": {}
         }
 
+        unlock_message = self.broker.wrap_message(unlock_message, priority=9000)
         self.broker.publish(unlock_message)
 
     def reboot(self):
@@ -88,13 +64,10 @@ class BasicCommands():
         self.broker.state.print_status(description="Triggered device reboot")
 
         reboot_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "reboot",
-                "args": {
-                    "package": "farmbot_os"
-                }
-            }]
+            "kind": "reboot",
+            "args": {
+                "package": "farmbot_os"
+            }
         }
 
         self.broker.publish(reboot_message)
@@ -105,11 +78,8 @@ class BasicCommands():
         self.broker.state.print_status(description="Triggered device shutdown")
 
         shutdown_message = {
-            **RPC_REQUEST,
-            "body": [{
-                "kind": "power_off",
-                "args": {}
-            }]
+            "kind": "power_off",
+            "args": {}
         }
 
         self.broker.publish(shutdown_message)

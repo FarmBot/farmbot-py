@@ -37,25 +37,20 @@ class MessageHandling():
         """Sends new log message via the message broker."""
 
         message = {
-            "kind": "rpc_request",
+            "kind": "send_message",
             "args": {
-                "label": "",
-                "priority": 600
+                "message": message_str,
+                "message_type": message_type,
             },
             "body": [{
-                "kind": "send_message",
+                "kind": "channel",
                 "args": {
-                    "message": message_str,
-                    "message_type": message_type,
-                },
-                "body": [{
-                    "kind": "channel",
-                    "args": {
-                        "channel_name": channel
-                    }
-                }]
+                    "channel_name": channel
+                }
             }]
         }
+
+        message = self.broker.wrap_message(message, priority=600)
 
         self.broker.publish(message)
 
