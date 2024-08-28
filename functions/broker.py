@@ -78,7 +78,8 @@ class BrokerConnect():
         if message["kind"] != "rpc_request":
             message = self.wrap_message(message)
 
-        self.client.publish(f'bot/{self.state.token["token"]["unencoded"]["bot"]}/from_clients', payload=json.dumps(message))
+        device_id_str = self.state.token["token"]["unencoded"]["bot"]
+        self.client.publish(f'bot/{device_id_str}/from_clients', payload=json.dumps(message))
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Callback function when connection to message broker is successful."""

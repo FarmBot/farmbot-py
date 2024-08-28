@@ -101,10 +101,11 @@ class MovementControls():
         """Returns the current (x, y, z) coordinates of the FarmBot."""
 
         tree_data = self.info.read_status()
+        position = tree_data["location_data"]["position"]
 
-        x_val = tree_data["location_data"]["position"]["x"]
-        y_val = tree_data["location_data"]["position"]["y"]
-        z_val = tree_data["location_data"]["position"]["z"]
+        x_val = position["x"]
+        y_val = position["y"]
+        z_val = position["z"]
 
         self.broker.state.print_status(description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
         return x_val, y_val, z_val

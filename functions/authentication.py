@@ -84,12 +84,13 @@ class Authentication():
         # use 'PATCH' method to edit endpoint data (used for new logs)
         # use 'DELETE' method to delete endpoint data (hidden)
 
-        if database_id is None:
-            url = f'https:{self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}'
-        else:
-            url = f'https:{self.state.token["token"]["unencoded"]["iss"]}/api/{endpoint}/{database_id}'
+        token = self.state.token["token"]
+        iss = token["unencoded"]["iss"]
 
-        headers = {'authorization': self.state.token['token']['encoded'], 'content-type': 'application/json'}
+        id_part = "" if database_id is None else f"/{database_id}"
+        url = f'https:{iss}/api/{endpoint}{id_part}'
+
+        headers = {'authorization': token['encoded'], 'content-type': 'application/json'}
         response = requests.request(method, url, headers=headers, json=payload)
 
         if self.request_handling(response) == 200:
