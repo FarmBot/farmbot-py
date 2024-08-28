@@ -2,7 +2,7 @@
 Farmbot class.
 """
 
-import json
+from state import State
 from functions.authentication import Authentication
 from functions.basic_commands import BasicCommands
 from functions.broker import BrokerConnect
@@ -14,23 +14,6 @@ from functions.movements import MovementControls
 from functions.peripherals import Peripherals
 from functions.resources import Resources
 from functions.tools import ToolControls
-
-class State():
-    def __init__(self):
-        self.token = None
-        self.error = None
-        self.last_message = None
-        self.verbosity = 2
-
-    def print_status(self, function, endpoint_json=None, description=None):
-        """Handle changes to output based on user-defined verbosity."""
-
-        if self.verbosity >= 1:
-            print(f"`{function}` called")
-        if self.verbosity >= 2 and description:
-            print(description)
-        if self.verbosity >= 2 and endpoint_json:
-            print(json.dumps(endpoint_json, indent=4))
 
 class Farmbot():
     def __init__(self):
