@@ -9,7 +9,6 @@ BasicCommands class.
 #     ├── [BROKER] reboot()
 #     └── [BROKER] shutdown()
 
-from datetime import datetime
 from .broker import BrokerConnect
 
 RPC_REQUEST = {
@@ -48,7 +47,7 @@ class BasicCommands():
     def e_stop(self):
         """Emergency locks (E-stops) the Farmduino microcontroller."""
 
-        self.broker.state.print_status(description=f"Triggered device emergency stop at: {datetime.now()}")
+        self.broker.state.print_status(description="Triggered device emergency stop")
 
         stop_message = {
             "kind": "rpc_request",
@@ -68,7 +67,7 @@ class BasicCommands():
     def unlock(self):
         """Unlocks a locked (E-stopped) device."""
 
-        self.broker.state.print_status(description=f"Triggered device unlock at: {datetime.now()}")
+        self.broker.state.print_status(description="Triggered device unlock")
 
         unlock_message = {
             "kind": "rpc_request",
@@ -88,7 +87,7 @@ class BasicCommands():
     def reboot(self):
         """Reboots the FarmBot OS and reinitializes the device."""
 
-        self.broker.state.print_status(description=f"Triggered device reboot at: {datetime.now()}")
+        self.broker.state.print_status(description="Triggered device reboot")
 
         reboot_message = {
             **RPC_REQUEST,
@@ -106,7 +105,7 @@ class BasicCommands():
     def shutdown(self):
         """Shuts down the FarmBot OS and turns the device off."""
 
-        self.broker.state.print_status(description=f"Triggered device shutdown at: {datetime.now()}")
+        self.broker.state.print_status(description="Triggered device shutdown")
 
         shutdown_message = {
             **RPC_REQUEST,

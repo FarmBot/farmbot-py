@@ -7,7 +7,6 @@ Camera class.
 #     ├── [BROKER] take_photo()
 #     └── [BROKER] photo_grid()
 
-from datetime import datetime
 from .broker import BrokerConnect
 
 RPC_REQUEST = {
@@ -24,7 +23,7 @@ class Camera():
     def calibrate_camera(self):
         """Performs camera calibration. This action will reset camera calibration settings."""
 
-        self.broker.state.print_status(description=f"Triggered camera calibration at: {datetime.now()}")
+        self.broker.state.print_status(description="Triggered camera calibration")
 
         calibrate_message = {
             **RPC_REQUEST,
@@ -42,7 +41,7 @@ class Camera():
     def take_photo(self):
         """Takes photo using the device camera and uploads it to the web app."""
 
-        self.broker.state.print_status(description=f"Took a photo at: {datetime.now()}")
+        self.broker.state.print_status(description="Took a photo")
 
         photo_message = {
             **RPC_REQUEST,

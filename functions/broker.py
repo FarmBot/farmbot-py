@@ -12,8 +12,8 @@ BrokerConnect class.
 #     └── [BROKER] stop_listen()
 
 import json
-import paho.mqtt.client as mqtt
 from datetime import datetime
+import paho.mqtt.client as mqtt
 
 class BrokerConnect():
     def __init__(self, state):

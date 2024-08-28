@@ -2,6 +2,7 @@
 
 import json
 import inspect
+from datetime import datetime
 
 def get_function_call_info():
     """Return the name and given arguments of the function where this is called."""
@@ -26,7 +27,7 @@ class State():
 
         if self.verbosity >= 1:
             function = get_function_call_info()
-            print(f"`{function}` called")
+            print(f"`{function}` called at {datetime.now()}")
         if self.verbosity >= 2 and description:
             print(description)
         if self.verbosity >= 2 and endpoint_json:

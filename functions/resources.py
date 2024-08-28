@@ -12,7 +12,6 @@ Resources class.
 #     ├── [BROKER] if_statement()
 #     └── [BROKER] assertion()
 
-from datetime import datetime
 from .broker import BrokerConnect
 from .information import Information
 
@@ -72,7 +71,7 @@ class Resources():
 
         self.broker.publish(sequence_message)
 
-        self.broker.state.print_status(description=f"Triggered sequence {sequence_id} at {datetime.now()}.")
+        self.broker.state.print_status(description="Triggered sequence {sequence_id} .")
         return
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
@@ -169,7 +168,7 @@ class Resources():
 
         self.broker.publish(lua_message)
 
-        self.broker.state.print_status(description=f"Triggered lua code execution at {datetime.now()}.")
+        self.broker.state.print_status(description="Triggered lua code execution .")
         return
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
@@ -201,7 +200,7 @@ class Resources():
 
         self.broker.publish(if_statement_message)
 
-        self.broker.state.print_status(description=f"Triggered if statement at {datetime.now()}.")
+        self.broker.state.print_status(description="Triggered if statement .")
         return
 
     def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
@@ -226,5 +225,5 @@ class Resources():
 
         self.broker.publish(assertion_message)
 
-        self.broker.state.print_status(description=f"Triggered assertion at {datetime.now()}.")
+        self.broker.state.print_status(description="Triggered assertion .")
         return
