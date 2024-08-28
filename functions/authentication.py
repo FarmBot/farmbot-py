@@ -9,7 +9,36 @@ Authentication class.
 #     └── [API] request()
 
 import json
+from html.parser import HTMLParser
 import requests
+
+
+class HTMLResponseParser(HTMLParser):
+    """Response parser for HTML content."""
+    def __init__(self):
+        super().__init__()
+        self.is_header = False
+        self.headers = []
+
+    def read(self, data):
+        """Read the headers from the HTML content."""
+        self.is_header = False
+        self.headers = []
+        self.reset()
+        self.feed(data)
+        return " ".join(self.headers)
+
+    def handle_starttag(self, tag, attrs):
+        """Detect headers."""
+        if tag in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            self.is_header = True
+
+    def handle_data(self, data):
+        """Add header data to the list."""
+        if self.is_header:
+            self.headers.append(data.strip())
+            self.is_header = False
+
 
 class Authentication():
     """Authentication class for FarmBot API."""
@@ -65,11 +94,22 @@ class Authentication():
             self.state.print_status(description="Successfully sent request via API.")
             return 200
         if 400 <= response.status_code < 500:
-            self.state.error = json.dumps(f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}", indent=2)
+            self.state.error = f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}"
         elif 500 <= response.status_code < 600:
-            self.state.error = json.dumps(f"SERVER ERROR {response.status_code}: {response.text}", indent=2)
+            self.state.error = f"SERVER ERROR {response.status_code}: {response.text}"
         else:
-            self.state.error = json.dumps(f"UNEXPECTED ERROR {response.status_code}: {response.text}", indent=2)
+            self.state.error = f"UNEXPECTED ERROR {response.status_code}: {response.text}"
+
+        try:
+            response.json()
+        except requests.exceptions.JSONDecodeError:
+            if '<html>' in response.text:
+                parser = HTMLResponseParser()
+                self.state.error += f" ({parser.read(response.text)})"
+            else:
+                self.state.error += f" ({response.text})"
+        else:
+            self.state.error += f" ({json.dumps(response.json(), indent=2)})"
 
         self.state.print_status(description=self.state.error)
         return response.status_code
