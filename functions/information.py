@@ -25,30 +25,33 @@ class Information():
 
     def get_info(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
+        self.broker.state.print_status(description=f"Retrieving {endpoint} information.")
 
         endpoint_data = self.auth.request("GET", endpoint, database_id)
 
-        self.broker.state.print_status(endpoint_json=endpoint_data)
+        self.broker.state.print_status(update_only=True, endpoint_json=endpoint_data)
+
         return endpoint_data
 
     def edit_info(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
+        self.broker.state.print_status(description=f"Editing {endpoint}.")
 
-        self.auth.request("PATCH", endpoint, database_id=database_id, payload=new_data)
-        endpoint_data = self.get_info(endpoint, database_id)
+        result = self.auth.request("PATCH", endpoint, database_id=database_id, payload=new_data)
 
-        self.broker.state.print_status(endpoint_json=endpoint_data)
-        return endpoint_data
+        self.broker.state.print_status(update_only=True, endpoint_json=result)
+
+        return result
 
     def add_info(self, endpoint, new_data):
         """Create new information contained within an endpoint."""
+        self.broker.state.print_status(description=f"Adding new data to {endpoint}.")
 
-        self.auth.request("POST", endpoint, database_id=None, payload=new_data)
+        result = self.auth.request("POST", endpoint, database_id=None, payload=new_data)
 
-        endpoint_data = self.get_info(endpoint, database_id=None)
+        self.broker.state.print_status(update_only=True, endpoint_json=result)
 
-        self.broker.state.print_status(endpoint_json=endpoint_data)
-        return endpoint_data
+        return result
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""

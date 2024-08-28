@@ -24,7 +24,7 @@ class State():
         self.verbosity = 2
         self.test_env = False
 
-    def print_status(self, endpoint_json=None, description=None):
+    def print_status(self, endpoint_json=None, description=None, update_only=False):
         """Handle changes to output based on user-defined verbosity."""
 
         if self.verbosity >= 1:
@@ -32,7 +32,7 @@ class State():
                 print(description)
             if endpoint_json:
                 print(json.dumps(endpoint_json, indent=4))
-        if self.verbosity >= 2:
+        if self.verbosity >= 2 and not update_only:
             function = get_function_call_info()
             print(f"`{function}` called at {datetime.now()}")
 
