@@ -137,7 +137,7 @@ class Farmbot():
 
     # jobs.py
 
-    def get_job(self, job_str):
+    def get_job(self, job_str=None):
         """Retrieves the status or details of the specified job."""
         return self.jobs.get_job(job_str)
 

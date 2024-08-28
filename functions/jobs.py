@@ -19,7 +19,7 @@ class JobHandling():
         self.info = Information(state)
         self.resource = Resources(state)
 
-    def get_job(self, job_str):
+    def get_job(self, job_str=None):
         """Retrieves the status or details of the specified job."""
 
         status_data = self.info.read_status()
