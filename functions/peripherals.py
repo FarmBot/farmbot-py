@@ -17,6 +17,7 @@ class Peripherals():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
+        self.state = state
 
     def control_servo(self, pin, angle):
         """Set servo angle between 0-100 degrees."""
@@ -34,7 +35,7 @@ class Peripherals():
 
         self.broker.publish(control_servo_message)
 
-        self.broker.state.print_status(description=f"Set servo angle to {angle}.")
+        self.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
     def control_peripheral(self, peripheral_id, value, mode=None):
@@ -61,7 +62,7 @@ class Peripherals():
 
         self.broker.publish(control_peripheral_message)
 
-        self.broker.state.print_status(description=f"Set peripheral {peripheral_id} to {value} with mode={mode}.")
+        self.state.print_status(description=f"Set peripheral {peripheral_id} to {value} with mode={mode}.")
 
     def toggle_peripheral(self, peripheral_id):
         """Toggles the state of a specific peripheral between `on` and `off`."""
@@ -81,7 +82,7 @@ class Peripherals():
 
         self.broker.publish(toggle_peripheral_message)
 
-        self.broker.state.print_status(description=f"Triggered toggle peripheral {peripheral_id}.")
+        self.state.print_status(description=f"Triggered toggle peripheral {peripheral_id}.")
 
     def on(self, peripheral_id):
         """Turns specified peripheral `on` (100%)."""
@@ -94,7 +95,7 @@ class Peripherals():
         elif mode == 0:
             self.control_peripheral(peripheral_id, 1)
 
-        self.broker.state.print_status(description=f"Turned ON peripheral {peripheral_id}.")
+        self.state.print_status(description=f"Turned ON peripheral {peripheral_id}.")
         return
 
     def off(self, peripheral_id):
@@ -102,5 +103,5 @@ class Peripherals():
 
         self.control_peripheral(peripheral_id, 0)
 
-        self.broker.state.print_status(description=f"Turned OFF peripheral {peripheral_id}.")
+        self.state.print_status(description=f"Turned OFF peripheral {peripheral_id}.")
         return

@@ -19,6 +19,7 @@ class Resources():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
+        self.state = state
 
     # TODO: mark_as()
 
@@ -36,7 +37,7 @@ class Resources():
 
         self.broker.publish(sequence_message)
 
-        self.broker.state.print_status(description="Triggered sequence {sequence_id} .")
+        self.state.print_status(description="Triggered sequence {sequence_id} .")
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
@@ -98,7 +99,7 @@ class Resources():
         curr_y = a1["y"] + offset["y"]
         curr_z = a1["z"]
 
-        self.broker.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
+        self.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
         return {"x": curr_x, "y": curr_y, "z": curr_z}
 
     def detect_weeds(self):
@@ -125,7 +126,7 @@ class Resources():
 
         self.broker.publish(lua_message)
 
-        self.broker.state.print_status(description="Triggered lua code execution .")
+        self.state.print_status(description="Triggered lua code execution .")
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
         """Performs conditional check and executes actions based on the outcome."""
@@ -153,7 +154,7 @@ class Resources():
 
         self.broker.publish(if_statement_message)
 
-        self.broker.state.print_status(description="Triggered if statement .")
+        self.state.print_status(description="Triggered if statement .")
 
     def assertion(self, code, as_type, sequence_id=""): # TODO: add "continue" functionality
         """Evaluates an expression."""
@@ -174,4 +175,4 @@ class Resources():
 
         self.broker.publish(assertion_message)
 
-        self.broker.state.print_status(description="Triggered assertion .")
+        self.state.print_status(description="Triggered assertion .")

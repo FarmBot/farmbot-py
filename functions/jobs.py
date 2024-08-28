@@ -18,6 +18,7 @@ class JobHandling():
         self.broker = BrokerConnect(state)
         self.info = Information(state)
         self.resource = Resources(state)
+        self.state = state
 
     def get_job(self, job_str=None):
         """Retrieves the status or details of the specified job."""
@@ -33,7 +34,7 @@ class JobHandling():
         else:
             jobs = status_data["jobs"][job_str]
 
-        self.broker.state.print_status(endpoint_json=jobs)
+        self.state.print_status(endpoint_json=jobs)
         return jobs
 
     def set_job(self, job_str, status_message, value):
@@ -52,7 +53,7 @@ class JobHandling():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description=f"Marked job {job_str} as {value}% complete.")
+        self.state.print_status(description=f"Marked job {job_str} as {value}% complete.")
 
     def complete_job(self, job_str):
         """Marks job as completed and triggers any associated actions."""
@@ -63,4 +64,4 @@ class JobHandling():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description=f"Marked job {job_str} as `complete`.")
+        self.state.print_status(description=f"Marked job {job_str} as `complete`.")

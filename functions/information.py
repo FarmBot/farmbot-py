@@ -22,34 +22,35 @@ class Information():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.api = ApiConnect(state)
+        self.state = state
 
     def get_info(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
-        self.broker.state.print_status(description=f"Retrieving {endpoint} information.")
+        self.state.print_status(description=f"Retrieving {endpoint} information.")
 
         endpoint_data = self.api.request("GET", endpoint, database_id)
 
-        self.broker.state.print_status(update_only=True, endpoint_json=endpoint_data)
+        self.state.print_status(update_only=True, endpoint_json=endpoint_data)
 
         return endpoint_data
 
     def edit_info(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
-        self.broker.state.print_status(description=f"Editing {endpoint}.")
+        self.state.print_status(description=f"Editing {endpoint}.")
 
         result = self.api.request("PATCH", endpoint, database_id=database_id, payload=new_data)
 
-        self.broker.state.print_status(update_only=True, endpoint_json=result)
+        self.state.print_status(update_only=True, endpoint_json=result)
 
         return result
 
     def add_info(self, endpoint, new_data):
         """Create new information contained within an endpoint."""
-        self.broker.state.print_status(description=f"Adding new data to {endpoint}.")
+        self.state.print_status(description=f"Adding new data to {endpoint}.")
 
         result = self.api.request("POST", endpoint, database_id=None, payload=new_data)
 
-        self.broker.state.print_status(update_only=True, endpoint_json=result)
+        self.state.print_status(update_only=True, endpoint_json=result)
 
         return result
 
@@ -59,7 +60,7 @@ class Information():
         config_data = self.get_info('fbos_config')
         z_value = config_data["safe_height"]
 
-        self.broker.state.print_status(description=f"Safe z={z_value}")
+        self.state.print_status(description=f"Safe z={z_value}")
         return z_value
 
     def garden_size(self):
@@ -77,7 +78,7 @@ class Information():
         length_y = y_steps / y_mm
         area = length_x * length_y
 
-        self.broker.state.print_status(description=f"X-axis length={length_x}\n Y-axis length={length_y}\n Area={area}")
+        self.state.print_status(description=f"X-axis length={length_x}\n Y-axis length={length_y}\n Area={area}")
         return length_x, length_y, area
 
     def group(self, group_id=None):
@@ -88,7 +89,7 @@ class Information():
         else:
             group_data = self.get_info('point_groups', group_id)
 
-        self.broker.state.print_status(endpoint_json=group_data)
+        self.state.print_status(endpoint_json=group_data)
         return group_data
 
     def curve(self, curve_id=None):
@@ -99,7 +100,7 @@ class Information():
         else:
             curve_data = self.get_info('curves', curve_id)
 
-        self.broker.state.print_status(endpoint_json=curve_data)
+        self.state.print_status(endpoint_json=curve_data)
         return curve_data
 
     def soil_height(self):
@@ -116,18 +117,18 @@ class Information():
 
     def read_status(self):
         """Returns the FarmBot status tree."""
-        self.broker.state.print_status(description="Reading status...")
+        self.state.print_status(description="Reading status...")
         status_message = {
             "kind": "read_status",
             "args": {}
         }
         self.broker.publish(status_message)
 
-        self.broker.listen(self.broker.state.broker_listen_duration, "status")
+        self.broker.listen(self.state.broker_listen_duration, "status")
 
-        status_tree = self.broker.state.last_message
+        status_tree = self.state.last_message
 
-        self.broker.state.print_status(update_only=True, endpoint_json=status_tree)
+        self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
 
     def read_sensor(self, peripheral_id):

@@ -30,6 +30,7 @@ class MessageHandling():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.api = ApiConnect(state)
+        self.state = state
 
     def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
@@ -47,7 +48,7 @@ class MessageHandling():
 
         self.api.request('POST', endpoint, database_id, log_message)
 
-        self.broker.state.print_status(description="New log message sent via API.")
+        self.state.print_status(description="New log message sent via API.")
 
     def message(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the message broker."""
@@ -70,18 +71,18 @@ class MessageHandling():
 
         self.broker.publish(message)
 
-        self.broker.state.print_status(description="New log message sent via message broker.")
+        self.state.print_status(description="New log message sent via message broker.")
 
     def debug(self, message_str):
         """Sends debug message used for developer information or troubleshooting."""
 
         self.message(message_str, "debug", "ticker")
 
-        self.broker.state.print_status(description="New debug message sent via message broker.")
+        self.state.print_status(description="New debug message sent via message broker.")
 
     def toast(self, message_str):
         """Sends a message that pops up on the user interface briefly."""
 
         self.message(message_str, "info", "toast")
 
-        self.broker.state.print_status(description="New toast message sent via message broker.")
+        self.state.print_status(description="New toast message sent via message broker.")

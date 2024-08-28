@@ -17,6 +17,7 @@ class ToolControls():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.resource = Resources(state)
+        self.state = state
 
     # TODO: verify_tool()
 
@@ -29,7 +30,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description=f"Mounting {tool_str} tool.")
+        self.state.print_status(description=f"Mounting {tool_str} tool.")
 
     def dismount_tool(self):
         """Dismounts the currently mounted tool into assigned slot."""
@@ -40,7 +41,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description="Dismounting tool.")
+        self.state.print_status(description="Dismounting tool.")
 
     def water(self, plant_id):
         """Moves to and waters plant based on age and assigned watering curve."""
@@ -55,7 +56,7 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description=f"Watering plant {plant_id}...")
+        self.state.print_status(description=f"Watering plant {plant_id}...")
 
     def dispense(self, milliliters, tool_str, pin):
         """Dispenses user-defined amount of liquid in milliliters."""
@@ -66,4 +67,4 @@ class ToolControls():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status(description=f"Dispensing {milliliters} from tool {tool_str}...")
+        self.state.print_status(description=f"Dispensing {milliliters} from tool {tool_str}...")

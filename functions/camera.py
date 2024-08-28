@@ -13,11 +13,12 @@ class Camera():
     """Camera class."""
     def __init__(self, state):
         self.broker = BrokerConnect(state)
+        self.state = state
 
     def calibrate_camera(self):
         """Performs camera calibration. This action will reset camera calibration settings."""
 
-        self.broker.state.print_status(description="Triggered camera calibration")
+        self.state.print_status(description="Triggered camera calibration")
 
         calibrate_message = {
             "kind": "execute_script",
@@ -31,7 +32,7 @@ class Camera():
     def take_photo(self):
         """Takes photo using the device camera and uploads it to the web app."""
 
-        self.broker.state.print_status(description="Took a photo")
+        self.state.print_status(description="Took a photo")
 
         photo_message = {
             "kind": "take_photo",

@@ -1056,7 +1056,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz_no_status(self):
         '''Test get_xyz command: no status'''
         def exec_command():
-            self.fb.broker.state.last_message = None
+            self.fb.state.last_message = None
             position = self.fb.get_xyz()
             self.assertIsNone(position)
         self.send_command_test_helper(
@@ -1311,7 +1311,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_all(self):
         '''Test get_job command: get all jobs'''
         def exec_command():
-            self.fb.broker.state.last_message = {
+            self.fb.state.last_message = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
@@ -1330,7 +1330,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_no_status(self):
         '''Test get_job command: no status'''
         def exec_command():
-            self.fb.broker.state.last_message = None
+            self.fb.state.last_message = None
             _job = self.fb.get_job('job name')
             # self.assertIsNone(job)
         self.send_command_test_helper(
