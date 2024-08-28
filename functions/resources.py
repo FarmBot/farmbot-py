@@ -3,7 +3,6 @@ Resources class.
 """
 
 # └── functions/resources.py
-#     ├── [BROKER] mark_point()
 #     ├── [BROKER] sort_points()
 #     ├── [BROKER] sequence()
 #     ├── [BROKER] get_seed_tray_cell()
@@ -21,27 +20,7 @@ class Resources():
         self.broker = BrokerConnect(state)
         self.info = Information(state)
 
-    def mark_coord(self, x, y, z, field, mark_as): # TODO: Fix "label" and TODO: rename mark_point()
-        """Marks (x, y, z) coordinate with specified label."""
-
-        mark_coord_message = {
-            "kind": "update_resource",
-            "args": {
-                "resource": {
-                    "kind": "identifier",
-                    "args": {
-                        "label": "test_location" # What is happening here??
-                    }
-                }
-            },
-            "body": [{
-                "kind": "pair",
-                "args": {
-                    "label": field,
-                    "value": mark_as
-                }
-            }]
-        }
+    # TODO: mark_as()
 
     # TODO: sort_points(points, method)
 

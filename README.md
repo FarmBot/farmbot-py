@@ -239,7 +239,6 @@ sidecar-starter-pack/
 
 | class `Resources()` | Description |
 | :--- | :--- |
-| `mark_coord()` | Marks (x, y, z) coordinate with specified label. |
 | `sequence()` | Executes a predefined sequence. |
 | `get_seed_tray_cell()` | Identifies and returns the location of specified cell in the seed tray. |
 | `detect_weeds()` | Scans the garden to detect weeds. |

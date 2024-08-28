@@ -217,10 +217,6 @@ class Farmbot():
 
     # resources.py
 
-    def mark_coord(self, x, y, z, field, mark_as):
-        """Marks (x, y, z) coordinate with specified label."""
-        return self.resources.mark_coord(x, y, z, field, mark_as)
-
     def sequence(self, sequence_id):
         """Executes a predefined sequence."""
         return self.resources.sequence(sequence_id)
