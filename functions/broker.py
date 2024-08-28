@@ -127,7 +127,13 @@ class BrokerConnect():
             time.sleep(0.25)
             if self.state.last_message is not None:
                 seconds = (datetime.now() - start_time).seconds
-                self.state.print_status(description=f"Message received after {seconds} seconds")
+                self.state.print_status(
+                    description=f"Message received after {seconds} seconds",
+                    update_only=True)
                 break
+        if self.state.last_message is None:
+            self.state.print_status(
+                description=f"Did not receive message after {duration} seconds",
+                update_only=True)
 
         self.stop_listen()
