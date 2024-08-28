@@ -124,10 +124,12 @@ class BrokerConnect():
         self.state.print_status(description=f"Listening to message broker for {duration} seconds...")
         start_time = datetime.now()
         self.start_listen(channel)
-        # if not self.state.test_env:
-        #     self.state.last_message = None
+        if not self.state.test_env:
+            self.state.last_message = None
+        else:
+            duration = 0.3
         while (datetime.now() - start_time).seconds < duration:
-            time.sleep(0.5)
+            time.sleep(0.25)
             if self.state.last_message is not None:
                 seconds = (datetime.now() - start_time).seconds
                 self.state.print_status(description=f"Message received after {seconds} seconds")
