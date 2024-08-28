@@ -1,10 +1,11 @@
-"""
+'''
 Farmbot class unit tests.
-"""
+'''
 
 import json
 import unittest
 from unittest.mock import Mock, patch, call
+import requests
 
 from main import Farmbot
 
@@ -21,98 +22,190 @@ MOCK_TOKEN = {
 
 
 class TestFarmbot(unittest.TestCase):
-    """Farmbot tests"""
+    '''Farmbot tests'''
+
+    def setUp(self):
+        '''Set up method called before each test case'''
+        self.fb = Farmbot()
+        self.fb.state.token = MOCK_TOKEN
+        self.fb.state.verbosity = 0
+        self.fb.state.test_env = True
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
-        """POSITIVE TEST: function called with email, password, and default server"""
+        '''POSITIVE TEST: function called with email, password, and default server'''
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
         mock_post.return_value = mock_response
-        fb = Farmbot()
+        self.fb.state.token = None
         # Call with default server
-        fb.get_token('test_email@gmail.com', 'test_pass_123')
+        self.fb.get_token('test_email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
             headers={'content-type': 'application/json'},
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.state.token, expected_token)
+        self.assertEqual(self.fb.state.token, expected_token)
 
     @patch('requests.post')
     def test_get_token_custom_server(self, mock_post):
-        """POSITIVE TEST: function called with email, password, and custom server"""
+        '''POSITIVE TEST: function called with email, password, and custom server'''
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
         mock_post.return_value = mock_response
-        fb = Farmbot()
+        self.fb.state.token = None
         # Call with custom server
-        fb.get_token('test_email@gmail.com', 'test_pass_123',
-                     'https://staging.farm.bot')
+        self.fb.get_token('test_email@gmail.com', 'test_pass_123',
+                          'https://staging.farm.bot')
         mock_post.assert_called_once_with(
             'https://staging.farm.bot/api/tokens',
             headers={'content-type': 'application/json'},
             json={'user': {'email': 'test_email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(fb.state.token, expected_token)
+        self.assertEqual(self.fb.state.token, expected_token)
 
     @patch('requests.post')
-    def test_get_token_bad_email(self, mock_post):
-        """NEGATIVE TEST: function called with incorrect email"""
+    def helper_get_token_errors(self, *args, **kwargs):
+        '''Test helper for get_token errors'''
+        mock_post = args[0]
+        status_code = kwargs['status_code']
+        error_msg = kwargs['error_msg']
         mock_response = Mock()
-        mock_response.status_code = 422
+        mock_response.status_code = status_code
         mock_post.return_value = mock_response
-        fb = Farmbot()
-        # Call with bad email
-        fb.get_token('bad_email@gmail.com', 'test_pass_123')
+        self.fb.state.token = None
+        self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
             headers={'content-type': 'application/json'},
-            json={'user': {'email': 'bad_email@gmail.com',
+            json={'user': {'email': 'email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(
-            fb.state.error, 'HTTP ERROR: Incorrect email address or password.')
-        self.assertIsNone(fb.state.token)
+        self.assertEqual(self.fb.state.error, error_msg)
+        self.assertIsNone(self.fb.state.token)
+
+    def test_get_token_bad_email(self):
+        '''NEGATIVE TEST: function called with incorrect email'''
+        self.helper_get_token_errors(
+            status_code=422,
+            error_msg='HTTP ERROR: Incorrect email address or password.',
+        )
+
+    def test_get_token_bad_server(self):
+        '''NEGATIVE TEST: function called with incorrect server'''
+        self.helper_get_token_errors(
+            status_code=404,
+            error_msg='HTTP ERROR: The server address does not exist.',
+        )
+
+    def test_get_token_other_error(self):
+        '''get_token: other error'''
+        self.helper_get_token_errors(
+            status_code=500,
+            error_msg='HTTP ERROR: Unexpected status code 500',
+        )
 
     @patch('requests.post')
-    def test_get_token_bad_server(self, mock_post):
-        """NEGATIVE TEST: function called with incorrect server"""
-        mock_response = Mock()
-        mock_response.status_code = 404
-        mock_post.return_value = mock_response
-        fb = Farmbot()
-        # Call with bad server
-        fb.get_token('test_email@gmail.com',
-                     'test_pass_123', 'https://bad.farm.bot')
+    def helper_get_token_exceptions(self, *args, **kwargs):
+        '''Test helper for get_token exceptions'''
+        mock_post = args[0]
+        exception = kwargs['exception']
+        error_msg = kwargs['error_msg']
+        mock_post.side_effect = exception
+        self.fb.state.token = None
+        self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
-            'https://bad.farm.bot/api/tokens',
+            'https://my.farm.bot/api/tokens',
             headers={'content-type': 'application/json'},
-            json={'user': {'email': 'test_email@gmail.com',
+            json={'user': {'email': 'email@gmail.com',
                            'password': 'test_pass_123'}}
         )
-        self.assertEqual(
-            fb.state.error, 'HTTP ERROR: The server address does not exist.')
-        self.assertIsNone(fb.state.token)
+        self.assertEqual(self.fb.state.error, error_msg)
+        self.assertIsNone(self.fb.state.token)
+
+    def test_get_token_server_not_found(self):
+        '''get_token: server not found'''
+        self.helper_get_token_exceptions(
+            exception=requests.exceptions.ConnectionError,
+            error_msg='DNS ERROR: The server address does not exist.',
+        )
+
+    def test_get_token_timeout(self):
+        '''get_token: timeout'''
+        self.helper_get_token_exceptions(
+            exception=requests.exceptions.Timeout,
+            error_msg='DNS ERROR: The request timed out.',
+        )
+
+    def test_get_token_problem(self):
+        '''get_token: problem'''
+        self.helper_get_token_exceptions(
+            exception=requests.exceptions.RequestException,
+            error_msg='DNS ERROR: There was a problem with the request.',
+        )
+
+    def test_get_token_other_exception(self):
+        '''get_token: other exception'''
+        self.helper_get_token_exceptions(
+            exception=Exception('other'),
+            error_msg='DNS ERROR: An unexpected error occurred: other',
+        )
+
+    @patch('requests.request')
+    def helper_get_info_error(self, *args, **kwargs):
+        '''Test helper for get_info errors'''
+        mock_request = args[0]
+        status_code = kwargs['status_code']
+        error_msg = kwargs['error_msg']
+        mock_response = Mock()
+        mock_response.status_code = status_code
+        mock_response.reason = 'reason'
+        mock_response.text = 'text'
+        mock_response.json.return_value = {'error': 'error'}
+        mock_request.return_value = mock_response
+        response = self.fb.get_info('device')
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/device',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json'
+            },
+            json=None,
+        )
+        self.assertEqual(response, error_msg)
+
+    def test_get_info_errors(self):
+        '''Test get_info errors'''
+        self.helper_get_info_error(
+            status_code=404,
+            error_msg='CLIENT ERROR 404: The specified endpoint does not exist. ({\n  "error": "error"\n})',
+        )
+        self.helper_get_info_error(
+            status_code=500,
+            error_msg='SERVER ERROR 500: text ({\n  "error": "error"\n})',
+        )
+        self.helper_get_info_error(
+            status_code=600,
+            error_msg='UNEXPECTED ERROR 600: text ({\n  "error": "error"\n})',
+        )
 
     @patch('requests.request')
     def test_get_info_endpoint_only(self, mock_request):
-        """POSITIVE TEST: function called with endpoint only"""
+        '''POSITIVE TEST: function called with endpoint only'''
         mock_response = Mock()
         expected_response = {'device': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
         # Call with endpoint only
-        response = fb.get_info('device')
+        response = self.fb.get_info('device')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
@@ -126,16 +219,14 @@ class TestFarmbot(unittest.TestCase):
 
     @patch('requests.request')
     def test_get_info_with_id(self, mock_request):
-        """POSITIVE TEST: function called with valid ID"""
+        '''POSITIVE TEST: function called with valid ID'''
         mock_response = Mock()
         expected_response = {'peripheral': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
         # Call with specific ID
-        response = fb.get_info('peripherals', '12345')
+        response = self.fb.get_info('peripherals', '12345')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/peripherals/12345',
@@ -148,15 +239,44 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch('requests.request')
+    def test_check_token_api_request(self, mock_request):
+        '''Test check_token: API request'''
+        self.fb.state.token = None
+        with self.assertRaises(SystemExit):
+            results = self.fb.get_info('points')
+            self.assertIsNone(results)
+        mock_request.assert_not_called()
+        # self.assertEqual(self.fb.error, 'No token')
+
+    @patch('paho.mqtt.client.Client')
+    @patch('requests.request')
+    def test_check_token_broker(self, mock_request, mock_mqtt):
+        '''Test check_token: broker'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.state.token = None
+        with self.assertRaises(SystemExit):
+            self.fb.on(123)
+        with self.assertRaises(SystemExit):
+            self.fb.read_sensor(123)
+        with self.assertRaises(SystemExit):
+            results = self.fb.get_xyz()
+            self.assertIsNone(results)
+        with self.assertRaises(SystemExit):
+            results = self.fb.read_status()
+            self.assertIsNone(results)
+        mock_request.assert_not_called()
+        mock_client.publish.assert_not_called()
+        # self.assertEqual(self.fb.error, 'No token')
+
+    @patch('requests.request')
     def test_edit_info(self, mock_request):
-        """test set_info function"""
+        '''test edit_info function'''
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        device_info = fb.edit_info('device', {'name': 'new name'})
+        device_info = self.fb.edit_info('device', {'name': 'new name'})
         mock_request.assert_has_calls([call(
             'PATCH',
             'https://my.farm.bot/api/device',
@@ -181,15 +301,34 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(device_info, {'name': 'new name'})
 
     @patch('requests.request')
-    def test_group(self, mock_request):
-        """test group function"""
+    def test_add_info(self, mock_request):
+        '''test add_info function'''
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.json.return_value = {'name': 'new name'}
+        mock_request.return_value = mock_response
+        point = self.fb.add_info('points', {'name': 'new name'})
+        mock_request.assert_has_calls([call(
+            'POST',
+            'https://my.farm.bot/api/points',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json={'name': 'new name'},
+        ),
+            call().json(),
+        ])
+        self.assertEqual(point, {'name': 'new name'})
+
+    @patch('requests.request')
+    def test_group_one(self, mock_request):
+        '''test group function: get one group'''
         mock_response = Mock()
         mock_response.json.return_value = {'name': 'Group 0'}
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        group_info = fb.group(12345)
+        group_info = self.fb.group(12345)
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/point_groups/12345',
@@ -202,15 +341,32 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(group_info, {'name': 'Group 0'})
 
     @patch('requests.request')
-    def test_curve(self, mock_request):
-        """test curve function"""
+    def test_group_all(self, mock_request):
+        '''test group function: get all groups'''
+        mock_response = Mock()
+        mock_response.json.return_value = [{'name': 'Group 0'}]
+        mock_response.status_code = 200
+        mock_request.return_value = mock_response
+        group_info = self.fb.group()
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/point_groups',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json=None,
+        )
+        self.assertEqual(group_info, [{'name': 'Group 0'}])
+
+    @patch('requests.request')
+    def test_curve_one(self, mock_request):
+        '''test curve function: get one curve'''
         mock_response = Mock()
         mock_response.json.return_value = {'name': 'Curve 0'}
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        curve_info = fb.curve(12345)
+        curve_info = self.fb.curve(12345)
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/curves/12345',
@@ -223,15 +379,32 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(curve_info, {'name': 'Curve 0'})
 
     @patch('requests.request')
+    def test_curve_all(self, mock_request):
+        '''test curve function: get all curves'''
+        mock_response = Mock()
+        mock_response.json.return_value = [{'name': 'Curve 0'}]
+        mock_response.status_code = 200
+        mock_request.return_value = mock_response
+        curve_info = self.fb.curve()
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/curves',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json=None,
+        )
+        self.assertEqual(curve_info, [{'name': 'Curve 0'}])
+
+    @patch('requests.request')
     def test_safe_z(self, mock_request):
-        """test safe_z function"""
+        '''test safe_z function'''
         mock_response = Mock()
         mock_response.json.return_value = {'safe_height': 100}
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        safe_height = fb.safe_z()
+        safe_height = self.fb.safe_z()
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/fbos_config',
@@ -245,7 +418,7 @@ class TestFarmbot(unittest.TestCase):
 
     @patch('requests.request')
     def test_garden_size(self, mock_request):
-        """test garden_size function"""
+        '''test garden_size function'''
         mock_response = Mock()
         mock_response.json.return_value = {
             'movement_axis_nr_steps_x': 1000,
@@ -255,9 +428,7 @@ class TestFarmbot(unittest.TestCase):
         }
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        garden_size = fb.garden_size()
+        garden_size = self.fb.garden_size()
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/firmware_config',
@@ -271,13 +442,11 @@ class TestFarmbot(unittest.TestCase):
 
     @patch('requests.request')
     def test_log(self, mock_request):
-        """test log function"""
+        '''test log function'''
         mock_response = Mock()
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        fb.log('test message', 'info', ['toast'])
+        self.fb.log('test message', 'info', 'toast')
         mock_request.assert_called_once_with(
             'POST',
             'https://my.farm.bot/api/logs',
@@ -288,7 +457,7 @@ class TestFarmbot(unittest.TestCase):
             json={
                 'message': 'test message',
                 'type': 'info',
-                'channel': ['toast'],
+                'channels': ['toast'],
             },
         )
 
@@ -297,9 +466,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test test_connect_broker command'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        fb.connect_broker()
+        self.fb.connect_broker()
         mock_client.username_pw_set.assert_called_once_with(
             username='device_0',
             password='encoded_token_value')
@@ -312,9 +479,8 @@ class TestFarmbot(unittest.TestCase):
     def test_disconnect_broker(self):
         '''Test disconnect_broker command'''
         mock_client = Mock()
-        fb = Farmbot()
-        fb.broker.client = mock_client
-        fb.disconnect_broker()
+        self.fb.broker.client = mock_client
+        self.fb.disconnect_broker()
         mock_client.loop_stop.assert_called_once()
         mock_client.disconnect.assert_called_once()
 
@@ -323,9 +489,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test start_listen command'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        fb.start_listen()
+        self.fb.start_listen()
         mock_client.on_connect('', '', '', '')
 
         class MockMessage:
@@ -359,9 +523,10 @@ class TestFarmbot(unittest.TestCase):
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        execute_command(fb)
+        execute_command()
+        if expected_command is None:
+            mock_client.publish.assert_not_called()
+            return
         expected_payload = {
             'kind': 'rpc_request',
             'args': {'label': '', **extra_rpc_args},
@@ -381,8 +546,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_message(self):
         '''Test message command'''
-        def exec_command(fb):
-            fb.message('test message', 'info')
+        def exec_command():
+            self.fb.message('test message', 'info')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -390,13 +555,13 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'message': 'test message', 'message_type': 'info'},
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_debug(self):
         '''Test debug command'''
-        def exec_command(fb):
-            fb.debug('test message')
+        def exec_command():
+            self.fb.debug('test message')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -404,13 +569,13 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'message': 'test message', 'message_type': 'debug'},
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_toast(self):
         '''Test toast command'''
-        def exec_command(fb):
-            fb.toast('test message')
+        def exec_command():
+            self.fb.toast('test message')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -418,26 +583,26 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'message': 'test message', 'message_type': 'info'},
                 'body': [{'kind': 'channel', 'args': {'channel_name': 'toast'}}],
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_read_status(self):
         '''Test read_status command'''
-        def exec_command(fb):
-            fb.read_status()
+        def exec_command():
+            self.fb.read_status()
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'read_status',
                 'args': {},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_read_sensor(self):
         '''Test read_sensor command'''
-        def exec_command(fb):
-            fb.read_sensor(123)
+        def exec_command():
+            self.fb.read_sensor(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -456,8 +621,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_assertion(self):
         '''Test assertion command'''
-        def exec_command(fb):
-            fb.assertion('return true', 'abort')
+        def exec_command():
+            self.fb.assertion('return true', 'abort')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -473,21 +638,21 @@ class TestFarmbot(unittest.TestCase):
 
     def test_wait(self):
         '''Test wait command'''
-        def exec_command(fb):
-            fb.wait(123)
+        def exec_command():
+            self.fb.wait(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'wait',
                 'args': {'milliseconds': 123},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_unlock(self):
         '''Test unlock command'''
-        def exec_command(fb):
-            fb.unlock()
+        def exec_command():
+            self.fb.unlock()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -499,8 +664,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_e_stop(self):
         '''Test e_stop command'''
-        def exec_command(fb):
-            fb.e_stop()
+        def exec_command():
+            self.fb.e_stop()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -512,34 +677,44 @@ class TestFarmbot(unittest.TestCase):
 
     def test_find_home(self):
         '''Test find_home command'''
-        def exec_command(fb):
-            fb.find_home()
+        def exec_command():
+            self.fb.find_home()
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'find_home',
                 'args': {'axis': 'all', 'speed': 100},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_find_home_error(self):
+        '''Test find_home command: error'''
+        def exec_command():
+            self.fb.find_home('all', 0)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_set_home(self):
         '''Test set_home command'''
-        def exec_command(fb):
-            fb.set_home()
+        def exec_command():
+            self.fb.set_home()
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'zero',
                 'args': {'axis': 'all'},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_toggle_peripheral(self):
         '''Test toggle_peripheral command'''
-        def exec_command(fb):
-            fb.toggle_peripheral(123)
+        def exec_command():
+            self.fb.toggle_peripheral(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -554,10 +729,10 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
-    def test_on(self):
-        '''Test on command'''
-        def exec_command(fb):
-            fb.on(123)
+    def test_on_digital(self):
+        '''Test on command: digital'''
+        def exec_command():
+            self.fb.on(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -574,10 +749,30 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={'mode': 0})
 
+    def test_on_analog(self):
+        '''Test on command: analog'''
+        def exec_command():
+            self.fb.on(123)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'write_pin',
+                'args': {
+                    'pin_value': 255,
+                    'pin_mode': 1,
+                    'pin_number': {
+                        'kind': 'named_pin',
+                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
+                    },
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={'mode': 1})
+
     def test_off(self):
         '''Test off command'''
-        def exec_command(fb):
-            fb.off(123)
+        def exec_command():
+            self.fb.off(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -596,8 +791,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_move(self):
         '''Test move command'''
-        def exec_command(fb):
-            fb.move(1, 2, 3)
+        def exec_command():
+            self.fb.move(1, 2, 3)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -615,13 +810,13 @@ class TestFarmbot(unittest.TestCase):
                         'axis_operand': {'kind': 'numeric', 'args': {'number': 3}}}},
                 ],
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_reboot(self):
         '''Test reboot command'''
-        def exec_command(fb):
-            fb.reboot()
+        def exec_command():
+            self.fb.reboot()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -633,8 +828,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_shutdown(self):
         '''Test shutdown command'''
-        def exec_command(fb):
-            fb.shutdown()
+        def exec_command():
+            self.fb.shutdown()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -646,8 +841,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_axis_length(self):
         '''Test axis_length command'''
-        def exec_command(fb):
-            fb.axis_length()
+        def exec_command():
+            self.fb.axis_length()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -659,8 +854,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_control_peripheral(self):
         '''Test control_peripheral command'''
-        def exec_command(fb):
-            fb.control_peripheral(123, 456, 0)
+        def exec_command():
+            self.fb.control_peripheral(123, 456, 0)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -679,8 +874,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_soil_height(self):
         '''Test soil_height command'''
-        def exec_command(fb):
-            fb.soil_height()
+        def exec_command():
+            self.fb.soil_height()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -692,8 +887,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_detect_weeds(self):
         '''Test detect_weeds command'''
-        def exec_command(fb):
-            fb.detect_weeds()
+        def exec_command():
+            self.fb.detect_weeds()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -705,8 +900,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_calibrate_camera(self):
         '''Test calibrate_camera command'''
-        def exec_command(fb):
-            fb.calibrate_camera()
+        def exec_command():
+            self.fb.calibrate_camera()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -718,8 +913,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_sequence(self):
         '''Test sequence command'''
-        def exec_command(fb):
-            fb.sequence(123)
+        def exec_command():
+            self.fb.sequence(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -731,8 +926,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_take_photo(self):
         '''Test take_photo command'''
-        def exec_command(fb):
-            fb.take_photo()
+        def exec_command():
+            self.fb.take_photo()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -744,8 +939,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_control_servo(self):
         '''Test control_servo command'''
-        def exec_command(fb):
-            fb.control_servo(4, 100)
+        def exec_command():
+            self.fb.control_servo(4, 100)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -758,13 +953,23 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={'mode': 0})
 
+    def test_control_servo_error(self):
+        '''Test control_servo command: error'''
+        def exec_command():
+            self.fb.control_servo(4, 200)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response={'mode': 0})
+
     def test_get_xyz(self):
         '''Test get_xyz command'''
-        def exec_command(fb):
-            fb.state.last_message = {
+        def exec_command():
+            self.fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
-            position = fb.get_xyz()
+            position = self.fb.get_xyz()
             self.assertEqual(position, (1, 2, 3))
         self.send_command_test_helper(
             exec_command,
@@ -772,16 +977,31 @@ class TestFarmbot(unittest.TestCase):
                 'kind': 'read_status',
                 'args': {},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_get_xyz_no_status(self):
+        '''Test get_xyz command: no status'''
+        def exec_command():
+            self.fb.broker.state.last_message = None
+            position = self.fb.get_xyz()
+            self.assertIsNone(position)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_check_position(self):
         '''Test check_position command: at position'''
-        def exec_command(fb):
-            fb.state.last_message = {
+        def exec_command():
+            self.fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
-            at_position = fb.check_position(1, 2, 3, 0)
+            at_position = self.fb.check_position(1, 2, 3, 0)
             self.assertTrue(at_position)
         self.send_command_test_helper(
             exec_command,
@@ -789,16 +1009,16 @@ class TestFarmbot(unittest.TestCase):
                 'kind': 'read_status',
                 'args': {},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
-        def exec_command(fb):
-            fb.state.last_message = {
+        def exec_command():
+            self.fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
-            at_position = fb.check_position(0, 0, 0, 2)
+            at_position = self.fb.check_position(0, 0, 0, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
             exec_command,
@@ -806,13 +1026,13 @@ class TestFarmbot(unittest.TestCase):
                 'kind': 'read_status',
                 'args': {},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_mount_tool(self):
         '''Test mount_tool command'''
-        def exec_command(fb):
-            fb.mount_tool('Weeder')
+        def exec_command():
+            self.fb.mount_tool('Weeder')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -824,8 +1044,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_dismount_tool(self):
         '''Test dismount_tool command'''
-        def exec_command(fb):
-            fb.dismount_tool()
+        def exec_command():
+            self.fb.dismount_tool()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -837,25 +1057,25 @@ class TestFarmbot(unittest.TestCase):
 
     def test_water(self):
         '''Test water command'''
-        def exec_command(fb):
-            fb.water(123)
+        def exec_command():
+            self.fb.water(123)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'lua',
-                'args': {'lua': """plant = api({
+                'args': {'lua': '''plant = api({
                 method = "GET",
                 url = "/api/points/123"
             })
-            water(plant)"""},
+            water(plant)'''},
             },
             extra_rpc_args={},
-            mock_api_response={'name': 'Mint'})
+            mock_api_response={})
 
     def test_dispense(self):
         '''Test dispense command'''
-        def exec_command(fb):
-            fb.dispense(100, 'Weeder', 4)
+        def exec_command():
+            self.fb.dispense(100, 'Weeder', 4)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -867,10 +1087,13 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
-    @patch('paho.mqtt.client.Client')  # temporary
     @patch('requests.request')
-    def test_get_seed_tray_cell(self, mock_request, _mock_client):
-        '''Test get_seed_tray_cell command'''
+    def helper_get_seed_tray_cell(self, *args, **kwargs):
+        '''Test helper for get_seed_tray_cell command'''
+        mock_request = args[0]
+        tray_data = kwargs['tray_data']
+        cell = kwargs['cell']
+        expected_xyz = kwargs['expected_xyz']
         mock_response = Mock()
         mock_api_response = {
             'pointer_type': 'ToolSlot',
@@ -878,13 +1101,12 @@ class TestFarmbot(unittest.TestCase):
             'x': 0,
             'y': 0,
             'z': 0,
+            **tray_data,
         }
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
         mock_request.return_value = mock_response
-        fb = Farmbot()
-        fb.state.token = MOCK_TOKEN
-        cell = fb.get_seed_tray_cell(123, 'd4')
+        cell = self.fb.get_seed_tray_cell(123, cell)
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/points/123',
@@ -894,17 +1116,115 @@ class TestFarmbot(unittest.TestCase):
             },
             json=None,
         )
-        self.assertEqual(cell, (-36.25, 18.75, 0))
+        self.assertEqual(cell, expected_xyz, kwargs)
 
-    def test_get_job(self):
-        '''Test get_job command'''
-        def exec_command(fb):
-            fb.state.last_message = {
+    def test_get_seed_tray_cell(self):
+        '''Test get_seed_tray_cell'''
+        test_cases = [
+            {
+                'tray_data': {'pullout_direction': 1},
+                'cell': 'a1',
+                'expected_xyz': {'x': 1.25, 'y': -18.75, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 1},
+                'cell': 'b2',
+                'expected_xyz': {'x': -11.25, 'y': -6.25, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 1},
+                'cell': 'd4',
+                'expected_xyz': {'x': -36.25, 'y': 18.75, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 2},
+                'cell': 'a1',
+                'expected_xyz': {'x': -36.25, 'y': 18.75, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 2},
+                'cell': 'b2',
+                'expected_xyz': {'x': -23.75, 'y': 6.25, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 2},
+                'cell': 'd4',
+                'expected_xyz': {'x': 1.25, 'y': -18.75, 'z': 0},
+            },
+            {
+                'tray_data': {'pullout_direction': 2, 'x': 100, 'y': 200, 'z': -100},
+                'cell': 'd4',
+                'expected_xyz': {'x': 101.25, 'y': 181.25, 'z': -100},
+            },
+        ]
+        for test_case in test_cases:
+            self.helper_get_seed_tray_cell(**test_case)
+
+    @patch('requests.request')
+    def helper_get_seed_tray_cell_error(self, *args, **kwargs):
+        '''Test helper for get_seed_tray_cell command errors'''
+        mock_request = args[0]
+        tray_data = kwargs['tray_data']
+        cell = kwargs['cell']
+        error = kwargs['error']
+        mock_response = Mock()
+        mock_api_response = {
+            'pointer_type': 'ToolSlot',
+            'pullout_direction': 1,
+            'x': 0,
+            'y': 0,
+            'z': 0,
+            **tray_data,
+        }
+        mock_response.json.return_value = mock_api_response
+        mock_response.status_code = 200
+        mock_request.return_value = mock_response
+        with self.assertRaises(ValueError) as cm:
+            self.fb.get_seed_tray_cell(123, cell)
+        self.assertEqual(cm.exception.args[0], error)
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/points/123',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json=None,
+        )
+
+    def test_get_seed_tray_cell_not_tool_slot(self):
+        '''Test get_seed_tray_cell: not a tool_slot'''
+        self.helper_get_seed_tray_cell_error(
+            tray_data={'pointer_type': 'Plant'},
+            cell='d4',
+            error='Seed Tray variable must be a seed tray in a slot',
+        )
+
+    def test_get_seed_tray_cell_invalid_cell_name(self):
+        '''Test get_seed_tray_cell: invalid cell name'''
+        self.helper_get_seed_tray_cell_error(
+            tray_data={},
+            cell='e4',
+            error='Seed Tray Cell must be one of **A1** through **D4**',
+        )
+
+    def test_get_seed_tray_cell_invalid_pullout_direction(self):
+        '''Test get_seed_tray_cell: invalid pullout direction'''
+        self.helper_get_seed_tray_cell_error(
+            tray_data={'pullout_direction': 0},
+            cell='d4',
+            error='Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`',
+        )
+
+    def test_get_job_one(self):
+        '''Test get_job command: get one job'''
+        def exec_command():
+            self.fb.state.last_message = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
             }
-            job = fb.get_job('job name')
+            job = self.fb.get_job('job name')
             self.assertEqual(job, {'status': 'working'})
         self.send_command_test_helper(
             exec_command,
@@ -912,33 +1232,67 @@ class TestFarmbot(unittest.TestCase):
                 'kind': 'read_status',
                 'args': {},
             },
-            extra_rpc_args={'priority': 600},
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_get_job_all(self):
+        '''Test get_job command: get all jobs'''
+        def exec_command():
+            self.fb.broker.state.last_message = {
+                'jobs': {
+                    'job name': {'status': 'working'},
+                },
+            }
+            jobs = self.fb.get_job()
+            self.assertEqual(jobs, {'job name': {'status': 'working'}})
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_get_job_no_status(self):
+        '''Test get_job command: no status'''
+        def exec_command():
+            self.fb.broker.state.last_message = None
+            _job = self.fb.get_job('job name')
+            # self.assertIsNone(job)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
             mock_api_response={})
 
     def test_set_job(self):
         '''Test set_job command'''
-        def exec_command(fb):
-            fb.set_job('job name', 'working', 50)
+        def exec_command():
+            self.fb.set_job('job name', 'working', 50)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'lua',
-                'args': {'lua': """local job_name = "job name"
+                'args': {'lua': '''local job_name = "job name"
             set_job(job_name)
 
             -- Update the job's status and percent:
             set_job(job_name, {
             status = "working",
             percent = 50
-            })"""},
+            })'''},
             },
             extra_rpc_args={},
             mock_api_response={})
 
     def test_complete_job(self):
         '''Test complete_job command'''
-        def exec_command(fb):
-            fb.complete_job('job name')
+        def exec_command():
+            self.fb.complete_job('job name')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -950,8 +1304,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_lua(self):
         '''Test lua command'''
-        def exec_command(fb):
-            fb.lua('return true')
+        def exec_command():
+            self.fb.lua('return true')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -963,8 +1317,8 @@ class TestFarmbot(unittest.TestCase):
 
     def test_if_statement(self):
         '''Test if_statement command'''
-        def exec_command(fb):
-            fb.if_statement('pin10', '<', 0, 123, 456)
+        def exec_command():
+            self.fb.if_statement('pin10', '<', 0, 123, 456)
         self.send_command_test_helper(
             exec_command,
             expected_command={
