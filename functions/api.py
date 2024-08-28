@@ -79,6 +79,14 @@ class ApiConnect():
         self.state.print_status(description=self.state.error)
         return self.state.error
 
+    @staticmethod
+    def parse_text(text):
+        """Parse response text."""
+        if '<html' in text:
+            parser = HTMLResponseParser()
+            return parser.read(text)
+        return text
+
     def request_handling(self, response):
         """Handle errors associated with different endpoint errors."""
 
@@ -89,6 +97,8 @@ class ApiConnect():
             502: "Please check your internet connection and try again."
         }
 
+        text = self.parse_text(response.text)
+
         # Handle HTTP status codes
         if response.status_code == 200:
             self.state.print_status(description="Successfully sent request via API.")
@@ -96,18 +106,14 @@ class ApiConnect():
         if 400 <= response.status_code < 500:
             self.state.error = f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}"
         elif 500 <= response.status_code < 600:
-            self.state.error = f"SERVER ERROR {response.status_code}: {response.text}"
+            self.state.error = f"SERVER ERROR {response.status_code}: {text}"
         else:
-            self.state.error = f"UNEXPECTED ERROR {response.status_code}: {response.text}"
+            self.state.error = f"UNEXPECTED ERROR {response.status_code}: {text}"
 
         try:
             response.json()
         except requests.exceptions.JSONDecodeError:
-            if '<html>' in response.text:
-                parser = HTMLResponseParser()
-                self.state.error += f" ({parser.read(response.text)})"
-            else:
-                self.state.error += f" ({response.text})"
+                self.state.error += f" ({text})"
         else:
             self.state.error += f" ({json.dumps(response.json(), indent=2)})"
 

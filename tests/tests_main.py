@@ -39,6 +39,7 @@ class TestFarmbot(unittest.TestCase):
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_post.return_value = mock_response
         self.fb.state.token = None
         # Call with default server
@@ -58,6 +59,7 @@ class TestFarmbot(unittest.TestCase):
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_post.return_value = mock_response
         self.fb.state.token = None
         # Call with custom server
@@ -246,6 +248,7 @@ class TestFarmbot(unittest.TestCase):
         expected_response = {'device': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         # Call with endpoint only
         response = self.fb.get_info('device')
@@ -267,6 +270,7 @@ class TestFarmbot(unittest.TestCase):
         expected_response = {'peripheral': 'info'}
         mock_response.json.return_value = expected_response
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         # Call with specific ID
         response = self.fb.get_info('peripherals', '12345')
@@ -317,6 +321,7 @@ class TestFarmbot(unittest.TestCase):
         '''test edit_info function'''
         mock_response = Mock()
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
         device_info = self.fb.edit_info('device', {'name': 'new name'})
@@ -338,6 +343,7 @@ class TestFarmbot(unittest.TestCase):
         '''test add_info function'''
         mock_response = Mock()
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
         point = self.fb.add_info('points', {'name': 'new name'})
@@ -360,6 +366,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = {'name': 'Group 0'}
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         group_info = self.fb.group(12345)
         mock_request.assert_called_once_with(
@@ -379,6 +386,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = [{'name': 'Group 0'}]
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         group_info = self.fb.group()
         mock_request.assert_called_once_with(
@@ -398,6 +406,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = {'name': 'Curve 0'}
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         curve_info = self.fb.curve(12345)
         mock_request.assert_called_once_with(
@@ -417,6 +426,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = [{'name': 'Curve 0'}]
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         curve_info = self.fb.curve()
         mock_request.assert_called_once_with(
@@ -436,6 +446,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = {'safe_height': 100}
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         safe_height = self.fb.safe_z()
         mock_request.assert_called_once_with(
@@ -460,6 +471,7 @@ class TestFarmbot(unittest.TestCase):
             'movement_step_per_mm_y': 5,
         }
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         garden_size = self.fb.garden_size()
         mock_request.assert_called_once_with(
@@ -478,6 +490,7 @@ class TestFarmbot(unittest.TestCase):
         '''test log function'''
         mock_response = Mock()
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         self.fb.log('test message', 'info', 'toast')
         mock_request.assert_called_once_with(
@@ -567,6 +580,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         execute_command()
         if expected_command is None:
@@ -1178,6 +1192,7 @@ class TestFarmbot(unittest.TestCase):
         }
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         cell = self.fb.get_seed_tray_cell(123, cell)
         mock_request.assert_called_once_with(
@@ -1251,6 +1266,7 @@ class TestFarmbot(unittest.TestCase):
         }
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
+        mock_response.text = 'text'
         mock_request.return_value = mock_response
         with self.assertRaises(ValueError) as cm:
             self.fb.get_seed_tray_cell(123, cell)
