@@ -128,7 +128,7 @@ class ApiConnect():
         # use 'GET' method to view endpoint data
         # use 'POST' method to overwrite/create new endpoint data
         # use 'PATCH' method to edit endpoint data (used for new logs)
-        # use 'DELETE' method to delete endpoint data (hidden)
+        # use 'DELETE' method to delete endpoint data
 
         token = self.state.token["token"]
         iss = token["unencoded"]["iss"]

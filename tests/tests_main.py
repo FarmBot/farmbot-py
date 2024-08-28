@@ -361,6 +361,26 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(point, {'name': 'new name'})
 
     @patch('requests.request')
+    def test_delete_info(self, mock_request):
+        '''test delete_info function'''
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_response.json.return_value = {'name': 'deleted'}
+        mock_request.return_value = mock_response
+        result = self.fb.delete_info('points', 12345)
+        mock_request.assert_called_once_with(
+            'DELETE',
+            'https://my.farm.bot/api/points/12345',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json',
+            },
+            json=None,
+        )
+        self.assertEqual(result, {'name': 'deleted'})
+
+    @patch('requests.request')
     def test_group_one(self, mock_request):
         '''test group function: get one group'''
         mock_response = Mock()

@@ -103,6 +103,10 @@ class Farmbot():
         """Create new information contained within an endpoint."""
         return self.info.add_info(endpoint, new_data)
 
+    def delete_info(self, endpoint, id=None):
+        """Delete information contained within an endpoint."""
+        return self.info.delete_info(endpoint, id)
+
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""
         return self.info.safe_z()

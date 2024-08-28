@@ -6,6 +6,7 @@ Information class.
 #     ├── [API] get_info()
 #     ├── [API] edit_info()
 #     ├── [API] add_info()
+#     ├── [API] delete_info()
 #     ├── [API] safe_z()
 #     ├── [API] garden_size()
 #     ├── [API] group()
@@ -49,6 +50,16 @@ class Information():
         self.state.print_status(description=f"Adding new data to {endpoint}.")
 
         result = self.api.request("POST", endpoint, database_id=None, payload=new_data)
+
+        self.state.print_status(update_only=True, endpoint_json=result)
+
+        return result
+
+    def delete_info(self, endpoint, database_id=None):
+        """Delete information contained within an endpoint."""
+        self.state.print_status(description=f"Deleting {endpoint} with id={database_id}.")
+
+        result = self.api.request("DELETE", endpoint, database_id=database_id)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 

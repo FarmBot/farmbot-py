@@ -189,7 +189,8 @@ sidecar-starter-pack/
 | :--- | :--- |
 | `get_info()` | Get information about a specific endpoint. |
 | `edit_info()` | Change information contained within an endpoint. |
-| `add_info()` | Create new information contained within an endpoint.
+| `add_info()` | Create new information contained within an endpoint. |
+| `delete_info()` | Delete information contained within an endpoint. |
 | `safe_z()` | Returns the highest safe point along the z-axis. |
 | `garden_size()` | Returns x-axis length, y-axis length, and area of garden bed. |
 | `group()` | Returns all group info or single by id. |
