@@ -11,6 +11,20 @@ MessageHandling class.
 from .broker import BrokerConnect
 from .authentication import Authentication
 
+MESSAGE_TYPES = ["assertion", "busy", "debug",
+                 "error", "fun", "info", "success", "warn"]
+CHANNELS = ["ticker", "toast", "email", "espeak"]
+
+
+def validate_log_options(message_type, channel):
+    """Validate the message type and channel options."""
+    if message_type not in MESSAGE_TYPES:
+        raise ValueError(
+            f"Invalid message type: `{message_type}` not in {MESSAGE_TYPES}")
+    if channel not in CHANNELS:
+        raise ValueError(f"Invalid channel: {channel}")
+
+
 class MessageHandling():
     """Message handling class."""
     def __init__(self, state):
@@ -20,10 +34,12 @@ class MessageHandling():
     def log(self, message_str, message_type=None, channel=None):
         """Sends new log message via the API."""
 
+        validate_log_options(message_type, channel)
+
         log_message = {
             "message": message_str,
-            "type": message_type, # https://software.farm.bot/v15/app/intro/jobs-and-logs#log-types
-            "channel": channel # Specifying channel does not do anything
+            "type": message_type,
+            "channels": [channel],
         }
 
         endpoint = 'logs'
@@ -35,6 +51,8 @@ class MessageHandling():
 
     def message(self, message_str, message_type=None, channel="ticker"):
         """Sends new log message via the message broker."""
+
+        validate_log_options(message_type, channel)
 
         message = {
             "kind": "send_message",
