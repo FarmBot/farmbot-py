@@ -28,7 +28,7 @@ class JobHandling():
         else:
             jobs = status_data["jobs"][job_str]
 
-        self.broker.state.print_status("get_job()", endpoint_json=jobs)
+        self.broker.state.print_status(endpoint_json=jobs)
         return jobs
 
     def set_job(self, job_str, status_message, value):
@@ -47,7 +47,7 @@ class JobHandling():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status("set_job()", description=f"Marked job {job_str} as {value}% complete.")
+        self.broker.state.print_status(description=f"Marked job {job_str} as {value}% complete.")
         return
 
     def complete_job(self, job_str):
@@ -59,5 +59,5 @@ class JobHandling():
 
         self.resource.lua(lua_code)
 
-        self.broker.state.print_status("complete_job()", description=f"Marked job {job_str} as `complete`.")
+        self.broker.state.print_status(description=f"Marked job {job_str} as `complete`.")
         return

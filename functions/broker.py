@@ -38,9 +38,9 @@ class BrokerConnect():
         self.client.loop_start()
 
         if self.client is None:
-            self.state.print_status("connect()", description="There was an error connecting to the message broker...")
+            self.state.print_status(description="There was an error connecting to the message broker...")
         else:
-            self.state.print_status("request()", description="Connected to message broker.")
+            self.state.print_status(description="Connected to message broker.")
 
     def disconnect(self):
         """Disconnect from the message broker."""
@@ -50,7 +50,7 @@ class BrokerConnect():
             self.client.disconnect()
 
         if self.client is None:
-            self.state.print_status("disoconnect()", description="Disconnected from message broker.")
+            self.state.print_status(description="Disconnected from message broker.")
 
         return
 
@@ -69,14 +69,14 @@ class BrokerConnect():
         self.client.subscribe(
             f"bot/{self.state.token['token']['unencoded']['bot']}/{channel}")
 
-        self.state.print_status("on_connect()", description=f"Connected to message broker channel {channel}")
+        self.state.print_status(description=f"Connected to message broker channel {channel}")
 
     def on_message(self, _client, _userdata, msg):
         """Callback function when message received from message broker."""
 
         self.state.last_message = json.loads(msg.payload)
 
-        self.state.print_status("on_message()", endpoint_json=json.loads(msg.payload), description=f"TOPIC: {msg.topic} ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
+        self.state.print_status(endpoint_json=json.loads(msg.payload), description=f"TOPIC: {msg.topic} ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
 
     def start_listen(self, channel="#"):
         """Establish persistent subscription to message broker channels."""
@@ -89,7 +89,7 @@ class BrokerConnect():
         self.client.on_message = self.on_message
 
         self.client.loop_start()
-        self.state.print_status("start_listen()", description=f"Now listening to message broker channel {channel}.")
+        self.state.print_status(description=f"Now listening to message broker channel {channel}.")
 
     def stop_listen(self):
         """End subscription to all message broker channels."""
@@ -97,5 +97,5 @@ class BrokerConnect():
         self.client.loop_stop()
         self.client.disconnect()
 
-        self.state.print_status("stop_listen()", description="Stopped listening to all message broker channels.")
+        self.state.print_status(description="Stopped listening to all message broker channels.")
         return

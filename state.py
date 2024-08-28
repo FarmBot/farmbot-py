@@ -1,6 +1,17 @@
 """State management."""
 
 import json
+import inspect
+
+def get_function_call_info():
+    """Return the name and given arguments of the function where this is called."""
+    # back to print_status then back to the function that called print_status
+    frame = inspect.currentframe().f_back.f_back
+    func_name = frame.f_code.co_name
+    args, _, _, values = inspect.getargvalues(frame)
+    arg_strings = [f"{arg}={repr(values[arg])}" for arg in args if arg != 'self']
+    arg_str = ', '.join(arg_strings)
+    return f"{func_name}({arg_str})"
 
 class State():
     """State class."""
@@ -10,10 +21,11 @@ class State():
         self.last_message = None
         self.verbosity = 2
 
-    def print_status(self, function, endpoint_json=None, description=None):
+    def print_status(self, endpoint_json=None, description=None):
         """Handle changes to output based on user-defined verbosity."""
 
         if self.verbosity >= 1:
+            function = get_function_call_info()
             print(f"`{function}` called")
         if self.verbosity >= 2 and description:
             print(description)

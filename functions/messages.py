@@ -30,7 +30,7 @@ class MessageHandling():
 
         self.auth.request('POST', endpoint, id, log_message)
 
-        self.broker.state.print_status("log()", description="New log message sent via API.")
+        self.broker.state.print_status(description="New log message sent via API.")
         return
 
     def message(self, message_str, type=None, channel="ticker"):
@@ -59,7 +59,7 @@ class MessageHandling():
 
         self.broker.publish(message)
 
-        self.broker.state.print_status("message()", description="New log message sent via message broker.")
+        self.broker.state.print_status(description="New log message sent via message broker.")
         return
 
     def debug(self, message_str):
@@ -67,7 +67,7 @@ class MessageHandling():
 
         self.message(message_str, "debug", "ticker")
 
-        self.broker.state.print_status("debug()", description="New debug message sent via message broker.")
+        self.broker.state.print_status(description="New debug message sent via message broker.")
         return
 
     def toast(self, message_str):
@@ -75,5 +75,5 @@ class MessageHandling():
 
         self.message(message_str, "info", "toast")
 
-        self.broker.state.print_status("toast()", description="New toast message sent via message broker.")
+        self.broker.state.print_status(description="New toast message sent via message broker.")
         return

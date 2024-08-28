@@ -43,7 +43,7 @@ class Peripherals():
 
         self.broker.publish(control_servo_message)
 
-        self.broker.state.print_status("control_servo()", description=f"Set servo angle to {angle}.")
+        self.broker.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
     def control_peripheral(self, id, value, mode=None):
@@ -73,7 +73,7 @@ class Peripherals():
 
         self.broker.publish(control_peripheral_message)
 
-        self.broker.state.print_status("control_peripheral()", description=f"Set peripheral {id} to {value} with mode={mode}.")
+        self.broker.state.print_status(description=f"Set peripheral {id} to {value} with mode={mode}.")
         return
 
     def toggle_peripheral(self, id):
@@ -97,7 +97,7 @@ class Peripherals():
 
         self.broker.publish(toggle_peripheral_message)
 
-        self.broker.state.print_status("toggle_peripheral()", description=f"Triggered toggle peripheral {id}.")
+        self.broker.state.print_status(description=f"Triggered toggle peripheral {id}.")
         return
 
     def on(self, id):
@@ -111,7 +111,7 @@ class Peripherals():
         elif mode == 0:
             self.control_peripheral(id, 1)
 
-        self.broker.state.print_status("on()", description=f"Turned ON peripheral {id}.")
+        self.broker.state.print_status(description=f"Turned ON peripheral {id}.")
         return
 
     def off(self, id):
@@ -119,5 +119,5 @@ class Peripherals():
 
         self.control_peripheral(id, 0)
 
-        self.broker.state.print_status("off()", description=f"Turned OFF peripheral {id}.")
+        self.broker.state.print_status(description=f"Turned OFF peripheral {id}.")
         return

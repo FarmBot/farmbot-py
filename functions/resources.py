@@ -72,7 +72,7 @@ class Resources():
 
         self.broker.publish(sequence_message)
 
-        self.broker.state.print_status("sequence()", description=f"Triggered sequence {sequence_id} at {datetime.now()}.")
+        self.broker.state.print_status(description=f"Triggered sequence {sequence_id} at {datetime.now()}.")
         return
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
@@ -135,7 +135,7 @@ class Resources():
         curr_y = A1["y"] + offset["y"]
         curr_z = A1["z"]
 
-        self.broker.state.print_status("get_seed_tray_cell()", description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
+        self.broker.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
         return curr_x, curr_y, curr_z
 
     def detect_weeds(self):
@@ -169,7 +169,7 @@ class Resources():
 
         self.broker.publish(lua_message)
 
-        self.broker.state.print_status("lua()", description=f"Triggered lua code execution at {datetime.now()}.")
+        self.broker.state.print_status(description=f"Triggered lua code execution at {datetime.now()}.")
         return
 
     def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
@@ -201,7 +201,7 @@ class Resources():
 
         self.broker.publish(if_statement_message)
 
-        self.broker.state.print_status("if_statement()", description=f"Triggered if statement at {datetime.now()}.")
+        self.broker.state.print_status(description=f"Triggered if statement at {datetime.now()}.")
         return
 
     def assertion(self, code, as_type, id=""): # TODO: add "continue" functionality
@@ -226,5 +226,5 @@ class Resources():
 
         self.broker.publish(assertion_message)
 
-        self.broker.state.print_status("assertion()", description=f"Triggered assertion at {datetime.now()}.")
+        self.broker.state.print_status(description=f"Triggered assertion at {datetime.now()}.")
         return

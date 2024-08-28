@@ -61,7 +61,7 @@ class MovementControls():
 
         self.broker.publish(move_message)
 
-        self.broker.state.print_status("move()", description=f"Moved to coordinates: ({x}, {y}, {z}).")
+        self.broker.state.print_status(description=f"Moved to coordinates: ({x}, {y}, {z}).")
         return x, y, z
 
     def set_home(self, axis="all"):
@@ -83,7 +83,7 @@ class MovementControls():
 
         self.broker.publish(set_home_message)
 
-        self.broker.state.print_status("set_home()", description="Updated home coordinate.")
+        self.broker.state.print_status(description="Updated home coordinate.")
         return
 
     def find_home(self, axis="all", speed=100):
@@ -108,7 +108,7 @@ class MovementControls():
             }
             self.broker.publish(message)
 
-        self.broker.state.print_status("find_home()", description="Moved to home position.")
+        self.broker.state.print_status(description="Moved to home position.")
         return
 
     def axis_length(self, axis="all"):
@@ -136,7 +136,7 @@ class MovementControls():
         y_val = tree_data["location_data"]["position"]["y"]
         z_val = tree_data["location_data"]["position"]["z"]
 
-        self.broker.state.print_status("get_xyz()", description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
+        self.broker.state.print_status(description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
         return x_val, y_val, z_val
 
     def check_position(self, user_x, user_y, user_z, tolerance):
@@ -150,8 +150,8 @@ class MovementControls():
 
         for user_value, actual_value in zip(user_values, actual_vals):
             if not actual_value - tolerance <= user_value <= actual_value + tolerance:
-                self.broker.state.print_status("check_position()", description=f"Farmbot is NOT at position\n Current coordinates: ({x_val}, {y_val}, {z_val}).")
+                self.broker.state.print_status(description=f"Farmbot is NOT at position\n Current coordinates: ({x_val}, {y_val}, {z_val}).")
                 return False
 
-        self.broker.state.print_status("check_position()", description=f"Farmbot is at position: ({x_val}, {y_val}, {z_val}).")
+        self.broker.state.print_status(description=f"Farmbot is at position: ({x_val}, {y_val}, {z_val}).")
         return True
