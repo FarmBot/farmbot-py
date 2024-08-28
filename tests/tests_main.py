@@ -1406,6 +1406,26 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
+    @staticmethod
+    def helper_get_print_strings(mock_print):
+        '''Test helper to get print call strings.'''
+        return [string[1][0] for string in mock_print.mock_calls]
+
+    @patch('builtins.print')
+    def test_print_status(self, mock_print):
+        '''Test print_status.'''
+        self.fb.state.print_status(description="testing")
+        mock_print.assert_not_called()
+        self.fb.set_verbosity(1)
+        self.fb.state.print_status(description="testing")
+        mock_print.assert_has_calls([call('testing')])
+        mock_print.reset_mock()
+        self.fb.set_verbosity(2)
+        self.fb.state.print_status(endpoint_json=["testing"])
+        call_strings = self.helper_get_print_strings(mock_print)
+        call_strings = [s.split('(')[0].strip('`') for s in call_strings]
+        self.assertIn('[\n    "testing"\n]', call_strings)
+        self.assertIn('test_print_status', call_strings)
 
 if __name__ == '__main__':
     unittest.main()
