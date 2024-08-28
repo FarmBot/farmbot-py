@@ -120,7 +120,7 @@ class Resources():
         curr_z = a1["z"]
 
         self.broker.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
-        return curr_x, curr_y, curr_z
+        return {"x": curr_x, "y": curr_y, "z": curr_z}
 
     def detect_weeds(self):
         """Scans the garden to detect weeds."""
