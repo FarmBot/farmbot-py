@@ -28,7 +28,7 @@ class TestFarmbot(unittest.TestCase):
         '''Set up method called before each test case'''
         self.fb = Farmbot()
         self.fb.state.token = MOCK_TOKEN
-        self.fb.state.verbosity = 0
+        self.fb.set_verbosity(0)
         self.fb.state.test_env = True
 
     @patch('requests.post')
