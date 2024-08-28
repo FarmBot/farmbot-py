@@ -24,6 +24,7 @@ class State():
         self.verbosity = 2
         self.broker_listen_duration = 15
         self.test_env = False
+        self.ssl = True
 
     def print_status(self, endpoint_json=None, description=None, update_only=False, end="\n"):
         """Handle changes to output based on user-defined verbosity."""

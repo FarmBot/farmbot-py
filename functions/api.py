@@ -47,7 +47,7 @@ class ApiConnect():
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
-
+        self.state.ssl = "https" in server
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
@@ -128,7 +128,8 @@ class ApiConnect():
         iss = token["unencoded"]["iss"]
 
         id_part = "" if database_id is None else f"/{database_id}"
-        url = f'https:{iss}/api/{endpoint}{id_part}'
+        http_part = "https" if self.state.ssl else "http"
+        url = f'{http_part}:{iss}/api/{endpoint}{id_part}'
 
         headers = {'authorization': token['encoded'], 'content-type': 'application/json'}
         response = requests.request(method, url, headers=headers, json=payload)
