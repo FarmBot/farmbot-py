@@ -197,6 +197,48 @@ class TestFarmbot(unittest.TestCase):
         )
 
     @patch('requests.request')
+    def test_api_string_error_response_handling(self, mock_request):
+        '''Test API string response errors'''
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_response.reason = 'reason'
+        mock_response.text = 'error string'
+        mock_response.json.side_effect = requests.exceptions.JSONDecodeError('', '', 0)
+        mock_request.return_value = mock_response
+        response = self.fb.get_info('device')
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/device',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json'
+            },
+            json=None,
+        )
+        self.assertEqual(response, 'CLIENT ERROR 404: The specified endpoint does not exist. (error string)')
+
+    @patch('requests.request')
+    def test_api_string_error_response_handling_html(self, mock_request):
+        '''Test API html string response errors'''
+        mock_response = Mock()
+        mock_response.status_code = 404
+        mock_response.reason = 'reason'
+        mock_response.text = '<html><h1>error0</h1><h2>error1</h2></html>'
+        mock_response.json.side_effect = requests.exceptions.JSONDecodeError('', '', 0)
+        mock_request.return_value = mock_response
+        response = self.fb.get_info('device')
+        mock_request.assert_called_once_with(
+            'GET',
+            'https://my.farm.bot/api/device',
+            headers={
+                'authorization': 'encoded_token_value',
+                'content-type': 'application/json'
+            },
+            json=None,
+        )
+        self.assertEqual(response, 'CLIENT ERROR 404: The specified endpoint does not exist. (error0 error1)')
+
+    @patch('requests.request')
     def test_get_info_endpoint_only(self, mock_request):
         '''POSITIVE TEST: function called with endpoint only'''
         mock_response = Mock()
