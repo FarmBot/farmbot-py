@@ -28,8 +28,6 @@ class BasicCommands():
             }
         }
 
-        wait_message = self.broker.wrap_message(wait_message, priority=600)
-
         self.broker.publish(wait_message)
 
     def e_stop(self):

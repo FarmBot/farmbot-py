@@ -50,8 +50,6 @@ class MessageHandling():
             }]
         }
 
-        message = self.broker.wrap_message(message, priority=600)
-
         self.broker.publish(message)
 
         self.broker.state.print_status(description="New log message sent via message broker.")

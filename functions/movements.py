@@ -46,8 +46,6 @@ class MovementControls():
             ]
         }
 
-        move_message = self.broker.wrap_message(move_message, priority=600)
-
         self.broker.publish(move_message)
 
         self.broker.state.print_status(description=f"Moved to coordinates: ({x}, {y}, {z}).")
@@ -62,7 +60,6 @@ class MovementControls():
                 "axis": axis
             }
         }
-        set_home_message = self.broker.wrap_message(set_home_message, priority=600)
         self.broker.publish(set_home_message)
 
         self.broker.state.print_status(description="Updated home coordinate.")
@@ -80,7 +77,6 @@ class MovementControls():
                 "speed": speed
             }
         }
-        message = self.broker.wrap_message(message, priority=600)
         self.broker.publish(message)
 
         self.broker.state.print_status(description="Moved to home position.")

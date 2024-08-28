@@ -121,7 +121,6 @@ class Information():
             "kind": "read_status",
             "args": {}
         }
-        status_message = self.broker.wrap_message(status_message, priority=600)
         self.broker.publish(status_message)
 
         self.broker.listen(15, "status")
