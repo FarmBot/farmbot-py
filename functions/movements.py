@@ -101,6 +101,9 @@ class MovementControls():
         """Returns the current (x, y, z) coordinates of the FarmBot."""
 
         tree_data = self.info.read_status()
+        if tree_data is None:
+            print("ERROR: No location data available.")
+            return
         position = tree_data["location_data"]["position"]
 
         x_val = position["x"]
