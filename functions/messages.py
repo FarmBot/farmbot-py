@@ -22,7 +22,7 @@ def validate_log_options(message_type, channel):
         raise ValueError(
             f"Invalid message type: `{message_type}` not in {MESSAGE_TYPES}")
     if channel not in CHANNELS:
-        raise ValueError(f"Invalid channel: {channel}")
+        raise ValueError(f"Invalid channel: {channel} not in {CHANNELS}")
 
 
 class MessageHandling():
@@ -31,7 +31,7 @@ class MessageHandling():
         self.broker = BrokerConnect(state)
         self.auth = Authentication(state)
 
-    def log(self, message_str, message_type=None, channel=None):
+    def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
 
         validate_log_options(message_type, channel)
@@ -49,7 +49,7 @@ class MessageHandling():
 
         self.broker.state.print_status(description="New log message sent via API.")
 
-    def message(self, message_str, message_type=None, channel="ticker"):
+    def message(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the message broker."""
 
         validate_log_options(message_type, channel)

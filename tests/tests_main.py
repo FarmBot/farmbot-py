@@ -578,6 +578,34 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
+    def test_invalid_message_type(self):
+        '''Test message_type validation'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.message('test', message_type='nope')
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid message type: `nope` not in ['assertion', 'busy', 'debug', 'error', 'fun', 'info', 'success', 'warn']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_invalid_message_channel(self):
+        '''Test message channel validation'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.message('test', channel='nope')
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid channel: nope not in ['ticker', 'toast', 'email', 'espeak']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response={})
+
     def test_read_status(self):
         '''Test read_status command'''
         def exec_command():

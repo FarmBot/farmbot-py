@@ -147,11 +147,11 @@ class Farmbot():
 
     # messages.py
 
-    def log(self, message_str, message_type=None, channel=None):
+    def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
         return self.messages.log(message_str, message_type, channel)
 
-    def message(self, message_str, message_type=None, channel="ticker"):
+    def message(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the message broker."""
         return self.messages.message(message_str, message_type, channel)
 
