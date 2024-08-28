@@ -42,10 +42,7 @@ class BrokerConnect():
 
         self.client.loop_start()
 
-        if self.client is None:
-            self.state.print_status(description="There was an error connecting to the message broker...")
-        else:
-            self.state.print_status(description="Connected to message broker.")
+        self.state.print_status(description="Connected to message broker.")
 
     def disconnect(self):
         """Disconnect from the message broker."""
@@ -53,8 +50,6 @@ class BrokerConnect():
         if self.client is not None:
             self.client.loop_stop()
             self.client.disconnect()
-
-        if self.client is None:
             self.state.print_status(description="Disconnected from message broker.")
 
     def wrap_message(self, message, priority=None):
