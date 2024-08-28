@@ -11,6 +11,7 @@ BrokerConnect class.
 #     ├── [BROKER] start_listen()
 #     └── [BROKER] stop_listen()
 
+import time
 import json
 from datetime import datetime
 import paho.mqtt.client as mqtt
@@ -114,3 +115,21 @@ class BrokerConnect():
         self.client.disconnect()
 
         self.state.print_status(description="Stopped listening to all message broker channels.")
+
+    def listen(self, duration, channel):
+        """Listen to message broker for a certain number of seconds."""
+        if self.client is None:
+            self.connect()
+        self.state.print_status(description=f"Listening to message broker for {duration} seconds...")
+        start_time = datetime.now()
+        self.start_listen(channel)
+        # if not self.state.test_env:
+        #     self.state.last_message = None
+        while (datetime.now() - start_time).seconds < duration:
+            time.sleep(0.5)
+            if self.state.last_message is not None:
+                seconds = (datetime.now() - start_time).seconds
+                self.state.print_status(description=f"Message received after {seconds} seconds")
+                break
+
+        self.stop_listen()

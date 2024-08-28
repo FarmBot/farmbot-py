@@ -21,6 +21,7 @@ class State():
         self.error = None
         self.last_message = None
         self.verbosity = 2
+        self.test_env = False
 
     def print_status(self, endpoint_json=None, description=None):
         """Handle changes to output based on user-defined verbosity."""

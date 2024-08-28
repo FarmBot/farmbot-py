@@ -14,7 +14,6 @@ Information class.
 #     ├── [BROKER] read_status()
 #     └── [BROKER] read_sensor()
 
-import time
 from .broker import BrokerConnect
 from .authentication import Authentication
 
@@ -115,7 +114,6 @@ class Information():
     def read_status(self):
         """Returns the FarmBot status tree."""
 
-        self.broker.start_listen("status")
         status_message = {
             "kind": "read_status",
             "args": {}
@@ -123,8 +121,7 @@ class Information():
         status_message = self.broker.wrap_message(status_message, priority=600)
         self.broker.publish(status_message)
 
-        time.sleep(15)
-        self.broker.stop_listen()
+        self.broker.listen(15, "status")
 
         status_tree = self.broker.state.last_message
 
