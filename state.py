@@ -1,5 +1,6 @@
 """State management."""
 
+import sys
 import json
 import inspect
 from datetime import datetime
@@ -34,3 +35,10 @@ class State():
         if self.verbosity >= 2:
             function = get_function_call_info()
             print(f"`{function}` called at {datetime.now()}")
+
+    def check_token(self):
+        """Ensure the token persists throughout sidecar."""
+
+        if self.token is None:
+            self.print_status(description="ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
+            sys.exit(1)

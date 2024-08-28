@@ -8,7 +8,6 @@ Authentication class.
 #     ├── [API] request_handling()
 #     └── [API] request()
 
-import sys
 import json
 import requests
 
@@ -51,13 +50,6 @@ class Authentication():
         self.state.print_status(description=self.state.error)
         return self.state.error
 
-    def check_token(self):
-        """Ensure the token persists throughout sidecar."""
-
-        if self.state.token is None:
-            self.state.print_status(description="ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
-            sys.exit(1)
-
     def request_handling(self, response):
         """Handle errors associated with different endpoint errors."""
 
@@ -85,7 +77,7 @@ class Authentication():
     def request(self, method, endpoint, database_id, payload=None):
         """Make requests to API endpoints using different methods."""
 
-        self.check_token()
+        self.state.check_token()
 
         # use 'GET' method to view endpoint data
         # use 'POST' method to overwrite/create new endpoint data
