@@ -10,6 +10,7 @@ MessageHandling class.
 
 from .broker import BrokerConnect
 from .api import ApiConnect
+from .information import Information
 
 MESSAGE_TYPES = ["assertion", "busy", "debug",
                  "error", "fun", "info", "success", "warn"]
@@ -30,6 +31,7 @@ class MessageHandling():
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.api = ApiConnect(state)
+        self.info = Information(state)
         self.state = state
 
     def log(self, message_str, message_type="info", channel="ticker"):
@@ -43,10 +45,7 @@ class MessageHandling():
             "channels": [channel],
         }
 
-        endpoint = 'logs'
-        database_id = None
-
-        self.api.request('POST', endpoint, database_id, log_message)
+        self.info.add_info("logs", log_message)
 
         self.state.print_status(description="New log message sent via API.")
 
