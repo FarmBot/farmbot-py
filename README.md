@@ -37,30 +37,29 @@ git clone https://github.com/FarmBot-Labs/sidecar-starter-pack
 
 (2) Navigate to the project directory.
 ```
-cd path/to/sidecar-starter-pack
+cd sidecar-starter-pack
 ```
 
 (3) Create a virtual environment.
 ```
-python -m venv path/to/venv/location
+python -m venv py_venv
 ```
 
 (4) Activate the virtual environment.
 ```
-source path/to/venv/bin/activate
+source py_venv/bin/activate
 ```
 
 (5) Install the required libraries within venv:
 ```
-python3 -m pip install requests
-python3 -m pip install paho-mqtt
+python -m pip install requests paho-mqtt
 ```
 
 ## :seedling: Getting Started
 
-Import `main.py` and create an instance of the Farmbot class:
+Import `main` and create an instance of the Farmbot class:
 ```
-from main.py import Farmbot
+from main import Farmbot
 bot = Farmbot()
 ```
 
@@ -190,7 +189,8 @@ sidecar-starter-pack/
 | class `Information()` | Description |
 | :--- | :--- |
 | `get_info()` | Get information about a specific endpoint. |
-| `set_info()` | Change information contained within an endpoint. |
+| `edit_info()` | Change information contained within an endpoint. |
+| `add_info()` | Create new information contained within an endpoint.
 | `safe_z()` | Returns the highest safe point along the z-axis. |
 | `garden_size()` | Returns x-axis length, y-axis length, and area of garden bed. |
 | `group()` | Returns all group info or single by id. |
