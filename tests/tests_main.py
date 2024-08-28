@@ -287,16 +287,6 @@ class TestFarmbot(unittest.TestCase):
             json={'name': 'new name'},
         ),
             call().json(),
-            call(
-            'GET',
-            'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
-        ),
-            call().json(),
         ])
         self.assertEqual(device_info, {'name': 'new name'})
 
