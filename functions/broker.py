@@ -25,6 +25,8 @@ class BrokerConnect():
     def connect(self):
         """Establish persistent connection to send messages via message broker."""
 
+        self.state.check_token()
+
         self.client = mqtt.Client()
         self.client.username_pw_set(
             username=self.state.token['token']['unencoded']['bot'],
@@ -119,8 +121,6 @@ class BrokerConnect():
 
     def listen(self, duration, channel):
         """Listen to message broker for a certain number of seconds."""
-        if self.client is None:
-            self.connect()
         self.state.print_status(description=f"Listening to message broker for {duration} seconds...")
         start_time = datetime.now()
         self.start_listen(channel)
