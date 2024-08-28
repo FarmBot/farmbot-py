@@ -26,10 +26,10 @@ class State():
         """Handle changes to output based on user-defined verbosity."""
 
         if self.verbosity >= 1:
-            function = get_function_call_info()
-            print(f"`{function}` called at {datetime.now()}")
-        if self.verbosity >= 2:
             if description:
                 print(description)
             if endpoint_json:
                 print(json.dumps(endpoint_json, indent=4))
+        if self.verbosity >= 2:
+            function = get_function_call_info()
+            print(f"`{function}` called at {datetime.now()}")
