@@ -22,14 +22,15 @@ class State():
         self.error = None
         self.last_message = None
         self.verbosity = 2
+        self.broker_listen_duration = 15
         self.test_env = False
 
-    def print_status(self, endpoint_json=None, description=None, update_only=False):
+    def print_status(self, endpoint_json=None, description=None, update_only=False, end="\n"):
         """Handle changes to output based on user-defined verbosity."""
 
         if self.verbosity >= 1:
             if description:
-                print(description)
+                print(description, end=end, flush=(end == ""))
             if endpoint_json:
                 print(json.dumps(endpoint_json, indent=4))
         if self.verbosity >= 2 and not update_only:

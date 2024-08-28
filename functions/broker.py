@@ -122,9 +122,8 @@ class BrokerConnect():
         self.start_listen(channel)
         if not self.state.test_env:
             self.state.last_message = None
-        else:
-            duration = 0.3
         while (datetime.now() - start_time).seconds < duration:
+            self.state.print_status(update_only=True, description=".", end="")
             time.sleep(0.25)
             if self.state.last_message is not None:
                 seconds = (datetime.now() - start_time).seconds

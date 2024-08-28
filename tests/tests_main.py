@@ -30,6 +30,7 @@ class TestFarmbot(unittest.TestCase):
         self.fb.state.token = MOCK_TOKEN
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
+        self.fb.state.broker_listen_duration = 0.3
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
@@ -1418,7 +1419,8 @@ class TestFarmbot(unittest.TestCase):
         mock_print.assert_not_called()
         self.fb.set_verbosity(1)
         self.fb.state.print_status(description="testing")
-        mock_print.assert_has_calls([call('testing')])
+        call_strings = self.helper_get_print_strings(mock_print)
+        self.assertIn('testing', call_strings)
         mock_print.reset_mock()
         self.fb.set_verbosity(2)
         self.fb.state.print_status(endpoint_json=["testing"])

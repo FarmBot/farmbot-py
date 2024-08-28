@@ -116,18 +116,18 @@ class Information():
 
     def read_status(self):
         """Returns the FarmBot status tree."""
-
+        self.broker.state.print_status(description="Reading status...")
         status_message = {
             "kind": "read_status",
             "args": {}
         }
         self.broker.publish(status_message)
 
-        self.broker.listen(15, "status")
+        self.broker.listen(self.broker.state.broker_listen_duration, "status")
 
         status_tree = self.broker.state.last_message
 
-        self.broker.state.print_status(endpoint_json=status_tree)
+        self.broker.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
 
     def read_sensor(self, peripheral_id):
