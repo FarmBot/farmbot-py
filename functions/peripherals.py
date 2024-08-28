@@ -9,9 +9,15 @@ Peripherals class.
 #     ├── [BROKER] on()
 #     └── [BROKER] off()
 
-from .imports import *
 from .broker import BrokerConnect
 from .information import Information
+
+RPC_REQUEST = {
+    "kind": "rpc_request",
+    "args": {
+        "label": "",
+    }
+}
 
 class Peripherals():
     def __init__(self, state):

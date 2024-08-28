@@ -119,7 +119,6 @@ sidecar-starter-pack/
 │   ├── basic_commands.py
 │   ├── broker.py
 │   ├── camera.py
-│   ├── imports.py
 │   ├── information.py
 │   ├── jobs.py
 │   ├── messages.py
@@ -131,7 +130,6 @@ sidecar-starter-pack/
 │   ├── __init_.py
 │   └── tests_main.py
 ├── __init_.py
-├── imports.py
 ├── main.py
 └── README.md
 ```

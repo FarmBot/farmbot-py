@@ -9,8 +9,15 @@ BasicCommands class.
 #     ├── [BROKER] reboot()
 #     └── [BROKER] shutdown()
 
-from .imports import *
+from datetime import datetime
 from .broker import BrokerConnect
+
+RPC_REQUEST = {
+    "kind": "rpc_request",
+    "args": {
+        "label": "",
+    }
+}
 
 class BasicCommands():
     def __init__(self, state):

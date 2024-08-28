@@ -14,9 +14,16 @@ Information class.
 #     ├── [BROKER] read_status()
 #     └── [BROKER] read_sensor()
 
-from .imports import *
+import time
 from .broker import BrokerConnect
 from .authentication import Authentication
+
+RPC_REQUEST = {
+    "kind": "rpc_request",
+    "args": {
+        "label": "",
+    }
+}
 
 class Information():
     def __init__(self, state):

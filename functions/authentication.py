@@ -8,7 +8,9 @@ Autentication class.
 #     ├── [API] request_handling()
 #     └── [API] request()
 
-from .imports import *
+import sys
+import json
+import requests
 
 class Authentication():
     def __init__(self, state):

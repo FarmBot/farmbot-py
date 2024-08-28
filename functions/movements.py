@@ -10,9 +10,15 @@ MovementControls class.
 #     ├── [BROKER] axis_length()
 #     └── [BROKER] check_position()
 
-from .imports import *
 from .broker import BrokerConnect
 from .information import Information
+
+RPC_REQUEST = {
+    "kind": "rpc_request",
+    "args": {
+        "label": "",
+    }
+}
 
 class MovementControls():
     def __init__(self, state):
