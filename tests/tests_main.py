@@ -1462,7 +1462,7 @@ class TestFarmbot(unittest.TestCase):
     @staticmethod
     def helper_get_print_strings(mock_print):
         '''Test helper to get print call strings.'''
-        return [string[1][0] for string in mock_print.mock_calls]
+        return [string[1][0] for string in mock_print.mock_calls if len(string[1]) > 0]
 
     @patch('builtins.print')
     def test_print_status(self, mock_print):
