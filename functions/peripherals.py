@@ -41,18 +41,34 @@ class Peripherals():
         self.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
-    def control_peripheral(self, peripheral_id, value, mode=None):
-        """Set peripheral value and mode."""
+    def get_peripheral(self, peripheral_name):
+        """Find a peripheral by name."""
+        peripherals = self.info.api_get("peripherals")
+        peripheral_names = [peripheral["label"] for peripheral in peripherals]
+        if peripheral_name not in peripheral_names:
+            error = f"ERROR: '{peripheral_name}' peripheral not in {peripheral_names}."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
+            return
 
-        if mode is None:
-            peripheral = self.info.api_get("peripherals", peripheral_id)
-            mode = peripheral["mode"]
+        peripheral = [p for p in peripherals if p["label"] == peripheral_name][0]
+        return peripheral
+
+    def control_peripheral(self, peripheral_name, value, mode=None):
+        """Set peripheral value and mode."""
+        self.state.print_status(description=f"Setting {peripheral_name} to {value}.")
+
+        peripheral = self.get_peripheral(peripheral_name)
+        if peripheral is None:
+            return
+        peripheral_id = peripheral["id"]
+        pin_mode = peripheral["mode"] if mode is None else mode
 
         control_peripheral_message = {
             "kind": "write_pin",
             "args": {
                 "pin_value": value, # Controls ON/OFF or slider value from 0-255
-                "pin_mode": mode, # Controls digital (0) or analog (1) mode
+                "pin_mode": pin_mode, # Controls digital (0) or analog (1) mode
                 "pin_number": {
                     "kind": "named_pin",
                     "args": {
@@ -65,11 +81,13 @@ class Peripherals():
 
         self.broker.publish(control_peripheral_message)
 
-        self.state.print_status(description=f"Set peripheral {peripheral_id} to {value} with mode={mode}.")
-
-    def toggle_peripheral(self, peripheral_id):
+    def toggle_peripheral(self, peripheral_name):
         """Toggles the state of a specific peripheral between `on` and `off`."""
-
+        self.state.print_status(description=f"Toggling {peripheral_name}.")
+        peripheral = self.get_peripheral(peripheral_name)
+        if peripheral is None:
+            return
+        peripheral_id = peripheral["id"]
         toggle_peripheral_message = {
             "kind": "toggle_pin",
             "args": {
@@ -85,26 +103,32 @@ class Peripherals():
 
         self.broker.publish(toggle_peripheral_message)
 
-        self.state.print_status(description=f"Triggered toggle peripheral {peripheral_id}.")
+    def on(self, pin_number):
+        """Turns specified pin number `on` (100%)."""
+        self.state.print_status(description=f"Turning ON pin number {pin_number}.")
 
-    def on(self, peripheral_id):
-        """Turns specified peripheral `on` (100%)."""
-        self.state.print_status(description=f"Turning ON peripheral {peripheral_id}.")
+        on_message = {
+            "kind": "write_pin",
+            "args": {
+                "pin_value": 1,
+                "pin_mode": 0,
+                "pin_number": pin_number,
+            }
+        }
 
-        peripheral = self.info.api_get("peripherals", peripheral_id)
-        mode = peripheral["mode"]
+        self.broker.publish(on_message)
 
-        if mode == 1:
-            self.control_peripheral(peripheral_id, 255, mode)
-        elif mode == 0:
-            self.control_peripheral(peripheral_id, 1, mode)
+    def off(self, pin_number):
+        """Turns specified pin number `off` (0%)."""
+        self.state.print_status(description=f"Turning OFF pin number {pin_number}.")
 
-        return
+        off_message = {
+            "kind": "write_pin",
+            "args": {
+                "pin_value": 0,
+                "pin_mode": 0,
+                "pin_number": pin_number,
+            }
+        }
 
-    def off(self, peripheral_id):
-        """Turns specified peripheral `off` (0%)."""
-        self.state.print_status(description=f"Turning OFF peripheral {peripheral_id}.")
-
-        self.control_peripheral(peripheral_id, 0)
-
-        return
+        self.broker.publish(off_message)

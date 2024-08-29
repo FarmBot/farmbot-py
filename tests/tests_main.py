@@ -822,7 +822,7 @@ class TestFarmbot(unittest.TestCase):
     def test_toggle_peripheral(self):
         '''Test toggle_peripheral command'''
         def exec_command():
-            self.fb.toggle_peripheral(123)
+            self.fb.toggle_peripheral('New Peripheral')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -835,12 +835,22 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            mock_api_response={})
+            mock_api_response=[{'label': 'New Peripheral', 'id': 123}])
+
+    def test_toggle_peripheral_not_found(self):
+        '''Test toggle_peripheral command: peripheral not found'''
+        def exec_command():
+            self.fb.toggle_peripheral('New Peripheral')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
 
     def test_on_digital(self):
         '''Test on command: digital'''
         def exec_command():
-            self.fb.on(123)
+            self.fb.on(13)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -848,54 +858,28 @@ class TestFarmbot(unittest.TestCase):
                 'args': {
                     'pin_value': 1,
                     'pin_mode': 0,
-                    'pin_number': {
-                        'kind': 'named_pin',
-                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
-                    },
+                    'pin_number': 13,
                 },
             },
             extra_rpc_args={},
-            mock_api_response={'mode': 0})
-
-    def test_on_analog(self):
-        '''Test on command: analog'''
-        def exec_command():
-            self.fb.on(123)
-        self.send_command_test_helper(
-            exec_command,
-            expected_command={
-                'kind': 'write_pin',
-                'args': {
-                    'pin_value': 255,
-                    'pin_mode': 1,
-                    'pin_number': {
-                        'kind': 'named_pin',
-                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
-                    },
-                },
-            },
-            extra_rpc_args={},
-            mock_api_response={'mode': 1})
+            mock_api_response={})
 
     def test_off(self):
         '''Test off command'''
         def exec_command():
-            self.fb.off(123)
+            self.fb.off(13)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'write_pin',
                 'args': {
                     'pin_value': 0,
-                    'pin_mode': 1,
-                    'pin_number': {
-                        'kind': 'named_pin',
-                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
-                    },
+                    'pin_mode': 0,
+                    'pin_number': 13,
                 },
             },
             extra_rpc_args={},
-            mock_api_response={'mode': 1})
+            mock_api_response={})
 
     def test_move(self):
         '''Test move command'''
@@ -963,13 +947,13 @@ class TestFarmbot(unittest.TestCase):
     def test_control_peripheral(self):
         '''Test control_peripheral command'''
         def exec_command():
-            self.fb.control_peripheral(123, 456, 0)
+            self.fb.control_peripheral('New Peripheral', 1)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'write_pin',
                 'args': {
-                    'pin_value': 456,
+                    'pin_value': 1,
                     'pin_mode': 0,
                     'pin_number': {
                         'kind': 'named_pin',
@@ -978,7 +962,17 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            mock_api_response={'mode': 0})
+            mock_api_response=[{'label': 'New Peripheral', 'mode': 0, 'id': 123}])
+
+    def test_control_peripheral_not_found(self):
+        '''Test control_peripheral command: peripheral not found'''
+        def exec_command():
+            self.fb.control_peripheral('New Peripheral', 1)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
 
     def test_measure_soil_height(self):
         '''Test measure_soil_height command'''

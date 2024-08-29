@@ -199,21 +199,21 @@ class Farmbot():
         """Set servo angle between 0-100 degrees."""
         return self.peripherals.control_servo(pin, angle)
 
-    def control_peripheral(self, peripheral_id, value, mode=None):
+    def control_peripheral(self, peripheral_name, value, mode=None):
         """Set peripheral value and mode."""
-        return self.peripherals.control_peripheral(peripheral_id, value, mode)
+        return self.peripherals.control_peripheral(peripheral_name, value, mode)
 
-    def toggle_peripheral(self, peripheral_id):
+    def toggle_peripheral(self, peripheral_name):
         """Toggles the state of a specific peripheral between `on` and `off`."""
-        return self.peripherals.toggle_peripheral(peripheral_id)
+        return self.peripherals.toggle_peripheral(peripheral_name)
 
-    def on(self, peripheral_id):
-        """Turns specified peripheral `on` (100%)."""
-        return self.peripherals.on(peripheral_id)
+    def on(self, pin_number):
+        """Turns specified pin number `on` (100%)."""
+        return self.peripherals.on(pin_number)
 
-    def off(self, peripheral_id):
-        """Turns specified peripheral `off` (0%)."""
-        return self.peripherals.off(peripheral_id)
+    def off(self, pin_number):
+        """Turns specified pin number `off` (0%)."""
+        return self.peripherals.off(pin_number)
 
     # resources.py
 

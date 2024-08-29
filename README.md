@@ -238,8 +238,8 @@ sidecar-starter-pack/
 | `control_servo()` | Set servo angle between 0-100 degrees. |
 | `control_peripheral()` | Set peripheral value (digital ON/OFF or analog value from 0-255). |
 | `toggle_peripheral()` | Toggles the state of a specific peripheral between 'ON' (100%) and 'OFF' (0%). |
-| `on()` | Turns specified peripheral 'ON' (100%). |
-| `off()` | Turns specified peripheral 'OFF' (0%). |
+| `on()` | Turns specified pin number 'ON' (100%). |
+| `off()` | Turns specified pin number 'OFF' (0%). |
 
 ### resources.py
 
