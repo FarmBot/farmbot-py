@@ -101,7 +101,7 @@ new_cabbage = {
     "plant_stage": "planned",       # Point status
 }
 
-bot.add_info("points", new_cabbage) # Add plant to endpoint
+bot.api_post("points", new_cabbage) # Add plant to endpoint
 ```
 
 ### Test 2: Turn your LED strip on and off
@@ -191,10 +191,10 @@ sidecar-starter-pack/
 
 | class `Information()` | Description |
 | :--- | :--- |
-| `get_info()` | GET information from the API. |
-| `edit_info()` | PATCH information in the API. |
-| `add_info()` | POST information to the API. |
-| `delete_info()` | DELETE information in the API. |
+| `api_get()` | GET information from the API. |
+| `api_patch()` | PATCH information in the API. |
+| `api_post()` | POST information to the API. |
+| `api_delete()` | DELETE information in the API. |
 | `safe_z()` | Returns the safe Z coordinate. |
 | `garden_size()` | Returns x-axis length, y-axis length, and area of garden bed. |
 | `group()` | Returns all groups or a single group by id. |

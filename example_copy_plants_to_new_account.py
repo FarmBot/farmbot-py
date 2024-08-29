@@ -16,7 +16,7 @@ target.set_verbosity(0)
 
 # Get all points from the API.
 # Note this will include plants, weeds, generic points, and tools.
-points = source.get_info("points")
+points = source.api_get("points")
 
 # Filter out only the plants
 plants = [point for point in points if point["pointer_type"] == "Plant"]
@@ -44,5 +44,5 @@ for plant in plants:
     print(f"{progress} Copying {plant_details} to target account...")
 
     # Add the plant to the target account
-    target.add_info("points", plant_copy)
+    target.api_post("points", plant_copy)
     sleep(0.5)

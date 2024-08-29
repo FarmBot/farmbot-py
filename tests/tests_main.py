@@ -161,8 +161,8 @@ class TestFarmbot(unittest.TestCase):
         )
 
     @patch('requests.request')
-    def helper_get_info_error(self, *args, **kwargs):
-        '''Test helper for get_info errors'''
+    def helper_api_get_error(self, *args, **kwargs):
+        '''Test helper for api_get errors'''
         mock_request = args[0]
         status_code = kwargs['status_code']
         error_msg = kwargs['error_msg']
@@ -172,7 +172,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'text'
         mock_response.json.return_value = {'error': 'error'}
         mock_request.return_value = mock_response
-        response = self.fb.get_info('device')
+        response = self.fb.api_get('device')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
@@ -184,17 +184,17 @@ class TestFarmbot(unittest.TestCase):
         )
         self.assertEqual(response, error_msg)
 
-    def test_get_info_errors(self):
-        '''Test get_info errors'''
-        self.helper_get_info_error(
+    def test_api_get_errors(self):
+        '''Test api_get errors'''
+        self.helper_api_get_error(
             status_code=404,
             error_msg='CLIENT ERROR 404: The specified endpoint does not exist. ({\n  "error": "error"\n})',
         )
-        self.helper_get_info_error(
+        self.helper_api_get_error(
             status_code=500,
             error_msg='SERVER ERROR 500: text ({\n  "error": "error"\n})',
         )
-        self.helper_get_info_error(
+        self.helper_api_get_error(
             status_code=600,
             error_msg='UNEXPECTED ERROR 600: text ({\n  "error": "error"\n})',
         )
@@ -208,7 +208,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'error string'
         mock_response.json.side_effect = requests.exceptions.JSONDecodeError('', '', 0)
         mock_request.return_value = mock_response
-        response = self.fb.get_info('device')
+        response = self.fb.api_get('device')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
@@ -229,7 +229,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = '<html><h1>error0</h1><h2>error1</h2></html>'
         mock_response.json.side_effect = requests.exceptions.JSONDecodeError('', '', 0)
         mock_request.return_value = mock_response
-        response = self.fb.get_info('device')
+        response = self.fb.api_get('device')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
@@ -242,7 +242,7 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, 'CLIENT ERROR 404: The specified endpoint does not exist. (error0 error1)')
 
     @patch('requests.request')
-    def test_get_info_endpoint_only(self, mock_request):
+    def test_api_get_endpoint_only(self, mock_request):
         '''POSITIVE TEST: function called with endpoint only'''
         mock_response = Mock()
         expected_response = {'device': 'info'}
@@ -251,7 +251,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'text'
         mock_request.return_value = mock_response
         # Call with endpoint only
-        response = self.fb.get_info('device')
+        response = self.fb.api_get('device')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
@@ -264,7 +264,7 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch('requests.request')
-    def test_get_info_with_id(self, mock_request):
+    def test_api_get_with_id(self, mock_request):
         '''POSITIVE TEST: function called with valid ID'''
         mock_response = Mock()
         expected_response = {'peripheral': 'info'}
@@ -273,7 +273,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'text'
         mock_request.return_value = mock_response
         # Call with specific ID
-        response = self.fb.get_info('peripherals', '12345')
+        response = self.fb.api_get('peripherals', '12345')
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/peripherals/12345',
@@ -290,7 +290,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_token: API request'''
         self.fb.state.token = None
         with self.assertRaises(SystemExit):
-            results = self.fb.get_info('points')
+            results = self.fb.api_get('points')
             self.assertIsNone(results)
         mock_request.assert_not_called()
         # self.assertEqual(self.fb.error, 'No token')
@@ -317,14 +317,14 @@ class TestFarmbot(unittest.TestCase):
         # self.assertEqual(self.fb.error, 'No token')
 
     @patch('requests.request')
-    def test_edit_info(self, mock_request):
-        '''test edit_info function'''
+    def test_api_patch(self, mock_request):
+        '''test api_patch function'''
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
-        device_info = self.fb.edit_info('device', {'name': 'new name'})
+        device_info = self.fb.api_patch('device', {'name': 'new name'})
         mock_request.assert_has_calls([call(
             'PATCH',
             'https://my.farm.bot/api/device',
@@ -339,14 +339,14 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(device_info, {'name': 'new name'})
 
     @patch('requests.request')
-    def test_add_info(self, mock_request):
-        '''test add_info function'''
+    def test_api_post(self, mock_request):
+        '''test api_post function'''
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_response.json.return_value = {'name': 'new name'}
         mock_request.return_value = mock_response
-        point = self.fb.add_info('points', {'name': 'new name'})
+        point = self.fb.api_post('points', {'name': 'new name'})
         mock_request.assert_has_calls([call(
             'POST',
             'https://my.farm.bot/api/points',
@@ -361,14 +361,14 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(point, {'name': 'new name'})
 
     @patch('requests.request')
-    def test_delete_info(self, mock_request):
-        '''test delete_info function'''
+    def test_api_delete(self, mock_request):
+        '''test api_delete function'''
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_response.json.return_value = {'name': 'deleted'}
         mock_request.return_value = mock_response
-        result = self.fb.delete_info('points', 12345)
+        result = self.fb.api_delete('points', 12345)
         mock_request.assert_called_once_with(
             'DELETE',
             'https://my.farm.bot/api/points/12345',

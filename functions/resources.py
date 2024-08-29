@@ -42,7 +42,7 @@ class Resources():
     def get_seed_tray_cell(self, tray_id, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
 
-        tray_data = self.info.get_info("points", tray_id)
+        tray_data = self.info.api_get("points", tray_id)
 
         cell = tray_cell.upper()
 

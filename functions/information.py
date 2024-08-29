@@ -3,10 +3,10 @@ Information class.
 """
 
 # └── functions/information
-#     ├── [API] get_info()
-#     ├── [API] edit_info()
-#     ├── [API] add_info()
-#     ├── [API] delete_info()
+#     ├── [API] api_get()
+#     ├── [API] api_patch()
+#     ├── [API] api_post()
+#     ├── [API] api_delete()
 #     ├── [API] safe_z()
 #     ├── [API] garden_size()
 #     ├── [API] group()
@@ -25,7 +25,7 @@ class Information():
         self.api = ApiConnect(state)
         self.state = state
 
-    def get_info(self, endpoint, database_id=None):
+    def api_get(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
         self.state.print_status(description=f"Retrieving {endpoint} information.")
 
@@ -35,7 +35,7 @@ class Information():
 
         return endpoint_data
 
-    def edit_info(self, endpoint, new_data, database_id=None):
+    def api_patch(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
         self.state.print_status(description=f"Editing {endpoint}.")
 
@@ -45,7 +45,7 @@ class Information():
 
         return result
 
-    def add_info(self, endpoint, new_data):
+    def api_post(self, endpoint, new_data):
         """Create new information contained within an endpoint."""
         self.state.print_status(description=f"Adding new data to {endpoint}.")
 
@@ -55,7 +55,7 @@ class Information():
 
         return result
 
-    def delete_info(self, endpoint, database_id=None):
+    def api_delete(self, endpoint, database_id=None):
         """Delete information contained within an endpoint."""
         self.state.print_status(description=f"Deleting {endpoint} with id={database_id}.")
 
@@ -68,7 +68,7 @@ class Information():
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""
 
-        config_data = self.get_info('fbos_config')
+        config_data = self.api_get('fbos_config')
         z_value = config_data["safe_height"]
 
         self.state.print_status(description=f"Safe z={z_value}")
@@ -77,7 +77,7 @@ class Information():
     def garden_size(self):
         """Returns x-axis length, y-axis length, and area of garden bed."""
 
-        json_data = self.get_info('firmware_config')
+        json_data = self.api_get('firmware_config')
 
         x_steps = json_data['movement_axis_nr_steps_x']
         x_mm = json_data['movement_step_per_mm_x']
@@ -96,9 +96,9 @@ class Information():
         """Returns all group info or single by id."""
 
         if group_id is None:
-            group_data = self.get_info("point_groups")
+            group_data = self.api_get("point_groups")
         else:
-            group_data = self.get_info('point_groups', group_id)
+            group_data = self.api_get('point_groups', group_id)
 
         self.state.print_status(endpoint_json=group_data)
         return group_data
@@ -107,9 +107,9 @@ class Information():
         """Returns all curve info or single by id."""
 
         if curve_id is None:
-            curve_data = self.get_info("curves")
+            curve_data = self.api_get("curves")
         else:
-            curve_data = self.get_info('curves', curve_id)
+            curve_data = self.api_get('curves', curve_id)
 
         self.state.print_status(endpoint_json=curve_data)
         return curve_data
@@ -145,7 +145,7 @@ class Information():
     def read_sensor(self, peripheral_id):
         """Reads the given pin by id."""
 
-        peripheral_str = self.get_info("peripherals", peripheral_id)
+        peripheral_str = self.api_get("peripherals", peripheral_id)
         mode = peripheral_str["mode"]
 
         sensor_message = {

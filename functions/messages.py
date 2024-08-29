@@ -45,7 +45,7 @@ class MessageHandling():
             "channels": [channel],
         }
 
-        self.info.add_info("logs", log_message)
+        self.info.api_post("logs", log_message)
 
         self.state.print_status(description="New log message sent via API.")
 

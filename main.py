@@ -91,21 +91,21 @@ class Farmbot():
 
     # information.py
 
-    def get_info(self, endpoint, database_id=None):
+    def api_get(self, endpoint, database_id=None):
         """Get information about a specific endpoint."""
-        return self.info.get_info(endpoint, database_id)
+        return self.info.api_get(endpoint, database_id)
 
-    def edit_info(self, endpoint, new_data, database_id=None):
+    def api_patch(self, endpoint, new_data, database_id=None):
         """Change information contained within an endpoint."""
-        return self.info.edit_info(endpoint, new_data, database_id)
+        return self.info.api_patch(endpoint, new_data, database_id)
 
-    def add_info(self, endpoint, new_data):
+    def api_post(self, endpoint, new_data):
         """Create new information contained within an endpoint."""
-        return self.info.add_info(endpoint, new_data)
+        return self.info.api_post(endpoint, new_data)
 
-    def delete_info(self, endpoint, id=None):
+    def api_delete(self, endpoint, id=None):
         """Delete information contained within an endpoint."""
-        return self.info.delete_info(endpoint, id)
+        return self.info.api_delete(endpoint, id)
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""
