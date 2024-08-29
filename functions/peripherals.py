@@ -45,8 +45,8 @@ class Peripherals():
         """Set peripheral value and mode."""
 
         if mode is None:
-            peripheral_str = self.info.api_get("peripherals", peripheral_id)
-            mode = peripheral_str["mode"]
+            peripheral = self.info.api_get("peripherals", peripheral_id)
+            mode = peripheral["mode"]
 
         control_peripheral_message = {
             "kind": "write_pin",
@@ -90,8 +90,8 @@ class Peripherals():
     def on(self, peripheral_id):
         """Turns specified peripheral `on` (100%)."""
 
-        peripheral_str = self.info.api_get("peripherals", peripheral_id)
-        mode = peripheral_str["mode"]
+        peripheral = self.info.api_get("peripherals", peripheral_id)
+        mode = peripheral["mode"]
 
         if mode == 1:
             self.control_peripheral(peripheral_id, 255)

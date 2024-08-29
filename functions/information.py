@@ -142,11 +142,11 @@ class Information():
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
 
-    def read_sensor(self, peripheral_id):
+    def read_sensor(self, sensor_id):
         """Reads the given pin by id."""
 
-        peripheral_str = self.api_get("peripherals", peripheral_id)
-        mode = peripheral_str["mode"]
+        sensor = self.api_get("sensors", sensor_id)
+        mode = sensor["mode"]
 
         sensor_message = {
             "kind": "read_pin",
@@ -156,8 +156,8 @@ class Information():
                 "pin_number": {
                     "kind": "named_pin",
                     "args": {
-                        "pin_type": "Peripheral",
-                        "pin_id": peripheral_id,
+                        "pin_type": "Sensor",
+                        "pin_id": sensor_id,
                     }
                 }
             }

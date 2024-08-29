@@ -720,7 +720,7 @@ class TestFarmbot(unittest.TestCase):
                     'label': '---',
                     'pin_number': {
                         'kind': 'named_pin',
-                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
+                        'args': {'pin_type': 'Sensor', 'pin_id': 123},
                     },
                 },
             },
