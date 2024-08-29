@@ -23,7 +23,10 @@ class Peripherals():
         """Set servo angle between 0-100 degrees."""
 
         if angle < 0 or angle > 180:
-            return print("ERROR: Servo angle constrained to 0-180 degrees.")
+            error = "ERROR: Servo angle constrained to 0-180 degrees."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
+            return
 
         control_servo_message = {
             "kind": "set_servo_angle",

@@ -69,7 +69,10 @@ class MovementControls():
         """Moves the device to the home position for a specified axis."""
 
         if speed > 100 or speed < 1:
-            return print("ERROR: Speed constrained to 1-100.")
+            error = "ERROR: Speed constrained to 1-100."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
+            return
 
         message = {
             "kind": "find_home",
@@ -99,7 +102,9 @@ class MovementControls():
 
         tree_data = self.info.read_status()
         if tree_data is None:
-            print("ERROR: No location data available.")
+            error = "ERROR: No location data available."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
             return None
         position = tree_data["location_data"]["position"]
 

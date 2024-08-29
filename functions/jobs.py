@@ -26,7 +26,9 @@ class JobHandling():
         status_data = self.info.read_status()
 
         if status_data is None:
-            print("ERROR: No job data available.")
+            error = "ERROR: No job data available."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
             return
 
         if job_str is None:

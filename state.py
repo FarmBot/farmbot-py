@@ -15,8 +15,12 @@ def get_function_call_info():
     arg_str = ', '.join(arg_strings)
     return f"{func_name}({arg_str})"
 
+
 class State():
     """State class."""
+
+    NO_TOKEN_ERROR = "ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to."
+
     def __init__(self):
         self.token = None
         self.error = None
@@ -42,5 +46,6 @@ class State():
         """Ensure the token persists throughout sidecar."""
 
         if self.token is None:
-            self.print_status(description="ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to.")
+            self.print_status(description=self.NO_TOKEN_ERROR)
+            self.error = self.NO_TOKEN_ERROR
             sys.exit(1)

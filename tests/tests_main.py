@@ -293,7 +293,7 @@ class TestFarmbot(unittest.TestCase):
             results = self.fb.api_get('points')
             self.assertIsNone(results)
         mock_request.assert_not_called()
-        # self.assertEqual(self.fb.error, 'No token')
+        self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
 
     @patch('paho.mqtt.client.Client')
     @patch('requests.request')
@@ -314,7 +314,7 @@ class TestFarmbot(unittest.TestCase):
             self.assertIsNone(results)
         mock_request.assert_not_called()
         mock_client.publish.assert_not_called()
-        # self.assertEqual(self.fb.error, 'No token')
+        self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
 
     @patch('requests.request')
     def test_api_patch(self, mock_request):
@@ -511,6 +511,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = 200
         mock_response.text = 'text'
+        mock_response.json.return_value = {'message': 'test message'}
         mock_request.return_value = mock_response
         self.fb.log('test message', 'info', 'toast')
         mock_request.assert_called_once_with(
@@ -1382,8 +1383,8 @@ class TestFarmbot(unittest.TestCase):
         '''Test get_job command: no status'''
         def exec_command():
             self.fb.state.last_message = None
-            _job = self.fb.get_job('job name')
-            # self.assertIsNone(job)
+            job = self.fb.get_job('job name')
+            self.assertIsNone(job)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1466,6 +1467,7 @@ class TestFarmbot(unittest.TestCase):
     @patch('builtins.print')
     def test_print_status(self, mock_print):
         '''Test print_status.'''
+        self.fb.set_verbosity(0)
         self.fb.state.print_status(description="testing")
         mock_print.assert_not_called()
         self.fb.set_verbosity(1)
