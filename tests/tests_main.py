@@ -1077,7 +1077,7 @@ class TestFarmbot(unittest.TestCase):
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             position = self.fb.get_xyz()
-            self.assertEqual(position, (1, 2, 3))
+            self.assertEqual(position, {'x': 1, 'y': 2, 'z': 3})
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1125,6 +1125,21 @@ class TestFarmbot(unittest.TestCase):
             self.fb.state.last_message = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
+            at_position = self.fb.check_position(0, 0, 0, 2)
+            self.assertFalse(at_position)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_check_position_no_status(self):
+        '''Test check_position command: no status'''
+        def exec_command():
+            self.fb.state.last_message = None
             at_position = self.fb.check_position(0, 0, 0, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(

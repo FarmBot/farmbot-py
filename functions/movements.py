@@ -100,7 +100,7 @@ class MovementControls():
         tree_data = self.info.read_status()
         if tree_data is None:
             print("ERROR: No location data available.")
-            return
+            return None
         position = tree_data["location_data"]["position"]
 
         x_val = position["x"]
@@ -108,18 +108,24 @@ class MovementControls():
         z_val = position["z"]
 
         self.state.print_status(description=f"Current coordinate: ({x_val}, {y_val}, {z_val}).")
-        return x_val, y_val, z_val
+        return position
 
     def check_position(self, user_x, user_y, user_z, tolerance):
         """Verifies position of the FarmBot within specified tolerance range."""
 
-        user_values = [user_x, user_y, user_z]
+        user_values = {'x': user_x, 'y': user_y, 'z': user_z}
+        actual_vals = self.get_xyz()
 
-        position = self.get_xyz()
-        x_val, y_val, z_val = position
-        actual_vals = list(position)
+        if actual_vals is None:
+            return False
 
-        for user_value, actual_value in zip(user_values, actual_vals):
+        x_val = actual_vals["x"]
+        y_val = actual_vals["y"]
+        z_val = actual_vals["z"]
+
+        for axis in ['x', 'y', 'z']:
+            user_value = user_values[axis]
+            actual_value = actual_vals[axis]
             if not actual_value - tolerance <= user_value <= actual_value + tolerance:
                 self.state.print_status(description=f"Farmbot is NOT at position\n Current coordinates: ({x_val}, {y_val}, {z_val}).")
                 return False
