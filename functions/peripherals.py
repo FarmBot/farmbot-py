@@ -95,9 +95,9 @@ class Peripherals():
         mode = peripheral["mode"]
 
         if mode == 1:
-            self.control_peripheral(peripheral_id, 255)
+            self.control_peripheral(peripheral_id, 255, mode)
         elif mode == 0:
-            self.control_peripheral(peripheral_id, 1)
+            self.control_peripheral(peripheral_id, 1, mode)
 
         return
 
