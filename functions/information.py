@@ -137,7 +137,7 @@ class Information():
 
         self.broker.listen(self.state.broker_listen_duration, "status")
 
-        status_tree = self.state.last_message
+        status_tree = self.state.last_messages.get("status")
 
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree

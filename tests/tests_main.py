@@ -581,10 +581,10 @@ class TestFarmbot(unittest.TestCase):
         '''Test listen command: clear last message'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        self.fb.state.last_message = "message"
+        self.fb.state.last_messages = {'#': "message"}
         self.fb.state.test_env = False
         self.fb.listen(1)
-        self.assertIsNone(self.fb.state.last_message)
+        self.assertIsNone(self.fb.state.last_messages['#'])
 
     @patch('requests.request')
     @patch('paho.mqtt.client.Client')
@@ -1074,7 +1074,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz(self):
         '''Test get_xyz command'''
         def exec_command():
-            self.fb.state.last_message = {
+            self.fb.state.last_messages['status'] = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             position = self.fb.get_xyz()
@@ -1091,7 +1091,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz_no_status(self):
         '''Test get_xyz command: no status'''
         def exec_command():
-            self.fb.state.last_message = None
+            self.fb.state.last_messages['status'] = None
             position = self.fb.get_xyz()
             self.assertIsNone(position)
         self.send_command_test_helper(
@@ -1106,7 +1106,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position(self):
         '''Test check_position command: at position'''
         def exec_command():
-            self.fb.state.last_message = {
+            self.fb.state.last_messages['status'] = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = self.fb.check_position(1, 2, 3, 0)
@@ -1123,7 +1123,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
         def exec_command():
-            self.fb.state.last_message = {
+            self.fb.state.last_messages['status'] = {
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }
             at_position = self.fb.check_position(0, 0, 0, 2)
@@ -1140,7 +1140,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_no_status(self):
         '''Test check_position command: no status'''
         def exec_command():
-            self.fb.state.last_message = None
+            self.fb.state.last_messages['status'] = None
             at_position = self.fb.check_position(0, 0, 0, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
@@ -1344,7 +1344,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_one(self):
         '''Test get_job command: get one job'''
         def exec_command():
-            self.fb.state.last_message = {
+            self.fb.state.last_messages['status'] = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
@@ -1363,7 +1363,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_all(self):
         '''Test get_job command: get all jobs'''
         def exec_command():
-            self.fb.state.last_message = {
+            self.fb.state.last_messages['status'] = {
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
@@ -1382,7 +1382,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_no_status(self):
         '''Test get_job command: no status'''
         def exec_command():
-            self.fb.state.last_message = None
+            self.fb.state.last_messages['status'] = None
             job = self.fb.get_job('job name')
             self.assertIsNone(job)
         self.send_command_test_helper(

@@ -87,10 +87,10 @@ class BrokerConnect():
 
         self.state.print_status(description=f"Connected to message broker channel {channel}")
 
-    def on_message(self, _client, _userdata, msg):
+    def on_message(self, _client, _userdata, msg, channel):
         """Callback function when message received from message broker."""
 
-        self.state.last_message = json.loads(msg.payload)
+        self.state.last_messages[channel] = json.loads(msg.payload)
 
         self.state.print_status(endpoint_json=json.loads(msg.payload), description=f"TOPIC: {msg.topic} ({datetime.now().strftime('%Y-%m-%d %H:%M:%S')})\n")
 
@@ -100,9 +100,16 @@ class BrokerConnect():
         if self.client is None:
             self.connect()
 
-        # Wrap on_connect to pass channel argument
-        self.client.on_connect = lambda client, userdata, flags, rc: self.on_connect(client, userdata, flags, rc, channel)
-        self.client.on_message = self.on_message
+        def on_connect(client, userdata, flags, rc):
+            """Wrap on_connect to pass channel argument."""
+            self.on_connect(client, userdata, flags, rc, channel)
+
+        def on_message(client, userdata, msg):
+            """Wrap on_message to pass channel argument."""
+            self.on_message(client, userdata, msg, channel)
+
+        self.client.on_connect = on_connect
+        self.client.on_message = on_message
 
         self.client.loop_start()
         self.state.print_status(description=f"Now listening to message broker channel {channel}.")
@@ -121,17 +128,17 @@ class BrokerConnect():
         start_time = datetime.now()
         self.start_listen(channel)
         if not self.state.test_env:
-            self.state.last_message = None
+            self.state.last_messages[channel] = None
         while (datetime.now() - start_time).seconds < duration:
             self.state.print_status(update_only=True, description=".", end="")
             time.sleep(0.25)
-            if self.state.last_message is not None:
+            if self.state.last_messages.get(channel) is not None:
                 seconds = (datetime.now() - start_time).seconds
                 self.state.print_status(
                     description=f"Message received after {seconds} seconds",
                     update_only=True)
                 break
-        if self.state.last_message is None:
+        if self.state.last_messages.get(channel) is None:
             self.state.print_status(
                 description=f"Did not receive message after {duration} seconds",
                 update_only=True)

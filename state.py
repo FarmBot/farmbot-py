@@ -24,7 +24,7 @@ class State():
     def __init__(self):
         self.token = None
         self.error = None
-        self.last_message = None
+        self.last_messages = {}
         self.verbosity = 2
         self.broker_listen_duration = 15
         self.test_env = False
