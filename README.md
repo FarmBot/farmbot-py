@@ -293,3 +293,5 @@ If you are working on the sidecar-starter-pack itself, ensure any changes pass a
 python -m pip install coverage
 coverage run -m unittest discover
 ```
+
+Additionally, you can check for test coverage by running `coverage html` and opening `htmlcov/index.html` in a browser.
