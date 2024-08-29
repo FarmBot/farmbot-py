@@ -268,7 +268,7 @@ sidecar-starter-pack/
 ### Formatting message broker messages
 
 > [!NOTE]
-> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/docs/celery-script/nodes.html) which require special formatting.
+> Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/docs/nodes) which require special formatting.
 
 ```
 message = {
