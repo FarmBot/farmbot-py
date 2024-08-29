@@ -7,7 +7,7 @@ MovementControls class.
 #     ├── [BROKER] move()
 #     ├── [BROKER] set_home()
 #     ├── [BROKER] find_home()
-#     ├── [BROKER] axis_length()
+#     ├── [BROKER] find_axis_length()
 #     └── [BROKER] check_position()
 
 from .broker import BrokerConnect
@@ -82,17 +82,17 @@ class MovementControls():
 
         self.state.print_status(description="Moved to home position.")
 
-    def axis_length(self, axis="all"):
-        """Returns the length of a specified axis."""
+    def find_axis_length(self, axis="all"):
+        """Finds the length of a specified axis."""
 
-        axis_length_message = {
+        find_axis_length_message = {
             "kind": "calibrate",
             "args": {
                 "axis": axis
             }
         }
 
-        self.broker.publish(axis_length_message)
+        self.broker.publish(find_axis_length_message)
 
     def get_xyz(self):
         """Returns the current (x, y, z) coordinates of the FarmBot."""

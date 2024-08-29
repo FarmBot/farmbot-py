@@ -123,9 +123,9 @@ class Farmbot():
         """Returns all curve info or single by id."""
         return self.info.curve(curve_id)
 
-    def soil_height(self):
+    def measure_soil_height(self):
         """Use the camera to determine soil height at the current location."""
-        return self.info.soil_height()
+        return self.info.measure_soil_height()
 
     def read_status(self):
         """Returns the FarmBot status tree."""
@@ -181,9 +181,9 @@ class Farmbot():
         """Moves the device to the home position for a specified axis."""
         return self.movements.find_home(axis, speed)
 
-    def axis_length(self, axis="all"):
-        """Returns the length of a specified axis."""
-        return self.movements.axis_length(axis)
+    def find_axis_length(self, axis="all"):
+        """Finds the length of a specified axis."""
+        return self.movements.find_axis_length(axis)
 
     def get_xyz(self):
         """Returns the current (x, y, z) coordinates of the FarmBot."""

@@ -11,7 +11,7 @@ Information class.
 #     ├── [API] garden_size()
 #     ├── [API] group()
 #     ├── [API] curve()
-#     ├── [BROKER] soil_height()
+#     ├── [BROKER] measure_soil_height()
 #     ├── [BROKER] read_status()
 #     └── [BROKER] read_sensor()
 
@@ -114,17 +114,17 @@ class Information():
         self.state.print_status(endpoint_json=curve_data)
         return curve_data
 
-    def soil_height(self):
-        """Use the camera to determine soil height at the current location."""
+    def measure_soil_height(self):
+        """Use the camera to measure the soil height at the current location."""
 
-        soil_height_message = {
+        measure_soil_height_message = {
             "kind": "execute_script",
             "args": {
                 "label": "Measure Soil Height"
             }
         }
 
-        self.broker.publish(soil_height_message)
+        self.broker.publish(measure_soil_height_message)
 
     def read_status(self):
         """Returns the FarmBot status tree."""

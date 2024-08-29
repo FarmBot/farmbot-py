@@ -1,6 +1,10 @@
 # sidecar-starter-pack
 
-Authentication and communication utilities for FarmBot sidecars
+This library provides authentication, API, and control utilities for **FarmBot sidecars**. A **sidecar** is another computer such as a Raspberry Pi, laptop, or server that you are in full control of to install your own packages onto and run your own code, unlocking what cannot be done using FarmBot OS or the web app alone. For example, a sidecar could:
+
+- Extend the capabilities of your FarmBot with specialized hardware such as a GPU, or a camera or other sensor requiring special drivers.
+- Expose your FarmBot's hardware capabilities as a device in a larger ecosystem such as one for home automation or scientific research.
+- Perform more advanced manipulation of your web app account's data which may be infeasible using the frontend interface.
 
 [![Test Status](https://github.com/FarmBot-Labs/sidecar-starter-pack/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/FarmBot-Labs/sidecar-starter-pack/actions?query=branch%3Amain)
 [![Coverage Status](https://coveralls.io/repos/github/FarmBot-Labs/sidecar-starter-pack/badge.svg?branch=main)](https://coveralls.io/github/FarmBot-Labs/sidecar-starter-pack?branch=main)
@@ -150,17 +154,17 @@ sidecar-starter-pack/
 
 | class `BasicCommands()` | Description |
 | :--- | :--- |
-| `wait()` | Pauses execution for a certain number of milliseconds. |
+| `wait()` | Pauses FarmBot execution for a certain number of milliseconds. Note: You may need to combine this with a `sleep()` in your sidecar code. |
 | `e_stop()` | Emergency locks (E-stops) the Farmduino microcontroller and resets peripheral pins to OFF. |
 | `unlock()` | Unlocks a locked (E-stopped) device. |
-| `reboot()` | Reboots the FarmBot OS and reinitializes the device. |
-| `shutdown()` | Shuts down the FarmBot OS, turning the device off. |
+| `reboot()` | Reboots FarmBot OS and reinitializes the device. |
+| `shutdown()` | Shuts down FarmBot OS, turning the device off. Note: You will need to unplug and plug the FarmBot back in to turn it back on. |
 
 ### broker.py
 
 | class `BrokerConnect()` | Description |
 | :--- | :--- |
-| `connect()` | Establish persistent connection to send messages via message broker. |
+| `connect()` | Establish a persistent connection to send messages via the message broker. |
 | `disconnect()` | Disconnect from the message broker. |
 | `publish()` | Publish messages containing CeleryScript via the message broker. |
 | `on_connect()` | Callback function triggered when a connection to the message broker is successfully established. |
@@ -187,15 +191,15 @@ sidecar-starter-pack/
 
 | class `Information()` | Description |
 | :--- | :--- |
-| `get_info()` | Get information about a specific endpoint. |
-| `edit_info()` | Change information contained within an endpoint. |
-| `add_info()` | Create new information contained within an endpoint. |
-| `delete_info()` | Delete information contained within an endpoint. |
-| `safe_z()` | Returns the highest safe point along the z-axis. |
+| `get_info()` | GET information from the API. |
+| `edit_info()` | PATCH information in the API. |
+| `add_info()` | POST information to the API. |
+| `delete_info()` | DELETE information in the API. |
+| `safe_z()` | Returns the safe Z coordinate. |
 | `garden_size()` | Returns x-axis length, y-axis length, and area of garden bed. |
-| `group()` | Returns all group info or single by id. |
-| `curve()` | Returns all curve info or single by id. |
-| `soil_height()` | Use the camera to determine soil height at the current location. |
+| `group()` | Returns all groups or a single group by id. |
+| `curve()` | Returns all curves or a single curve by id. |
+| `measure_soil_height()` | Use the camera to determine soil height at the current location. |
 | `read_status()` | Returns the FarmBot status tree. |
 | `read_sensor()` | Reads the given pin by id. |
 
@@ -205,16 +209,16 @@ sidecar-starter-pack/
 | :--- | :--- |
 | `get_job()` | Retrieves the status or details of the specified job. |
 | `set_job()` | Initiates or modifies job with given parameters. |
-| `complete_job()` | Marks job as completed and triggers any associated actions. |
+| `complete_job()` | Marks job as completed. |
 
 ### messages.py
 
 | class `MessageHandling()` | Description |
 | :--- | :--- |
-| `log()` | Sends new log message via the API. Requires the page to be refreshed before appearing. |
+| `log()` | Sends new log message via the API. Requires the web app page to be refreshed before appearing. |
 | `message()` | Sends new log message via the message broker. |
-| `debug()` | Sends debug message used for developer information or troubleshooting. |
-| `toast()` | Sends a message that pops up on the user interface briefly. |
+| `debug()` | Sends debug message used for developer information or troubleshooting. These will not persist in the database. |
+| `toast()` | Sends a message that pops up in the web app briefly. |
 
 ### movements.py
 
@@ -223,26 +227,26 @@ sidecar-starter-pack/
 | `move()` | Moves to the specified (x, y, z) coordinate. |
 | `set_home()` | Sets the current position as the home position for a specific axis. |
 | `find_home()` | Moves the device to the home position for a specified axis. |
-| `axis_length()` | Returns the length of a specified axis. |
+| `find_axis_length()` | Finds the length of a specified axis. |
 | `get_xyz()` | Returns the current (x, y, z) coordinates of the FarmBot. |
-| `check_position()` | Verifies position of the FarmBot within specified tolerance range. |
+| `check_position()` | Verifies the current position of the FarmBot is within the specified tolerance range. |
 
 ### peripherals.py
 
 | class `Peripherals()` | Description |
 | :--- | :--- |
 | `control_servo()` | Set servo angle between 0-100 degrees. |
-| `control_peripheral()` | Set peripheral value (ON/OFF or slider value from 0-255) and mode (digital or analog). |
-| `toggle_peripheral()` | Toggles the state of a specific peripheral between 'on' (100%) and 'off' (0%). |
-| `on()` | Turns specified peripheral 'on' (100%). |
-| `off()` | Turns specified peripheral 'off' (0%). |
+| `control_peripheral()` | Set peripheral value (digital ON/OFF or analog value from 0-255). |
+| `toggle_peripheral()` | Toggles the state of a specific peripheral between 'ON' (100%) and 'OFF' (0%). |
+| `on()` | Turns specified peripheral 'ON' (100%). |
+| `off()` | Turns specified peripheral 'OFF' (0%). |
 
 ### resources.py
 
 | class `Resources()` | Description |
 | :--- | :--- |
-| `sequence()` | Executes a predefined sequence. |
-| `get_seed_tray_cell()` | Identifies and returns the location of specified cell in the seed tray. |
+| `sequence()` | Executes a predefined sequence by id. |
+| `get_seed_tray_cell()` | Returns the coordinates of the specified cell in a seed tray. |
 | `detect_weeds()` | Scans the garden to detect weeds. |
 | `lua()` | Executes custom Lua code snippets to perform complex tasks or automations. |
 | `if_statement()` | Performs conditional check and executes actions based on the outcome. |
@@ -253,9 +257,9 @@ sidecar-starter-pack/
 
 | class `ToolControls()` | Description |
 | :--- | :--- |
-| `mount_tool()` | Mounts the given tool and pulls it out of assigned slot. |
-| `dismount_tool()` | Dismounts the currently mounted tool into assigned slot. |
-| `water()` | Moves to and waters plant based on age and assigned watering curve. |
+| `mount_tool()` | Mounts the given tool and pulls it out of its assigned slot. |
+| `dismount_tool()` | Dismounts the currently mounted tool into its assigned slot. |
+| `water()` | Moves to and waters a plant based on its age and assigned watering curve. |
 | `dispense()` | Dispenses user-defined amount of liquid in milliliters. |
 <!--- | `verify_tool()` | Verifies if tool is mounted to UTM via tool verification pin and MOUNTED TOOL field in FarmBot’s state tree. | --->
 
@@ -279,4 +283,13 @@ message = {
         }
     ]
 }
+```
+
+### Local development
+
+If you are working on the sidecar-starter-pack itself, ensure any changes pass all tests before submitting a pull request.
+
+```
+python -m pip install coverage
+coverage run -m unittest discover
 ```

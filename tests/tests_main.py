@@ -946,10 +946,10 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
-    def test_axis_length(self):
-        '''Test axis_length command'''
+    def test_find_axis_length(self):
+        '''Test find_axis_length command'''
         def exec_command():
-            self.fb.axis_length()
+            self.fb.find_axis_length()
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -979,10 +979,10 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={'mode': 0})
 
-    def test_soil_height(self):
-        '''Test soil_height command'''
+    def test_measure_soil_height(self):
+        '''Test measure_soil_height command'''
         def exec_command():
-            self.fb.soil_height()
+            self.fb.measure_soil_height()
         self.send_command_test_helper(
             exec_command,
             expected_command={
