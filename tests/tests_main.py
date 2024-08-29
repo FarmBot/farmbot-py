@@ -289,9 +289,10 @@ class TestFarmbot(unittest.TestCase):
     def test_check_token_api_request(self, mock_request):
         '''Test check_token: API request'''
         self.fb.state.token = None
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ValueError) as cm:
             results = self.fb.api_get('points')
             self.assertIsNone(results)
+        self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         mock_request.assert_not_called()
         self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
 
@@ -302,16 +303,20 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         self.fb.state.token = None
-        with self.assertRaises(SystemExit):
+        with self.assertRaises(ValueError) as cm:
             self.fb.on(123)
-        with self.assertRaises(SystemExit):
+            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+        with self.assertRaises(ValueError) as cm:
             self.fb.read_sensor(123)
-        with self.assertRaises(SystemExit):
+            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+        with self.assertRaises(ValueError) as cm:
             results = self.fb.get_xyz()
             self.assertIsNone(results)
-        with self.assertRaises(SystemExit):
+            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+        with self.assertRaises(ValueError) as cm:
             results = self.fb.read_status()
             self.assertIsNone(results)
+            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         mock_request.assert_not_called()
         mock_client.publish.assert_not_called()
         self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
@@ -846,6 +851,7 @@ class TestFarmbot(unittest.TestCase):
             expected_command=None,
             extra_rpc_args={},
             mock_api_response=[])
+        self.assertEqual(self.fb.state.error, 'ERROR: \'New Peripheral\' peripheral not in [].')
 
     def test_on_digital(self):
         '''Test on command: digital'''
@@ -972,7 +978,8 @@ class TestFarmbot(unittest.TestCase):
             exec_command,
             expected_command=None,
             extra_rpc_args={},
-            mock_api_response=[])
+            mock_api_response=[{'label': 'Pump'}, {'label': 'Lights'}])
+        self.assertEqual(self.fb.state.error, "ERROR: 'New Peripheral' peripheral not in ['Pump', 'Lights'].")
 
     def test_measure_soil_height(self):
         '''Test measure_soil_height command'''

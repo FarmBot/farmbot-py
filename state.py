@@ -1,6 +1,5 @@
 """State management."""
 
-import sys
 import json
 import inspect
 from datetime import datetime
@@ -69,4 +68,4 @@ class State():
         if self.token is None:
             self.print_status(description=self.NO_TOKEN_ERROR)
             self.error = self.NO_TOKEN_ERROR
-            sys.exit(1)
+            raise ValueError(self.NO_TOKEN_ERROR)
