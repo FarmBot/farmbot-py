@@ -89,6 +89,7 @@ class Peripherals():
 
     def on(self, peripheral_id):
         """Turns specified peripheral `on` (100%)."""
+        self.state.print_status(description=f"Turning ON peripheral {peripheral_id}.")
 
         peripheral = self.info.api_get("peripherals", peripheral_id)
         mode = peripheral["mode"]
@@ -98,13 +99,12 @@ class Peripherals():
         elif mode == 0:
             self.control_peripheral(peripheral_id, 1)
 
-        self.state.print_status(description=f"Turned ON peripheral {peripheral_id}.")
         return
 
     def off(self, peripheral_id):
         """Turns specified peripheral `off` (0%)."""
+        self.state.print_status(description=f"Turning OFF peripheral {peripheral_id}.")
 
         self.control_peripheral(peripheral_id, 0)
 
-        self.state.print_status(description=f"Turned OFF peripheral {peripheral_id}.")
         return
