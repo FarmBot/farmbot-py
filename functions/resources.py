@@ -43,10 +43,20 @@ class Resources():
         self.broker.publish(sequence_message)
 
 
-    def get_seed_tray_cell(self, tray_id, tray_cell):
+    def get_seed_tray_cell(self, tray_name, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
         self.state.print_status(description="Identifying seed tray cell location.")
-        tray_data = self.info.api_get("points", tray_id)
+
+        tray_tool = self.info.get_resource_by_name("tools", tray_name, "name")
+        if tray_tool is None:
+            return
+        tray_data = self.info.get_resource_by_name(
+            "points", tray_tool["id"], "tool_id", {"pointer_type": "ToolSlot"})
+        if tray_data is None:
+            self.state.print_status(
+                description=f"{tray_name} must be mounted in a slot.",
+                update_only=True)
+            return
 
         cell = tray_cell.upper()
 
@@ -75,8 +85,6 @@ class Resources():
             "D4": {"x": -3, "y": 3}
         }
 
-        if tray_data["pointer_type"] != "ToolSlot":
-            raise ValueError("Seed Tray variable must be a seed tray in a slot")
         if cell not in cells:
             raise ValueError("Seed Tray Cell must be one of **A1** through **D4**")
 

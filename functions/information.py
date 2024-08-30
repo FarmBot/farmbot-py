@@ -173,10 +173,13 @@ class Information():
 
         self.broker.publish(sensor_message)
 
-    def get_resource_by_name(self, endpoint, resource_name, name_key="label"):
+    def get_resource_by_name(self, endpoint, resource_name, name_key="label", filter=None):
         """Find a resource by name."""
         self.state.print_status(description=f"Searching for {resource_name} in {endpoint}.")
         resources = self.api_get(endpoint)
+        if filter is not None:
+            for key, value in filter.items():
+                resources = [resource for resource in resources if resource[key] == value]
         resource_names = [resource[name_key] for resource in resources]
         if resource_name not in resource_names:
             error = f"ERROR: '{resource_name}' not in {endpoint}: {resource_names}."

@@ -1259,28 +1259,50 @@ class TestFarmbot(unittest.TestCase):
         cell = kwargs['cell']
         expected_xyz = kwargs['expected_xyz']
         mock_response = Mock()
-        mock_api_response = {
-            'pointer_type': 'ToolSlot',
-            'pullout_direction': 1,
-            'x': 0,
-            'y': 0,
-            'z': 0,
-            **tray_data,
-        }
+        mock_api_response = [
+            {
+                'id': 123,
+                'name': 'Seed Tray',
+                'pointer_type': '', # not an actual data field
+            },
+            {
+                'pointer_type': 'ToolSlot',
+                'pullout_direction': 1,
+                'x': 0,
+                'y': 0,
+                'z': 0,
+                'tool_id': 123,
+                'name': '', # not an actual data field
+                **tray_data,
+            },
+        ]
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_request.return_value = mock_response
-        cell = self.fb.get_seed_tray_cell(123, cell)
-        mock_request.assert_called_once_with(
-            'GET',
-            'https://my.farm.bot/api/points/123',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
-        )
+        cell = self.fb.get_seed_tray_cell('Seed Tray', cell)
+        mock_request.assert_has_calls([
+            call(
+                'GET',
+                'https://my.farm.bot/api/tools',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+            call(
+                'GET',
+                'https://my.farm.bot/api/points',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+        ])
         self.assertEqual(cell, expected_xyz, kwargs)
 
     def test_get_seed_tray_cell(self):
@@ -1333,38 +1355,52 @@ class TestFarmbot(unittest.TestCase):
         cell = kwargs['cell']
         error = kwargs['error']
         mock_response = Mock()
-        mock_api_response = {
-            'pointer_type': 'ToolSlot',
-            'pullout_direction': 1,
-            'x': 0,
-            'y': 0,
-            'z': 0,
-            **tray_data,
-        }
+        mock_api_response =  [
+            {
+                'id': 123,
+                'name': 'Seed Tray',
+                'pointer_type': '', # not an actual data field
+            },
+            {
+                'pointer_type': 'ToolSlot',
+                'pullout_direction': 1,
+                'x': 0,
+                'y': 0,
+                'z': 0,
+                'tool_id': 123,
+                'name': '', # not an actual data field
+                **tray_data,
+            },
+        ]
         mock_response.json.return_value = mock_api_response
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_request.return_value = mock_response
         with self.assertRaises(ValueError) as cm:
-            self.fb.get_seed_tray_cell(123, cell)
+            self.fb.get_seed_tray_cell('Seed Tray', cell)
         self.assertEqual(cm.exception.args[0], error)
-        mock_request.assert_called_once_with(
-            'GET',
-            'https://my.farm.bot/api/points/123',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
-        )
-
-    def test_get_seed_tray_cell_not_tool_slot(self):
-        '''Test get_seed_tray_cell: not a tool_slot'''
-        self.helper_get_seed_tray_cell_error(
-            tray_data={'pointer_type': 'Plant'},
-            cell='d4',
-            error='Seed Tray variable must be a seed tray in a slot',
-        )
+        mock_request.assert_has_calls([
+            call(
+                'GET',
+                'https://my.farm.bot/api/tools',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+            call(
+                'GET',
+                'https://my.farm.bot/api/points',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+        ])
 
     def test_get_seed_tray_cell_invalid_cell_name(self):
         '''Test get_seed_tray_cell: invalid cell name'''
@@ -1381,6 +1417,58 @@ class TestFarmbot(unittest.TestCase):
             cell='d4',
             error='Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`',
         )
+
+    @patch('requests.request')
+    def test_get_seed_tray_cell_no_tray(self, mock_request):
+        '''Test get_seed_tray_cell: no seed tray'''
+        mock_response = Mock()
+        mock_api_response =  []
+        mock_response.json.return_value = mock_api_response
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_request.return_value = mock_response
+        result = self.fb.get_seed_tray_cell('Seed Tray', 'a1')
+        mock_request.assert_has_calls([
+            call(
+                'GET',
+                'https://my.farm.bot/api/tools',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+        ])
+        self.assertIsNone(result)
+
+    @patch('requests.request')
+    def test_get_seed_tray_cell_not_mounted(self, mock_request):
+        '''Test get_seed_tray_cell: seed tray not mounted'''
+        mock_response = Mock()
+        mock_api_response =  [{
+            'id': 123,
+            'name': 'Seed Tray',
+            'pointer_type': '', # not an actual data field,
+        }]
+        mock_response.json.return_value = mock_api_response
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_request.return_value = mock_response
+        result = self.fb.get_seed_tray_cell('Seed Tray', 'a1')
+        mock_request.assert_has_calls([
+            call(
+                'GET',
+                'https://my.farm.bot/api/tools',
+                headers={
+                    'authorization': 'encoded_token_value',
+                    'content-type': 'application/json',
+                },
+                json=None,
+            ),
+            call().json(),
+        ])
+        self.assertIsNone(result)
 
     def test_get_job_one(self):
         '''Test get_job command: get one job'''

@@ -221,9 +221,9 @@ class Farmbot():
         """Executes a predefined sequence."""
         return self.resources.sequence(sequence_id)
 
-    def get_seed_tray_cell(self, tray_id, tray_cell):
+    def get_seed_tray_cell(self, tray_name, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
-        return self.resources.get_seed_tray_cell(tray_id, tray_cell)
+        return self.resources.get_seed_tray_cell(tray_name, tray_cell)
 
     def detect_weeds(self):
         """Scans the garden to detect weeds."""
