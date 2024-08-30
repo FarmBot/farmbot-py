@@ -87,7 +87,7 @@ class ApiConnect():
             return parser.read(text)
         return text
 
-    def request_handling(self, response):
+    def request_handling(self, response, make_request):
         """Handle errors associated with different endpoint errors."""
 
         error_messages = {
@@ -101,7 +101,7 @@ class ApiConnect():
 
         # Handle HTTP status codes
         if response.status_code == 200:
-            if self.state.dry_run:
+            if not make_request:
                 description = "Editing disabled, request not sent."
             else:
                 description = "Successfully sent request via API."
@@ -142,14 +142,15 @@ class ApiConnect():
         url = f'{http_part}:{iss}/api/{endpoint}{id_part}'
 
         headers = {'authorization': token['encoded'], 'content-type': 'application/json'}
-        if not self.state.dry_run or method == "GET":
+        make_request = not self.state.dry_run or method == "GET"
+        if make_request:
             response = requests.request(method, url, headers=headers, json=payload)
         else:
             response = requests.Response()
             response.status_code = 200
             response._content = b'{"edit_requests_disabled": true}'
 
-        if self.request_handling(response) == 200:
+        if self.request_handling(response, make_request) == 200:
             self.state.error = None
             self.state.print_status(description="Successfully returned request contents.")
             return response.json()
