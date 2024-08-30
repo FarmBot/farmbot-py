@@ -870,10 +870,25 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
-    def test_find_home_error(self):
-        '''Test find_home command: error'''
+    def test_find_home_speed_error(self):
+        '''Test find_home command: speed error'''
         def exec_command():
             self.fb.find_home('all', 0)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response={})
+        self.assertEqual(self.fb.state.error, 'ERROR: Speed constrained to 1-100.')
+
+    def test_find_home_invalid_axis(self):
+        '''Test find_home command: invalid axis'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.find_home('nope')
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid axis: nope not in ['x', 'y', 'z', 'all']")
         self.send_command_test_helper(
             exec_command,
             expected_command=None,

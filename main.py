@@ -255,6 +255,6 @@ class Farmbot():
         """Moves to and waters plant based on age and assigned watering curve."""
         return self.tools.water(plant_id)
 
-    def dispense(self, milliliters, tool_str, pin):
+    def dispense(self, milliliters, tool_name, pin):
         """Dispenses user-defined amount of liquid in milliliters."""
-        return self.tools.dispense(milliliters, tool_str, pin)
+        return self.tools.dispense(milliliters, tool_name, pin)

@@ -22,6 +22,7 @@ class JobHandling():
 
     def get_job(self, job_str=None):
         """Retrieves the status or details of the specified job."""
+        self.state.print_status(description="Retrieving job data...")
 
         status_data = self.info.read_status()
 
@@ -36,11 +37,12 @@ class JobHandling():
         else:
             jobs = status_data["jobs"][job_str]
 
-        self.state.print_status(endpoint_json=jobs)
+        self.state.print_status(endpoint_json=jobs, update_only=True)
         return jobs
 
     def set_job(self, job_str, status_message, value):
         """Initiates or modifies job with given parameters."""
+        self.state.print_status(description=f"Marking job {job_str} as {value}% {status_message}.")
 
         lua_code = f"""
             local job_name = "{job_str}"
@@ -55,15 +57,12 @@ class JobHandling():
 
         self.resource.lua(lua_code)
 
-        self.state.print_status(description=f"Marked job {job_str} as {value}% complete.")
-
     def complete_job(self, job_str):
         """Marks job as completed and triggers any associated actions."""
+        self.state.print_status(description=f"Marking job {job_str} as `complete`.")
 
         lua_code = f"""
             complete_job("{job_str}")
         """
 
         self.resource.lua(lua_code)
-
-        self.state.print_status(description=f"Marked job {job_str} as `complete`.")

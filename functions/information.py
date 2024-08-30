@@ -67,15 +67,17 @@ class Information():
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""
+        self.state.print_status(description="Retrieving safe z value...")
 
         config_data = self.api_get('fbos_config')
         z_value = config_data["safe_height"]
 
-        self.state.print_status(description=f"Safe z={z_value}")
+        self.state.print_status(description=f"Safe z={z_value}", update_only=True)
         return z_value
 
     def garden_size(self):
         """Return size of garden bed."""
+        self.state.print_status(description="Retrieving garden size...")
 
         json_data = self.api_get('firmware_config')
 
@@ -94,33 +96,36 @@ class Information():
             "z": z_steps / z_mm,
         }
 
-        self.state.print_status(endpoint_json=garden_size)
+        self.state.print_status(endpoint_json=garden_size, update_only=True)
         return garden_size
 
     def group(self, group_id=None):
         """Returns all group info or single by id."""
+        self.state.print_status(description="Retrieving group information...")
 
         if group_id is None:
             group_data = self.api_get("point_groups")
         else:
             group_data = self.api_get('point_groups', group_id)
 
-        self.state.print_status(endpoint_json=group_data)
+        self.state.print_status(endpoint_json=group_data, update_only=True)
         return group_data
 
     def curve(self, curve_id=None):
         """Returns all curve info or single by id."""
+        self.state.print_status(description="Retrieving curve information...")
 
         if curve_id is None:
             curve_data = self.api_get("curves")
         else:
             curve_data = self.api_get('curves', curve_id)
 
-        self.state.print_status(endpoint_json=curve_data)
+        self.state.print_status(endpoint_json=curve_data, update_only=True)
         return curve_data
 
     def measure_soil_height(self):
         """Use the camera to measure the soil height at the current location."""
+        self.state.print_status(description="Measuring soil height...")
 
         measure_soil_height_message = {
             "kind": "execute_script",

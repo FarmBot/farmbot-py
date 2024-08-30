@@ -36,6 +36,7 @@ class MessageHandling():
 
     def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
+        self.state.print_status(description="Sending new log message to the API.")
 
         validate_log_options(message_type, channel)
 
@@ -47,10 +48,9 @@ class MessageHandling():
 
         self.info.api_post("logs", log_message)
 
-        self.state.print_status(description="New log message sent via API.")
-
     def message(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the message broker."""
+        self.state.print_status(description="Sending new log message to the message broker.")
 
         validate_log_options(message_type, channel)
 
@@ -70,18 +70,14 @@ class MessageHandling():
 
         self.broker.publish(message)
 
-        self.state.print_status(description="New log message sent via message broker.")
-
     def debug(self, message_str):
         """Sends debug message used for developer information or troubleshooting."""
+        self.state.print_status(description="Sending debug message to the message broker.")
 
         self.message(message_str, "debug", "ticker")
 
-        self.state.print_status(description="New debug message sent via message broker.")
-
     def toast(self, message_str):
         """Sends a message that pops up on the user interface briefly."""
+        self.state.print_status(description="Sending toast message to the message broker.")
 
         self.message(message_str, "info", "toast")
-
-        self.state.print_status(description="New toast message sent via message broker.")

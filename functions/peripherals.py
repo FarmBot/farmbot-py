@@ -21,6 +21,7 @@ class Peripherals():
 
     def control_servo(self, pin, angle):
         """Set servo angle between 0-100 degrees."""
+        self.state.print_status(description=f"Setting servo angle to {angle}.")
 
         if angle < 0 or angle > 180:
             error = "ERROR: Servo angle constrained to 0-180 degrees."
@@ -38,7 +39,6 @@ class Peripherals():
 
         self.broker.publish(control_servo_message)
 
-        self.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
     def control_peripheral(self, peripheral_name, value, mode=None):

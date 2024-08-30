@@ -47,7 +47,7 @@ class Resources():
 
     def sequence(self, sequence_name):
         """Executes a predefined sequence."""
-        self.state.print_status(description="Triggering {sequence_name} sequence.")
+        self.state.print_status(description="Running {sequence_name} sequence.")
 
         sequence = self.info.get_resource_by_name("sequences", sequence_name, "name")
         if sequence is None:
@@ -140,6 +140,7 @@ class Resources():
 
     def detect_weeds(self):
         """Scans the garden to detect weeds."""
+        self.state.print_status(description="Detecting weeds...")
 
         detect_weeds_message = {
             "kind": "execute_script",
@@ -152,6 +153,7 @@ class Resources():
 
     def lua(self, code_snippet):
         """Executes custom Lua code snippets to perform complex tasks or automations."""
+        self.state.print_status(description="Running Lua code")
 
         lua_message = {
             "kind": "lua",
@@ -162,12 +164,10 @@ class Resources():
 
         self.broker.publish(lua_message)
 
-        self.state.print_status(description="Triggered lua code execution .")
-
     def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
 
-        self.state.print_status(description="Triggering if statement.")
+        self.state.print_status(description="Executing if statement.")
 
         validate_if_statement_args(named_pin_type, variable, operator)
         if named_pin_type is not None:
@@ -213,7 +213,7 @@ class Resources():
 
     def assertion(self, code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""
-        self.state.print_status(description="Triggering assertion.")
+        self.state.print_status(description="Executing assertion.")
 
         validate_assertion_type(assertion_type)
 

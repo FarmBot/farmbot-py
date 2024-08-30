@@ -18,7 +18,7 @@ class Camera():
     def calibrate_camera(self):
         """Performs camera calibration. This action will reset camera calibration settings."""
 
-        self.state.print_status(description="Triggered camera calibration")
+        self.state.print_status(description="Calibrating camera")
 
         calibrate_message = {
             "kind": "execute_script",
@@ -32,7 +32,7 @@ class Camera():
     def take_photo(self):
         """Takes photo using the device camera and uploads it to the web app."""
 
-        self.state.print_status(description="Took a photo")
+        self.state.print_status(description="Taking a photo")
 
         photo_message = {
             "kind": "take_photo",

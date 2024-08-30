@@ -97,7 +97,7 @@ bot.set_verbosity(2)
 | Verbosity | Example using `e_stop()` |
 | :--- | :--- |
 | `0` The function will return with no output. | No output. |
-| `1` A description of the action will be output with any additional results data. | `Triggered device emergency stop` |
+| `1` A description of the action will be output with any additional results data. | `Emergency stopping device` |
 | `2` The name of the function and the timestamp will be output. | `'e_stop()' called at: 2024-08-21 11:16:18.547813` |
 
 ### Test 1: Add a new plant to your garden

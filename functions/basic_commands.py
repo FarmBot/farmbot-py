@@ -34,7 +34,7 @@ class BasicCommands():
     def e_stop(self):
         """Emergency locks (E-stops) the Farmduino microcontroller."""
 
-        self.state.print_status(description="Triggered device emergency stop")
+        self.state.print_status(description="Emergency stopping device")
 
         stop_message = {
             "kind": "emergency_lock",
@@ -47,7 +47,7 @@ class BasicCommands():
     def unlock(self):
         """Unlocks a locked (E-stopped) device."""
 
-        self.state.print_status(description="Triggered device unlock")
+        self.state.print_status(description="Unlocking device")
 
         unlock_message = {
             "kind": "emergency_unlock",
@@ -60,7 +60,7 @@ class BasicCommands():
     def reboot(self):
         """Reboots the FarmBot OS and re-initializes the device."""
 
-        self.state.print_status(description="Triggered device reboot")
+        self.state.print_status(description="Rebooting device")
 
         reboot_message = {
             "kind": "reboot",
@@ -74,7 +74,7 @@ class BasicCommands():
     def shutdown(self):
         """Shuts down the FarmBot OS and turns the device off."""
 
-        self.state.print_status(description="Triggered device shutdown")
+        self.state.print_status(description="Shutting down device")
 
         shutdown_message = {
             "kind": "power_off",
