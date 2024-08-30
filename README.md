@@ -35,34 +35,34 @@ This library provides authentication, API, and control utilities for **FarmBot s
 To set up the project locally, follow these steps:
 
 (1) Clone the repository.
-```
+```bash
 git clone https://github.com/FarmBot-Labs/sidecar-starter-pack
 ```
 
 (2) Navigate to the project directory.
-```
+```bash
 cd sidecar-starter-pack
 ```
 
 (3) Create a virtual environment.
-```
+```bash
 python -m venv py_venv
 ```
 
 (4) Activate the virtual environment.
-```
+```bash
 source py_venv/bin/activate
 ```
 
 (5) Install the required libraries within venv:
-```
+```bash
 python -m pip install requests paho-mqtt
 ```
 
 ## :seedling: Getting Started
 
 Import `main` and create an instance of the Farmbot class:
-```
+```python
 from main import Farmbot
 bot = Farmbot()
 ```
@@ -70,17 +70,17 @@ bot = Farmbot()
 ### Get your authentication token
 
 Use the same login credentials associated with the web app account you are interacting with. The server is "https://my.farm.bot" by default.
-```
+```python
 bot.get_token("email", "password")
 ```
 
 To avoid storing your account credentials in plaintext, you can print your token:
-```
+```python
 print(bot.state.token)
 ```
 
 and then delete the `bot.get_token("email", "password")` line and set your token directly instead:
-```
+```python
 fb.state.token = {'token': {'unencoded': {'aud': ...
 ```
 
@@ -90,7 +90,7 @@ fb.state.token = {'token': {'unencoded': {'aud': ...
 ### Configure function output verbosity
 
 Set the level of verbosity of function outputs to change the level of information shown when functions are called.
-```
+```python
 bot.set_verbosity(2)
 ```
 
@@ -103,7 +103,7 @@ bot.set_verbosity(2)
 ### Test 1: Add a new plant to your garden
 
 This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/rest-api).
-```
+```python
 new_cabbage = {
     "name": "Cabbage",              # Point name
     "pointer_type": "Plant",        # Point type
@@ -120,7 +120,7 @@ bot.api_post("points", new_cabbage) # Add plant to endpoint
 ### Test 2: Turn your LED strip on and off
 
 This test will help familiarize you with sending commands via the [Message Broker](https://developer.farm.bot/docs/message-broker).
-```
+```python
 bot.on(7)           # Turn ON pin 7 (LED strip)
 bot.wait(2000)      # Wait 2000 milliseconds
 bot.off(7)          # Turn OFF pin 7 (LED strip)
@@ -280,7 +280,7 @@ sidecar-starter-pack/
 > [!NOTE]
 > Messages sent via the message broker contain [CeleryScript nodes](https://developer.farm.bot/docs/nodes) which require special formatting.
 
-```
+```python
 message = {
     "kind": "rpc_request",
     "args": {
@@ -299,7 +299,7 @@ message = {
 
 If you are working on the sidecar-starter-pack itself, ensure any changes pass all tests before submitting a pull request.
 
-```
+```bash
 python -m pip install coverage
 coverage run -m unittest discover
 ```
