@@ -14,6 +14,26 @@ Resources class.
 from .broker import BrokerConnect
 from .information import Information
 
+ASSERTION_TYPES = ["abort", "recover", "abort_recover", "continue"]
+
+def validate_assertion_type(assertion_type):
+    """Validate assertion type."""
+    if assertion_type not in ASSERTION_TYPES:
+        raise ValueError(f"Invalid assertion_type: {assertion_type} not in {ASSERTION_TYPES}")
+
+OPERATORS = ["<", ">", "is", "not", "is_undefined"]
+IF_STATEMENT_VARIABLE_STRINGS = ["x", "y", "z", *[f"pin{str(i)}" for i in range(70)]]
+NAMED_PIN_TYPES = ["Peripheral", "Sensor"]
+
+def validate_if_statement_args(named_pin_type, variable, operator):
+    """Validate if statement arguments."""
+    if operator not in OPERATORS:
+        raise ValueError(f"Invalid operator: {operator} not in {OPERATORS}")
+    if named_pin_type is None and variable not in IF_STATEMENT_VARIABLE_STRINGS:
+        raise ValueError(f"Invalid variable: {variable} not in {IF_STATEMENT_VARIABLE_STRINGS}")
+    if named_pin_type is not None and named_pin_type not in NAMED_PIN_TYPES:
+        raise ValueError(f"Invalid named_pin_type: {named_pin_type} not in {NAMED_PIN_TYPES}")
+
 class Resources():
     """Resources class."""
     def __init__(self, state):
@@ -144,8 +164,24 @@ class Resources():
 
         self.state.print_status(description="Triggered lua code execution .")
 
-    def if_statement(self, variable, operator, value, then_id, else_id): # TODO: add "do nothing" functionality
+    def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
+
+        self.state.print_status(description="Triggering if statement.")
+
+        validate_if_statement_args(named_pin_type, variable, operator)
+        if named_pin_type is not None:
+            endpoint = named_pin_type.lower() + "s"
+            resource = self.info.get_resource_by_name(endpoint, variable)
+            if resource is None:
+                return
+            variable = {
+                "kind": "named_pin",
+                "args": {
+                    "pin_type": named_pin_type,
+                    "pin_id": resource["id"]
+                }
+            }
 
         if_statement_message = {
             "kind": "_if",
@@ -153,42 +189,51 @@ class Resources():
                 "lhs": variable,
                 "op": operator,
                 "rhs": value,
-                "_then": {
-                    "kind": "execute",
-                    "args": {
-                        "sequence_id": then_id
-                    }
-                },
-                "_else": {
-                    "kind": "execute",
-                    "args": {
-                        "sequence_id": else_id
-                    }
-                }
+                "_then": {"kind": "nothing", "args": {}},
+                "_else": {"kind": "nothing", "args": {}},
             }
         }
 
+        sequence_names = {
+            "_then": then_sequence_name,
+            "_else": else_sequence_name,
+        }
+        for key, sequence_name in sequence_names.items():
+            if sequence_name is not None:
+                sequence = self.info.get_resource_by_name("sequences", sequence_name, "name")
+                if sequence is None:
+                    return
+                sequence_id = sequence["id"]
+                if_statement_message["args"][key] = {
+                    "kind": "execute",
+                    "args": {"sequence_id": sequence_id},
+                }
+
         self.broker.publish(if_statement_message)
 
-        self.state.print_status(description="Triggered if statement .")
-
-    def assertion(self, code, as_type, sequence_id=""): # TODO: add "continue" functionality
+    def assertion(self, code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""
+        self.state.print_status(description="Triggering assertion.")
+
+        validate_assertion_type(assertion_type)
 
         assertion_message = {
             "kind": "assertion",
             "args": {
+                "assertion_type": assertion_type,
                 "lua": code,
-                "_then": {
-                    "kind": "execute",
-                    "args": {
-                        "sequence_id": sequence_id # Recovery sequence ID
-                    }
-                },
-                "assertion_type": as_type # If test fails, do this
+                "_then": {"kind": "nothing", "args": {}},
             }
         }
 
-        self.broker.publish(assertion_message)
+        if recovery_sequence_name is not None:
+            sequence = self.info.get_resource_by_name("sequences", recovery_sequence_name, "name")
+            if sequence is None:
+                return
+            recovery_sequence_id = sequence["id"]
+            assertion_message["args"]["_then"] = {
+                "kind": "execute",
+                "args": {"sequence_id": recovery_sequence_id},
+            }
 
-        self.state.print_status(description="Triggered assertion .")
+        self.broker.publish(assertion_message)

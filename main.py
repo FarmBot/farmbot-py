@@ -233,13 +233,13 @@ class Farmbot():
         """Executes custom Lua code snippets to perform complex tasks or automations."""
         return self.resources.lua(code_snippet)
 
-    def if_statement(self, variable, operator, value, then_id, else_id):
+    def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
-        return self.resources.if_statement(variable, operator, value, then_id, else_id)
+        return self.resources.if_statement(variable, operator, value, then_sequence_name, else_sequence_name, named_pin_type)
 
-    def assertion(self, code, as_type, sequence_id=""):
+    def assertion(self, code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""
-        return self.resources.assertion(code, as_type, sequence_id)
+        return self.resources.assertion(code, assertion_type, recovery_sequence_name)
 
     # tools.py
 

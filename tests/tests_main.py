@@ -768,11 +768,53 @@ class TestFarmbot(unittest.TestCase):
             expected_command={
                 'kind': 'assertion',
                 'args': {
+                    'assertion_type': 'abort',
                     'lua': 'return true',
-                    '_then': {'kind': 'execute', 'args': {'sequence_id': ''}},
-                    'assertion_type': 'abort'
+                    '_then': {'kind': 'nothing', 'args': {}},
                 }
             },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_assertion_with_recovery_sequence(self):
+        '''Test assertion command with recovery sequence'''
+        def exec_command():
+            self.fb.assertion('return true', 'abort', 'Recovery Sequence')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'assertion',
+                'args': {
+                    'assertion_type': 'abort',
+                    'lua': 'return true',
+                    '_then': {'kind': 'execute', 'args': {'sequence_id': 123}},
+                }
+            },
+            extra_rpc_args={},
+            mock_api_response=[{'id': 123, 'name': 'Recovery Sequence'}])
+
+    def test_assertion_recovery_sequence_not_found(self):
+        '''Test assertion command: recovery sequence not found'''
+        def exec_command():
+            self.fb.assertion('return true', 'abort', 'Recovery Sequence')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
+        self.assertEqual(self.fb.state.error, "ERROR: 'Recovery Sequence' not in sequences: [].")
+
+    def test_assertion_invalid_assertion_type(self):
+        '''Test assertion command: invalid assertion type'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.assertion('return true', 'nope')
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid assertion_type: nope not in ['abort', 'recover', 'abort_recover', 'continue']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
             extra_rpc_args={},
             mock_api_response={})
 
@@ -1069,6 +1111,7 @@ class TestFarmbot(unittest.TestCase):
             expected_command=None,
             extra_rpc_args={},
             mock_api_response=[{'name': 'Water'}])
+        self.assertEqual(self.fb.state.error, "ERROR: 'My Sequence' not in sequences: ['Water'].")
 
     def test_take_photo(self):
         '''Test take_photo command'''
@@ -1569,7 +1612,59 @@ class TestFarmbot(unittest.TestCase):
     def test_if_statement(self):
         '''Test if_statement command'''
         def exec_command():
-            self.fb.if_statement('pin10', '<', 0, 123, 456)
+            self.fb.if_statement('pin10', 'is', 0)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': '_if',
+                'args': {
+                    'lhs': 'pin10',
+                    'op': 'is',
+                    'rhs': 0,
+                    '_then': {'kind': 'nothing', 'args': {}},
+                    '_else': {'kind': 'nothing', 'args': {}},
+                }
+            },
+            extra_rpc_args={},
+            mock_api_response=[])
+
+    def test_if_statement_with_named_pin(self):
+        '''Test if_statement command with named pin'''
+        def exec_command():
+            self.fb.if_statement('Lights', 'is', 0, named_pin_type='Peripheral')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': '_if',
+                'args': {
+                    'lhs': {
+                        'kind': 'named_pin',
+                        'args': {'pin_type': 'Peripheral', 'pin_id': 123},
+                    },
+                    'op': 'is',
+                    'rhs': 0,
+                    '_then': {'kind': 'nothing', 'args': {}},
+                    '_else': {'kind': 'nothing', 'args': {}},
+                }
+            },
+            extra_rpc_args={},
+            mock_api_response=[{'id': 123, 'label': 'Lights', 'mode': 0}])
+
+    def test_if_statement_with_named_pin_not_found(self):
+        '''Test if_statement command: named pin not found'''
+        def exec_command():
+            self.fb.if_statement('Lights', 'is', 0, named_pin_type='Peripheral')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[{'label': 'Pump'}])
+        self.assertEqual(self.fb.state.error, "ERROR: 'Lights' not in peripherals: ['Pump'].")
+
+    def test_if_statement_with_sequences(self):
+        '''Test if_statement command with sequences'''
+        def exec_command():
+            self.fb.if_statement('pin10', '<', 0, 'Watering Sequence', 'Drying Sequence')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1583,7 +1678,64 @@ class TestFarmbot(unittest.TestCase):
                 }
             },
             extra_rpc_args={},
-            mock_api_response={})
+            mock_api_response=[
+                {'id': 123, 'name': 'Watering Sequence'},
+                {'id': 456, 'name': 'Drying Sequence'},
+            ])
+
+    def test_if_statement_with_sequence_not_found(self):
+        '''Test if_statement command: sequence not found'''
+        def exec_command():
+            self.fb.if_statement('pin10', '<', 0, 'Watering Sequence', 'Drying Sequence')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
+        self.assertEqual(self.fb.state.error, "ERROR: 'Watering Sequence' not in sequences: [].")
+
+    def test_if_statement_invalid_operator(self):
+        '''Test if_statement command: invalid operator'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.if_statement('pin10', 'nope', 0)
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid operator: nope not in ['<', '>', 'is', 'not', 'is_undefined']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
+
+    def test_if_statement_invalid_variable(self):
+        '''Test if_statement command: invalid variable'''
+        variables = ["x", "y", "z", *[f"pin{str(i)}" for i in range(70)]]
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.if_statement('nope', '<', 0)
+            self.assertEqual(
+                cm.exception.args[0],
+                f"Invalid variable: nope not in {variables}")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
+
+    def test_if_statement_invalid_named_pin_type(self):
+        '''Test if_statement command: invalid named pin type'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.if_statement('pin10', '<', 0, named_pin_type='nope')
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid named_pin_type: nope not in ['Peripheral', 'Sensor']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
 
     @staticmethod
     def helper_get_print_strings(mock_print):
