@@ -1,0 +1,31 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "farmbot_sidecar_starter_pack"
+dynamic = ["version"]
+License = "MIT"
+authors = [
+    {name = "FarmBot Inc."},
+]
+keywords = ["farmbot", "sidecar"]
+description = "FarmBot Sidecar Starter Pack"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "requests",
+    "paho-mqtt",
+]
+
+[project.urls]
+homepage = "https://github.com/FarmBot-Labs/sidecar-starter-pack"
+issues = "https://github.com/FarmBot-Labs/sidecar-starter-pack/issues"
+
+[tool.hatch.version]
+path = "farmbot_sidecar_starter_pack/main.py"

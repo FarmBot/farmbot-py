@@ -30,40 +30,30 @@ This library provides authentication, API, and control utilities for **FarmBot s
 * [Developer Info](#toolbox-developer-info)
     * [Formatting message broker messages](#formatting-message-broker-messages)
 
-## :computer: Installation (Mac OS)
+## :computer: Installation
 
-To set up the project locally, follow these steps:
+To use the sidecar starter pack, follow these steps:
 
-(1) Clone the repository.
-```bash
-git clone https://github.com/FarmBot-Labs/sidecar-starter-pack
-```
-
-(2) Navigate to the project directory.
-```bash
-cd sidecar-starter-pack
-```
-
-(3) Create a virtual environment.
+(1) Create a virtual environment.
 ```bash
 python -m venv py_venv
 ```
 
-(4) Activate the virtual environment.
+(2) Activate the virtual environment.
 ```bash
 source py_venv/bin/activate
 ```
 
-(5) Install the required libraries within venv:
+(3) Install the farmbot-sidecar-starter-pack library within the virtual environment:
 ```bash
-python -m pip install requests paho-mqtt
+python -m pip install farmbot-sidecar-starter-pack
 ```
 
 ## :seedling: Getting Started
 
-Import `main` and create an instance of the Farmbot class:
+Import `farmbot_sidecar_starter_pack` and create an instance of the Farmbot class:
 ```python
-from main import Farmbot
+from farmbot_sidecar_starter_pack import Farmbot
 bot = Farmbot()
 ```
 
@@ -301,11 +291,48 @@ message = {
 
 ### Local development
 
-If you are working on the sidecar-starter-pack itself, ensure any changes pass all tests before submitting a pull request.
+If you are working on the sidecar-starter-pack itself,
 
+(1) Clone the repository.
 ```bash
-python -m pip install coverage
-coverage run -m unittest discover
+git clone https://github.com/FarmBot-Labs/sidecar-starter-pack
 ```
 
-Additionally, you can check for test coverage by running `coverage html` and opening `htmlcov/index.html` in a browser.
+(2) Navigate to the project directory.
+```bash
+cd sidecar-starter-pack
+```
+
+(3) Create a virtual environment.
+```bash
+python -m venv py_venv
+```
+
+(4) Activate the virtual environment.
+```bash
+source py_venv/bin/activate
+```
+
+(5) Install the required libraries within the virtual environment:
+```bash
+python -m pip install requests paho-mqtt coverage
+```
+
+Ensure any changes pass all tests before submitting a pull request.
+
+```bash
+coverage run -m unittest discover
+coverage html
+```
+
+You can review test coverage by opening `htmlcov/index.html` in a browser.
+
+### Uploading package to PyPI (For FarmBot employees)
+
+Follow [this tutorial](https://packaging.python.org/en/latest/tutorials/packaging-projects/).
+```bash
+python -m pip install --upgrade pip build twine
+rm dist/*
+python -m build
+python -m twine upload dist/*
+```

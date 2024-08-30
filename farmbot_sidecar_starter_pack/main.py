@@ -2,21 +2,25 @@
 Farmbot class.
 """
 
-from state import State
-from functions.api import ApiConnect
-from functions.basic_commands import BasicCommands
-from functions.broker import BrokerConnect
-from functions.camera import Camera
-from functions.information import Information
-from functions.jobs import JobHandling
-from functions.messages import MessageHandling
-from functions.movements import MovementControls
-from functions.peripherals import Peripherals
-from functions.resources import Resources
-from functions.tools import ToolControls
+from .state import State
+from .functions.api import ApiConnect
+from .functions.basic_commands import BasicCommands
+from .functions.broker import BrokerConnect
+from .functions.camera import Camera
+from .functions.information import Information
+from .functions.jobs import JobHandling
+from .functions.messages import MessageHandling
+from .functions.movements import MovementControls
+from .functions.peripherals import Peripherals
+from .functions.resources import Resources
+from .functions.tools import ToolControls
+
+VERSION = "1.1.1"
 
 class Farmbot():
     """Farmbot class."""
+    __version__ = VERSION
+
     def __init__(self):
         self.state = State()
 

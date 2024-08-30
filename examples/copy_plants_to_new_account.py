@@ -2,14 +2,7 @@
 # Note: It will not copy any associated water, height, or spread curves ids
 # because they will not exist in the target account.
 
-# Add parent directory to Python path to allow `python examples/copy_plants_to_new_account.py`
-# `python -m examples.copy_plants_to_new_account` will work without this.
-import os
-import sys
-parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(parent_dir)
-
-from main import Farmbot
+from farmbot_sidecar_starter_pack import Farmbot
 from time import sleep
 
 source = Farmbot()

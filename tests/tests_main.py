@@ -7,7 +7,7 @@ import unittest
 from unittest.mock import Mock, patch, call
 import requests
 
-from main import Farmbot
+from farmbot_sidecar_starter_pack import Farmbot
 
 MOCK_TOKEN = {
     'token': {
