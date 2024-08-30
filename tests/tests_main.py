@@ -290,8 +290,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_token: API request'''
         self.fb.state.token = None
         with self.assertRaises(ValueError) as cm:
-            results = self.fb.api_get('points')
-            self.assertIsNone(results)
+            self.fb.api_get('points')
         self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         mock_request.assert_not_called()
         self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
@@ -305,18 +304,16 @@ class TestFarmbot(unittest.TestCase):
         self.fb.state.token = None
         with self.assertRaises(ValueError) as cm:
             self.fb.on(123)
-            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+        self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         with self.assertRaises(ValueError) as cm:
             self.fb.read_sensor(123)
-            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+        self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         with self.assertRaises(ValueError) as cm:
-            results = self.fb.get_xyz()
-            self.assertIsNone(results)
-            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+            self.fb.get_xyz()
+        self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         with self.assertRaises(ValueError) as cm:
-            results = self.fb.read_status()
-            self.assertIsNone(results)
-            self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
+            self.fb.read_status()
+        self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
         mock_request.assert_not_called()
         mock_client.publish.assert_not_called()
         self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
