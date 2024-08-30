@@ -25,23 +25,27 @@ class Resources():
 
     # TODO: sort_points(points, method)
 
-    def sequence(self, sequence_id):
+    def sequence(self, sequence_name):
         """Executes a predefined sequence."""
+        self.state.print_status(description="Triggering {sequence_name} sequence.")
+
+        sequence = self.info.get_resource_by_name("sequences", sequence_name, "name")
+        if sequence is None:
+            return
 
         sequence_message = {
             "kind": "execute",
             "args": {
-                "sequence_id": sequence_id
+                "sequence_id": sequence["id"],
             }
         }
 
         self.broker.publish(sequence_message)
 
-        self.state.print_status(description="Triggered sequence {sequence_id} .")
 
     def get_seed_tray_cell(self, tray_id, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
-
+        self.state.print_status(description="Identifying seed tray cell location.")
         tray_data = self.info.api_get("points", tray_id)
 
         cell = tray_cell.upper()
@@ -95,12 +99,16 @@ class Resources():
             "y": cell_spacing * cells[cell]["y"] * flip
         }
 
-        curr_x = a1["x"] + offset["x"]
-        curr_y = a1["y"] + offset["y"]
-        curr_z = a1["z"]
+        cell_xyz = {
+            "x": a1["x"] + offset["x"],
+            "y": a1["y"] + offset["y"],
+            "z": a1["z"],
+        }
 
-        self.state.print_status(description=f"Cell {tray_cell} is at ({curr_x}, {curr_y}, {curr_z}).")
-        return {"x": curr_x, "y": curr_y, "z": curr_z}
+        self.state.print_status(
+            description=f"Cell {tray_cell} is at {cell_xyz}.",
+            update_only=True)
+        return cell_xyz
 
     def detect_weeds(self):
         """Scans the garden to detect weeds."""

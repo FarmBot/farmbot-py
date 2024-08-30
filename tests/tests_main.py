@@ -1053,7 +1053,7 @@ class TestFarmbot(unittest.TestCase):
     def test_sequence(self):
         '''Test sequence command'''
         def exec_command():
-            self.fb.sequence(123)
+            self.fb.sequence('My Sequence')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1061,7 +1061,17 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'sequence_id': 123},
             },
             extra_rpc_args={},
-            mock_api_response={})
+            mock_api_response=[{'name': 'My Sequence', 'id': 123}])
+
+    def test_sequence_not_found(self):
+        '''Test sequence command: sequence not found'''
+        def exec_command():
+            self.fb.sequence('My Sequence')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[{'name': 'Water'}])
 
     def test_take_photo(self):
         '''Test take_photo command'''
