@@ -201,7 +201,7 @@ sidecar-starter-pack/
 | `curve()` | Returns all curves or a single curve by id. |
 | `measure_soil_height()` | Use the camera to determine soil height at the current location. |
 | `read_status()` | Returns the FarmBot status tree. |
-| `read_sensor()` | Reads the given pin by id. |
+| `read_sensor()` | Reads the given sensor. |
 
 ### jobs.py
 

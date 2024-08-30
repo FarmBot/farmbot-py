@@ -41,24 +41,11 @@ class Peripherals():
         self.state.print_status(description=f"Set servo angle to {angle}.")
         return
 
-    def get_peripheral(self, peripheral_name):
-        """Find a peripheral by name."""
-        peripherals = self.info.api_get("peripherals")
-        peripheral_names = [peripheral["label"] for peripheral in peripherals]
-        if peripheral_name not in peripheral_names:
-            error = f"ERROR: '{peripheral_name}' peripheral not in {peripheral_names}."
-            self.state.print_status(description=error, update_only=True)
-            self.state.error = error
-            return
-
-        peripheral = [p for p in peripherals if p["label"] == peripheral_name][0]
-        return peripheral
-
     def control_peripheral(self, peripheral_name, value, mode=None):
         """Set peripheral value and mode."""
         self.state.print_status(description=f"Setting {peripheral_name} to {value}.")
 
-        peripheral = self.get_peripheral(peripheral_name)
+        peripheral = self.info.get_resource_by_name("peripherals", peripheral_name)
         if peripheral is None:
             return
         peripheral_id = peripheral["id"]
@@ -84,7 +71,7 @@ class Peripherals():
     def toggle_peripheral(self, peripheral_name):
         """Toggles the state of a specific peripheral between `on` and `off`."""
         self.state.print_status(description=f"Toggling {peripheral_name}.")
-        peripheral = self.get_peripheral(peripheral_name)
+        peripheral = self.info.get_resource_by_name("peripherals", peripheral_name)
         if peripheral is None:
             return
         peripheral_id = peripheral["id"]

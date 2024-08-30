@@ -732,7 +732,7 @@ class TestFarmbot(unittest.TestCase):
     def test_read_sensor(self):
         '''Test read_sensor command'''
         def exec_command():
-            self.fb.read_sensor(123)
+            self.fb.read_sensor('Tool Verification')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -747,7 +747,18 @@ class TestFarmbot(unittest.TestCase):
                 },
             },
             extra_rpc_args={},
-            mock_api_response={'mode': 0})
+            mock_api_response=[{'id': 123, 'label': 'Tool Verification', 'mode': 0}])
+
+    def test_read_sensor_not_found(self):
+        '''Test read_sensor command: sensor not found'''
+        def exec_command():
+            self.fb.read_sensor('Temperature')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[{'label': 'Tool Verification'}])
+        self.assertEqual(self.fb.state.error, "ERROR: 'Temperature' not in sensors: ['Tool Verification'].")
 
     def test_assertion(self):
         '''Test assertion command'''
@@ -868,7 +879,7 @@ class TestFarmbot(unittest.TestCase):
             expected_command=None,
             extra_rpc_args={},
             mock_api_response=[])
-        self.assertEqual(self.fb.state.error, 'ERROR: \'New Peripheral\' peripheral not in [].')
+        self.assertEqual(self.fb.state.error, 'ERROR: \'New Peripheral\' not in peripherals: [].')
 
     def test_on_digital(self):
         '''Test on command: digital'''
@@ -996,7 +1007,7 @@ class TestFarmbot(unittest.TestCase):
             expected_command=None,
             extra_rpc_args={},
             mock_api_response=[{'label': 'Pump'}, {'label': 'Lights'}])
-        self.assertEqual(self.fb.state.error, "ERROR: 'New Peripheral' peripheral not in ['Pump', 'Lights'].")
+        self.assertEqual(self.fb.state.error, "ERROR: 'New Peripheral' not in peripherals: ['Pump', 'Lights'].")
 
     def test_measure_soil_height(self):
         '''Test measure_soil_height command'''

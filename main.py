@@ -131,9 +131,9 @@ class Farmbot():
         """Returns the FarmBot status tree."""
         return self.info.read_status()
 
-    def read_sensor(self, peripheral_id):
-        """Reads the given pin by id."""
-        return self.info.read_sensor(peripheral_id)
+    def read_sensor(self, sensor_name):
+        """Reads the given sensor."""
+        return self.info.read_sensor(sensor_name)
 
     # jobs.py
 

@@ -142,10 +142,13 @@ class Information():
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
 
-    def read_sensor(self, sensor_id):
+    def read_sensor(self, sensor_name):
         """Reads the given pin by id."""
-
-        sensor = self.api_get("sensors", sensor_id)
+        self.state.print_status(description="Reading sensor...")
+        sensor = self.get_resource_by_name("sensors", sensor_name)
+        if sensor is None:
+            return
+        sensor_id = sensor["id"]
         mode = sensor["mode"]
 
         sensor_message = {
@@ -164,3 +167,17 @@ class Information():
         }
 
         self.broker.publish(sensor_message)
+
+    def get_resource_by_name(self, endpoint, resource_name, name_key="label"):
+        """Find a resource by name."""
+        self.state.print_status(description=f"Searching for {resource_name} in {endpoint}.")
+        resources = self.api_get(endpoint)
+        resource_names = [resource[name_key] for resource in resources]
+        if resource_name not in resource_names:
+            error = f"ERROR: '{resource_name}' not in {endpoint}: {resource_names}."
+            self.state.print_status(description=error, update_only=True)
+            self.state.error = error
+            return None
+
+        resource = [p for p in resources if p[name_key] == resource_name][0]
+        return resource
