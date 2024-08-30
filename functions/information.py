@@ -25,13 +25,16 @@ class Information():
         self.api = ApiConnect(state)
         self.state = state
 
-    def api_get(self, endpoint, database_id=None):
+    def api_get(self, endpoint, database_id=None, data_print=True):
         """Get information about a specific endpoint."""
         self.state.print_status(description=f"Retrieving {endpoint} information.")
 
         endpoint_data = self.api.request("GET", endpoint, database_id)
 
-        self.state.print_status(update_only=True, endpoint_json=endpoint_data)
+        if data_print:
+            self.state.print_status(update_only=True, endpoint_json=endpoint_data)
+        else:
+            self.state.print_status(update_only=True, description=f"Fetched {len(endpoint_data)} items.")
 
         return endpoint_data
 
@@ -181,7 +184,7 @@ class Information():
     def get_resource_by_name(self, endpoint, resource_name, name_key="label", filter=None):
         """Find a resource by name."""
         self.state.print_status(description=f"Searching for {resource_name} in {endpoint}.")
-        resources = self.api_get(endpoint)
+        resources = self.api_get(endpoint, data_print=False)
         if filter is not None:
             for key, value in filter.items():
                 resources = [resource for resource in resources if resource[key] == value]
