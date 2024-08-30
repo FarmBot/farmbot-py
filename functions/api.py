@@ -101,7 +101,11 @@ class ApiConnect():
 
         # Handle HTTP status codes
         if response.status_code == 200:
-            self.state.print_status(description="Successfully sent request via API.")
+            if self.state.dry_run:
+                description = "Editing disabled, request not sent."
+            else:
+                description = "Successfully sent request via API."
+            self.state.print_status(description=description)
             return 200
         if 400 <= response.status_code < 500:
             self.state.error = f"CLIENT ERROR {response.status_code}: {error_messages.get(response.status_code, response.reason)}"
@@ -138,7 +142,12 @@ class ApiConnect():
         url = f'{http_part}:{iss}/api/{endpoint}{id_part}'
 
         headers = {'authorization': token['encoded'], 'content-type': 'application/json'}
-        response = requests.request(method, url, headers=headers, json=payload)
+        if not self.state.dry_run or method == "GET":
+            response = requests.request(method, url, headers=headers, json=payload)
+        else:
+            response = requests.Response()
+            response.status_code = 200
+            response._content = b'{"edit_requests_disabled": true}'
 
         if self.request_handling(response) == 200:
             self.state.error = None

@@ -38,6 +38,7 @@ class State():
         self.test_env = False
         self.ssl = True
         self.min_call_stack_depth = 100
+        self.dry_run = False
 
     def print_status(self, endpoint_json=None, description=None, update_only=False, end="\n"):
         """Handle changes to output based on user-defined verbosity."""

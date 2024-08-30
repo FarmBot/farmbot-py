@@ -321,6 +321,15 @@ class TestFarmbot(unittest.TestCase):
         mock_client.publish.assert_not_called()
         self.assertEqual(self.fb.state.error, self.fb.state.NO_TOKEN_ERROR)
 
+    @patch('paho.mqtt.client.Client')
+    def test_publish_disabled(self, mock_mqtt):
+        '''Test publish disabled'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.state.dry_run = True
+        self.fb.on(123)
+        mock_client.publish.assert_not_called()
+
     @patch('requests.request')
     def test_api_patch(self, mock_request):
         '''test api_patch function'''
@@ -384,6 +393,14 @@ class TestFarmbot(unittest.TestCase):
             json=None,
         )
         self.assertEqual(result, {'name': 'deleted'})
+
+    @patch('requests.request')
+    def test_api_delete_requests_disabled(self, mock_request):
+        '''test api_delete function: requests disabled'''
+        self.fb.state.dry_run = True
+        result = self.fb.api_delete('points', 12345)
+        mock_request.assert_not_called()
+        self.assertEqual(result, {"edit_requests_disabled": True})
 
     @patch('requests.request')
     def test_group_one(self, mock_request):

@@ -78,9 +78,12 @@ class BrokerConnect():
 
         device_id_str = self.state.token["token"]["unencoded"]["bot"]
         topic = f"bot/{device_id_str}/from_clients"
-        self.client.publish(topic, payload=json.dumps(message))
+        if not self.state.dry_run:
+            self.client.publish(topic, payload=json.dumps(message))
         self.state.print_status(description=f"Publishing to {topic}:")
         self.state.print_status(endpoint_json=message, update_only=True)
+        if self.state.dry_run:
+            self.state.print_status(description="Sending disabled, message not sent.", update_only=True)
 
     def on_connect(self, _client, _userdata, _flags, _rc, channel):
         """Callback function when connection to message broker is successful."""
