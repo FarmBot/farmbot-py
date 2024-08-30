@@ -74,6 +74,19 @@ Use the same login credentials associated with the web app account you are inter
 bot.get_token("email", "password")
 ```
 
+To avoid storing your account credentials in plaintext, you can print your token:
+```
+print(bot.state.token)
+```
+
+and then delete the `bot.get_token("email", "password")` line and set your token directly instead:
+```
+fb.state.token = {'token': {'unencoded': {'aud': ...
+```
+
+> [!CAUTION]
+> Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
+
 ### Configure function output verbosity
 
 Set the level of verbosity of function outputs to change the level of information shown when functions are called.
@@ -139,9 +152,6 @@ sidecar-starter-pack/
 ```
 
 ### api.py
-
-> [!CAUTION]
-> Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
 
 | class `ApiConnect()` | Description |
 | :--- | :--- |
