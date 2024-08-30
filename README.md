@@ -196,7 +196,7 @@ sidecar-starter-pack/
 | `api_post()` | POST information to the API. |
 | `api_delete()` | DELETE information in the API. |
 | `safe_z()` | Returns the safe Z coordinate. |
-| `garden_size()` | Returns x-axis length, y-axis length, and area of garden bed. |
+| `garden_size()` | Returns size of garden bed. |
 | `group()` | Returns all groups or a single group by id. |
 | `curve()` | Returns all curves or a single curve by id. |
 | `measure_soil_height()` | Use the camera to determine soil height at the current location. |

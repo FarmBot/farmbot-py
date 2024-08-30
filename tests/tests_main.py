@@ -509,8 +509,10 @@ class TestFarmbot(unittest.TestCase):
         mock_response.json.return_value = {
             'movement_axis_nr_steps_x': 1000,
             'movement_axis_nr_steps_y': 2000,
+            'movement_axis_nr_steps_z': 40000,
             'movement_step_per_mm_x': 5,
             'movement_step_per_mm_y': 5,
+            'movement_step_per_mm_z': 25,
         }
         mock_response.status_code = 200
         mock_response.text = 'text'
@@ -525,7 +527,7 @@ class TestFarmbot(unittest.TestCase):
             },
             json=None,
         )
-        self.assertEqual(garden_size, (200, 400, 80000))
+        self.assertEqual(garden_size, {'x': 200, 'y': 400, 'z': 1600})
 
     @patch('requests.request')
     def test_log(self, mock_request):

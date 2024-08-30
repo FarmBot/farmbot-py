@@ -75,7 +75,7 @@ class Information():
         return z_value
 
     def garden_size(self):
-        """Returns x-axis length, y-axis length, and area of garden bed."""
+        """Return size of garden bed."""
 
         json_data = self.api_get('firmware_config')
 
@@ -85,12 +85,17 @@ class Information():
         y_steps = json_data['movement_axis_nr_steps_y']
         y_mm = json_data['movement_step_per_mm_y']
 
-        length_x = x_steps / x_mm
-        length_y = y_steps / y_mm
-        area = length_x * length_y
+        z_steps = json_data['movement_axis_nr_steps_z']
+        z_mm = json_data['movement_step_per_mm_z']
 
-        self.state.print_status(description=f"X-axis length={length_x}\n Y-axis length={length_y}\n Area={area}")
-        return length_x, length_y, area
+        garden_size = {
+            "x": x_steps / x_mm,
+            "y": y_steps / y_mm,
+            "z": z_steps / z_mm,
+        }
+
+        self.state.print_status(endpoint_json=garden_size)
+        return garden_size
 
     def group(self, group_id=None):
         """Returns all group info or single by id."""

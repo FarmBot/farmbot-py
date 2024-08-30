@@ -112,7 +112,7 @@ class Farmbot():
         return self.info.safe_z()
 
     def garden_size(self):
-        """Returns x-axis length, y-axis length, and area of garden bed."""
+        """Returns size of garden bed."""
         return self.info.garden_size()
 
     def group(self, group_id=None):
