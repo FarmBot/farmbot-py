@@ -43,6 +43,10 @@ class Farmbot():
         """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
         return self.api.get_token(email, password, server)
 
+    def set_token(self, token):
+        """Set FarmBot authorization token."""
+        self.state.token = token
+
     # basic_commands.py
 
     def wait(self, duration):

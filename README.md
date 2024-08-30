@@ -71,18 +71,21 @@ bot = Farmbot()
 
 Use the same login credentials associated with the web app account you are interacting with. The server is "https://my.farm.bot" by default.
 ```python
-bot.get_token("email", "password")
+token = bot.get_token("email", "password")
 ```
 
 To avoid storing your account credentials in plaintext, you can print your token:
 ```python
-print(bot.state.token)
+print(token)
 ```
 
 and then delete the `bot.get_token("email", "password")` line and set your token directly instead:
 ```python
-fb.state.token = {'token': {'unencoded': {'aud': ...
+token = {'token': {'unencoded': {'aud': ...
+bot.set_token(token)
 ```
+
+where the part after `token = ` is the entire token pasted from the `print(token)` output. The start should look similar to the value above.
 
 > [!CAUTION]
 > Store your authorization token securely. It grants full access and control over your FarmBot and your FarmBot Web App account.
@@ -156,6 +159,7 @@ sidecar-starter-pack/
 | class `ApiConnect()` | Description |
 | :--- | :--- |
 | `get_token()` | Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
+| `set_token()` | Set FarmBot authorization token. |
 | `check_token()` | Ensure the token persists throughout sidecar. |
 | `request_handling()` | Handle errors associated with different endpoint errors. |
 | `request()` | Make requests to API endpoints using different methods. |

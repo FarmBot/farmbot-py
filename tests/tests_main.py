@@ -27,7 +27,7 @@ class TestFarmbot(unittest.TestCase):
     def setUp(self):
         '''Set up method called before each test case'''
         self.fb = Farmbot()
-        self.fb.state.token = MOCK_TOKEN
+        self.fb.set_token(MOCK_TOKEN)
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
         self.fb.state.broker_listen_duration = 0.3
@@ -41,7 +41,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_post.return_value = mock_response
-        self.fb.state.token = None
+        self.fb.set_token(None)
         # Call with default server
         self.fb.get_token('test_email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
@@ -61,7 +61,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_post.return_value = mock_response
-        self.fb.state.token = None
+        self.fb.set_token(None)
         # Call with custom server
         self.fb.get_token('test_email@gmail.com', 'test_pass_123',
                           'https://staging.farm.bot')
@@ -82,7 +82,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response = Mock()
         mock_response.status_code = status_code
         mock_post.return_value = mock_response
-        self.fb.state.token = None
+        self.fb.set_token(None)
         self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
@@ -121,7 +121,7 @@ class TestFarmbot(unittest.TestCase):
         exception = kwargs['exception']
         error_msg = kwargs['error_msg']
         mock_post.side_effect = exception
-        self.fb.state.token = None
+        self.fb.set_token(None)
         self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
@@ -288,7 +288,7 @@ class TestFarmbot(unittest.TestCase):
     @patch('requests.request')
     def test_check_token_api_request(self, mock_request):
         '''Test check_token: API request'''
-        self.fb.state.token = None
+        self.fb.set_token(None)
         with self.assertRaises(ValueError) as cm:
             self.fb.api_get('points')
         self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
@@ -301,7 +301,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_token: broker'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        self.fb.state.token = None
+        self.fb.set_token(None)
         with self.assertRaises(ValueError) as cm:
             self.fb.on(123)
         self.assertEqual(cm.exception.args[0], self.fb.state.NO_TOKEN_ERROR)
@@ -1774,6 +1774,3 @@ class TestFarmbot(unittest.TestCase):
         call_strings = [s.split('(')[0].strip('`') for s in call_strings]
         self.assertIn('[\n    "testing"\n]', call_strings)
         self.assertIn('test_print_status', call_strings)
-
-if __name__ == '__main__':
-    unittest.main()
