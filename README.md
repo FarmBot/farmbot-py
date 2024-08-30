@@ -245,7 +245,7 @@ sidecar-starter-pack/
 
 | class `Resources()` | Description |
 | :--- | :--- |
-| `sequence()` | Executes a predefined sequence by id. |
+| `sequence()` | Executes a predefined sequence by name. |
 | `get_seed_tray_cell()` | Returns the coordinates of the specified cell in a seed tray. |
 | `detect_weeds()` | Scans the garden to detect weeds. |
 | `lua()` | Executes custom Lua code snippets to perform complex tasks or automations. |
