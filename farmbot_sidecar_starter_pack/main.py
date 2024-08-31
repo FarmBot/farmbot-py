@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.1.1"
+VERSION = "1.2.0"
 
 class Farmbot():
     """Farmbot class."""
@@ -83,9 +83,9 @@ class Farmbot():
         """Disconnect from the message broker."""
         return self.broker.disconnect()
 
-    def listen(self, duration, channel="#"):
+    def listen(self, channel="#", duration=None):
         """Listen to a message broker channel for the provided duration in seconds."""
-        return self.broker.listen(duration, channel)
+        return self.broker.listen(channel, duration)
 
     # camera.py
 

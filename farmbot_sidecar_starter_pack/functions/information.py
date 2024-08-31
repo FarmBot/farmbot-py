@@ -148,7 +148,7 @@ class Information():
         }
         self.broker.publish(status_message)
 
-        self.broker.listen(self.state.broker_listen_duration, "status")
+        self.broker.listen("status")
 
         status_tree = self.state.last_messages.get("status")
 

@@ -159,7 +159,7 @@ sidecar-starter-pack/
 
 | class `BasicCommands()` | Description |
 | :--- | :--- |
-| `wait()` | Pauses FarmBot execution for a certain number of milliseconds. Note: You may need to combine this with a `sleep()` in your sidecar code. |
+| `wait()` | Pauses FarmBot execution for a certain number of milliseconds. |
 | `e_stop()` | Emergency locks (E-stops) the Farmduino microcontroller and resets peripheral pins to OFF. |
 | `unlock()` | Unlocks a locked (E-stopped) device. |
 | `reboot()` | Reboots FarmBot OS and reinitializes the device. |
@@ -172,8 +172,6 @@ sidecar-starter-pack/
 | `connect()` | Establish a persistent connection to send messages via the message broker. |
 | `disconnect()` | Disconnect from the message broker. |
 | `publish()` | Publish messages containing CeleryScript via the message broker. |
-| `on_connect()` | Callback function triggered when a connection to the message broker is successfully established. |
-| `on_message()` | Callback function triggered when a message is received from the message broker. |
 | `start_listen()` | Establish persistent subscription to message broker channels. |
 | `stop_listen()` | End subscription to all message broker channels. |
 | `listen()` | Listen to a message broker channel for the provided duration in seconds. |

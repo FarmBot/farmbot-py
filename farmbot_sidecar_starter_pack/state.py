@@ -33,6 +33,7 @@ class State():
         self.token = None
         self.error = None
         self.last_messages = {}
+        self.last_published = {}
         self.verbosity = 2
         self.broker_listen_duration = 15
         self.test_env = False
@@ -46,7 +47,8 @@ class State():
         if depth < self.min_call_stack_depth:
             self.min_call_stack_depth = depth
         top = depth == self.min_call_stack_depth
-        indent = "" if top else " " * 4
+        no_end = end == "" and description != ""
+        indent = "" if (top or no_end) else " " * 4
 
         if self.verbosity >= 2 and not update_only:
             if top:
@@ -56,7 +58,7 @@ class State():
         if self.verbosity >= 1:
             if self.verbosity == 1 and not update_only and top:
                 print()
-            if description:
+            if description is not None:
                 print(indent + description, end=end, flush=(end == ""))
             if endpoint_json:
                 json_str = json.dumps(endpoint_json, indent=4)

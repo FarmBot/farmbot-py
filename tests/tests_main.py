@@ -30,7 +30,7 @@ class TestFarmbot(unittest.TestCase):
         self.fb.set_token(MOCK_TOKEN)
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
-        self.fb.state.broker_listen_duration = 0.3
+        self.fb.state.broker_listen_duration = 0
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
@@ -577,8 +577,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test listen command'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        self.fb.listen(1)
-        mock_client.on_connect('', '', '', '')
+        self.fb.listen()
 
         class MockMessage:
             '''Mock message class'''
@@ -595,7 +594,6 @@ class TestFarmbot(unittest.TestCase):
         mock_client.subscribe.assert_called_once_with('bot/device_0/#')
         mock_client.loop_start.assert_called()
         mock_client.loop_stop.assert_called()
-        mock_client.disconnect.assert_called()
 
     @patch('paho.mqtt.client.Client')
     def test_listen_clear_last(self, mock_mqtt):
@@ -604,8 +602,17 @@ class TestFarmbot(unittest.TestCase):
         mock_mqtt.return_value = mock_client
         self.fb.state.last_messages = {'#': "message"}
         self.fb.state.test_env = False
-        self.fb.listen(1)
+        self.fb.listen()
         self.assertIsNone(self.fb.state.last_messages['#'])
+
+    @patch('paho.mqtt.client.Client')
+    def test_publish_apply_label(self, mock_mqtt):
+        '''Test publish command: set uuid'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.state.test_env = False
+        self.fb.broker.publish({'kind': 'sync', 'args': {}})
+        self.assertNotIn(self.fb.state.last_published.get('args', {}).get('label'), ['test', '', None])
 
     @patch('requests.request')
     @patch('paho.mqtt.client.Client')
@@ -617,6 +624,7 @@ class TestFarmbot(unittest.TestCase):
         expected_command = kwargs.get('expected_command')
         extra_rpc_args = kwargs.get('extra_rpc_args')
         mock_api_response = kwargs.get('mock_api_response')
+        error = kwargs.get('error')
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         mock_response = Mock()
@@ -624,13 +632,17 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_request.return_value = mock_response
+        self.fb.state.last_messages['from_device'] = {
+            'kind': 'rpc_error' if error else 'rpc_ok',
+            'args': {'label': 'test'},
+        }
         execute_command()
         if expected_command is None:
             mock_client.publish.assert_not_called()
             return
         expected_payload = {
             'kind': 'rpc_request',
-            'args': {'label': '', **extra_rpc_args},
+            'args': {'label': 'test', **extra_rpc_args},
             'body': [expected_command],
         }
         mock_client.username_pw_set.assert_called_once_with(
@@ -644,6 +656,8 @@ class TestFarmbot(unittest.TestCase):
         mock_client.publish.assert_called_once_with(
             'bot/device_0/from_clients',
             payload=json.dumps(expected_payload))
+        if not error:
+            self.assertNotEqual(self.fb.state.error, 'RPC error response received.')
 
     def test_message(self):
         '''Test message command'''
@@ -1749,6 +1763,34 @@ class TestFarmbot(unittest.TestCase):
         self.send_command_test_helper(
             exec_command,
             expected_command=None,
+            extra_rpc_args={},
+            mock_api_response=[])
+
+    def test_rpc_error(self):
+        '''Test rpc error handling'''
+        def exec_command():
+            self.fb.wait(100)
+            self.assertEqual(self.fb.state.error, 'RPC error response received.')
+        self.send_command_test_helper(
+            exec_command,
+            error=True,
+            expected_command={
+                'kind': 'wait',
+                'args': {'milliseconds': 100}},
+            extra_rpc_args={},
+            mock_api_response=[])
+
+    def test_rpc_response_timeout(self):
+        '''Test rpc response timeout handling'''
+        def exec_command():
+            self.fb.state.last_messages['from_device'] = {'kind': 'rpc_ok', 'args': {'label': 'wrong label'}}
+            self.fb.wait(100)
+            self.assertEqual(self.fb.state.error, 'Timed out waiting for RPC response.')
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'wait',
+                'args': {'milliseconds': 100}},
             extra_rpc_args={},
             mock_api_response=[])
 
