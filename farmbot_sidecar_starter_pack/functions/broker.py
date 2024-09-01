@@ -79,7 +79,7 @@ class BrokerConnect():
         if rpc["args"]["label"] == "":
             rpc["args"]["label"] = uuid.uuid4().hex if not self.state.test_env else "test"
 
-        self.state.print_status(description="Publishing to 'from_clients':")
+        self.state.print_status(description="Publishing to 'from_clients'")
         self.state.print_status(endpoint_json=rpc, update_only=True)
         if self.state.dry_run:
             self.state.print_status(description="Sending disabled, message not sent.", update_only=True)
@@ -114,7 +114,7 @@ class BrokerConnect():
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             self.state.print_status(
                 endpoint_json=json.loads(msg.payload),
-                description=f"TOPIC: {msg.topic} ({timestamp})\n")
+                description=f"New message from {msg.topic} ({timestamp})")
 
         self.client.on_message = on_message
 
@@ -184,7 +184,6 @@ class BrokerConnect():
                     self.state.last_messages[channel] = None
                     continue
                 seconds = (datetime.now() - start_time).seconds
-                self.state.print_status(description="", update_only=True)
                 self.state.print_status(
                     description=f"Message received after {seconds} seconds",
                     update_only=True)

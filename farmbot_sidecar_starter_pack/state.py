@@ -35,6 +35,7 @@ class State():
         self.last_messages = {}
         self.last_published = {}
         self.verbosity = 2
+        self.json_printing = True
         self.timeout = {
             "api": 15,
             "listen": 15,
@@ -64,7 +65,7 @@ class State():
                 print()
             if description is not None:
                 print(indent + description, end=end, flush=(end == ""))
-            if endpoint_json:
+            if endpoint_json is not None and self.json_printing:
                 json_str = json.dumps(endpoint_json, indent=4)
                 indented_str = indent + json_str.replace("\n", "\n" + indent)
                 print(indented_str)
