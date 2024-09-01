@@ -51,7 +51,8 @@ class ApiConnect():
         try:
             headers = {'content-type': 'application/json'}
             user = {'user': {'email': email, 'password': password}}
-            response = requests.post(f'{server}/api/tokens', headers=headers, json=user)
+            timeout = self.state.timeout["api"]
+            response = requests.post(f'{server}/api/tokens', headers=headers, json=user, timeout=timeout)
             # Handle HTTP status codes
             if response.status_code == 200:
                 self.state.token = response.json()
@@ -144,7 +145,8 @@ class ApiConnect():
         headers = {'authorization': token['encoded'], 'content-type': 'application/json'}
         make_request = not self.state.dry_run or method == "GET"
         if make_request:
-            response = requests.request(method, url, headers=headers, json=payload)
+            timeout = self.state.timeout["api"]
+            response = requests.request(method, url, headers=headers, json=payload, timeout=timeout)
         else:
             response = requests.Response()
             response.status_code = 200

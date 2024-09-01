@@ -41,6 +41,14 @@ class Farmbot():
         """Set output verbosity level."""
         self.state.verbosity = value
 
+    def set_timeout(self, duration, key="listen"):
+        """Set timeout value in seconds."""
+        if key == "all":
+            for timeout_key in self.state.timeout:
+                self.state.timeout[timeout_key] = duration
+        else:
+            self.state.timeout[key] = duration
+
     # api.py
 
     def get_token(self, email, password, server="https://my.farm.bot"):

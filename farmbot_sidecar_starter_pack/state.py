@@ -35,7 +35,11 @@ class State():
         self.last_messages = {}
         self.last_published = {}
         self.verbosity = 2
-        self.broker_listen_duration = 15
+        self.timeout = {
+            "api": 15,
+            "listen": 15,
+            "movements": 120,
+        }
         self.test_env = False
         self.ssl = True
         self.min_call_stack_depth = 100

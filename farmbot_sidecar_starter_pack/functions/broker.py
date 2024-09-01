@@ -137,8 +137,11 @@ class BrokerConnect():
     def listen(self, channel, duration=None, publish_payload=None):
         """Listen to a message broker channel for the provided duration in seconds."""
         # Prepare parameters
-        duration_seconds = duration or self.state.broker_listen_duration
         message = (publish_payload or {}).get("body", [{}])[0]
+        timeout_key = "listen"
+        if message.get("kind") in ["move", "find_home", "calibrate"]:
+            timeout_key = "movements"
+        duration_seconds = duration or self.state.timeout[timeout_key]
         if message.get("kind") == "wait":
             duration_seconds += message["args"]["milliseconds"] / 1000
         publish = publish_payload is not None

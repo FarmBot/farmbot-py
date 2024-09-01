@@ -20,6 +20,23 @@ MOCK_TOKEN = {
     }
 }
 
+TOKEN_REQUEST_KWARGS = {
+    'headers': {'content-type': 'application/json'},
+    'timeout': 0,
+}
+
+REQUEST_KWARGS_WITH_PAYLOAD = {
+    'headers': {
+        'authorization': 'encoded_token_value',
+        'content-type': 'application/json'
+    },
+    'timeout': 0,
+}
+
+REQUEST_KWARGS = {
+    **REQUEST_KWARGS_WITH_PAYLOAD,
+    'json': None,
+}
 
 class TestFarmbot(unittest.TestCase):
     '''Farmbot tests'''
@@ -30,7 +47,7 @@ class TestFarmbot(unittest.TestCase):
         self.fb.set_token(MOCK_TOKEN)
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
-        self.fb.state.broker_listen_duration = 0
+        self.fb.set_timeout(0, 'all')
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
@@ -46,9 +63,9 @@ class TestFarmbot(unittest.TestCase):
         self.fb.get_token('test_email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
-            headers={'content-type': 'application/json'},
+            **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'test_email@gmail.com',
-                           'password': 'test_pass_123'}}
+                           'password': 'test_pass_123'}},
         )
         self.assertEqual(self.fb.state.token, expected_token)
 
@@ -67,9 +84,9 @@ class TestFarmbot(unittest.TestCase):
                           'https://staging.farm.bot')
         mock_post.assert_called_once_with(
             'https://staging.farm.bot/api/tokens',
-            headers={'content-type': 'application/json'},
+            **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'test_email@gmail.com',
-                           'password': 'test_pass_123'}}
+                           'password': 'test_pass_123'}},
         )
         self.assertEqual(self.fb.state.token, expected_token)
 
@@ -86,9 +103,9 @@ class TestFarmbot(unittest.TestCase):
         self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
-            headers={'content-type': 'application/json'},
+            **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'email@gmail.com',
-                           'password': 'test_pass_123'}}
+                           'password': 'test_pass_123'}},
         )
         self.assertEqual(self.fb.state.error, error_msg)
         self.assertIsNone(self.fb.state.token)
@@ -125,9 +142,9 @@ class TestFarmbot(unittest.TestCase):
         self.fb.get_token('email@gmail.com', 'test_pass_123')
         mock_post.assert_called_once_with(
             'https://my.farm.bot/api/tokens',
-            headers={'content-type': 'application/json'},
+            **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'email@gmail.com',
-                           'password': 'test_pass_123'}}
+                           'password': 'test_pass_123'}},
         )
         self.assertEqual(self.fb.state.error, error_msg)
         self.assertIsNone(self.fb.state.token)
@@ -176,11 +193,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json'
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(response, error_msg)
 
@@ -212,11 +225,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json'
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(response, 'CLIENT ERROR 404: The specified endpoint does not exist. (error string)')
 
@@ -233,11 +242,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json'
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(response, 'CLIENT ERROR 404: The specified endpoint does not exist. (error0 error1)')
 
@@ -255,11 +260,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json'
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(response, expected_response)
 
@@ -277,11 +278,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/peripherals/12345',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(response, expected_response)
 
@@ -339,10 +336,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_has_calls([call(
             'PATCH',
             'https://my.farm.bot/api/device',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
+            **REQUEST_KWARGS_WITH_PAYLOAD,
             json={'name': 'new name'},
         ),
             call().json(),
@@ -361,10 +355,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_has_calls([call(
             'POST',
             'https://my.farm.bot/api/points',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
+            **REQUEST_KWARGS_WITH_PAYLOAD,
             json={'name': 'new name'},
         ),
             call().json(),
@@ -383,11 +374,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'DELETE',
             'https://my.farm.bot/api/points/12345',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(result, {'name': 'deleted'})
 
@@ -411,11 +398,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/point_groups/12345',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(group_info, {'name': 'Group 0'})
 
@@ -431,11 +414,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/point_groups',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(group_info, [{'name': 'Group 0'}])
 
@@ -451,11 +430,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/curves/12345',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(curve_info, {'name': 'Curve 0'})
 
@@ -471,11 +446,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/curves',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(curve_info, [{'name': 'Curve 0'}])
 
@@ -491,11 +462,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/fbos_config',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(safe_height, 100)
 
@@ -518,11 +485,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'GET',
             'https://my.farm.bot/api/firmware_config',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
-            json=None,
+            **REQUEST_KWARGS,
         )
         self.assertEqual(garden_size, {'x': 200, 'y': 400, 'z': 1600})
 
@@ -538,10 +501,7 @@ class TestFarmbot(unittest.TestCase):
         mock_request.assert_called_once_with(
             'POST',
             'https://my.farm.bot/api/logs',
-            headers={
-                'authorization': 'encoded_token_value',
-                'content-type': 'application/json',
-            },
+            **REQUEST_KWARGS_WITH_PAYLOAD,
             json={
                 'message': 'test message',
                 'type': 'info',
@@ -1354,21 +1314,13 @@ class TestFarmbot(unittest.TestCase):
             call(
                 'GET',
                 'https://my.farm.bot/api/tools',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
             call(
                 'GET',
                 'https://my.farm.bot/api/points',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
         ])
@@ -1452,21 +1404,13 @@ class TestFarmbot(unittest.TestCase):
             call(
                 'GET',
                 'https://my.farm.bot/api/tools',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
             call(
                 'GET',
                 'https://my.farm.bot/api/points',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
         ])
@@ -1501,11 +1445,7 @@ class TestFarmbot(unittest.TestCase):
             call(
                 'GET',
                 'https://my.farm.bot/api/tools',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
         ])
@@ -1529,11 +1469,7 @@ class TestFarmbot(unittest.TestCase):
             call(
                 'GET',
                 'https://my.farm.bot/api/tools',
-                headers={
-                    'authorization': 'encoded_token_value',
-                    'content-type': 'application/json',
-                },
-                json=None,
+                **REQUEST_KWARGS,
             ),
             call().json(),
         ])
@@ -1793,6 +1729,18 @@ class TestFarmbot(unittest.TestCase):
                 'args': {'milliseconds': 100}},
             extra_rpc_args={},
             mock_api_response=[])
+
+    def test_set_verbosity(self):
+        '''Test set_verbosity.'''
+        self.assertEqual(self.fb.state.verbosity, 0)
+        self.fb.set_verbosity(1)
+        self.assertEqual(self.fb.state.verbosity, 1)
+
+    def test_set_timeout(self):
+        '''Test set_timeout.'''
+        self.assertEqual(self.fb.state.timeout['listen'], 0)
+        self.fb.set_timeout(15)
+        self.assertEqual(self.fb.state.timeout['listen'], 15)
 
     @staticmethod
     def helper_get_print_strings(mock_print):
