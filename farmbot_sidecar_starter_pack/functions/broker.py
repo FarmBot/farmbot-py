@@ -145,6 +145,13 @@ class BrokerConnect():
         label = None
         if publish and publish_payload["args"]["label"] != "":
             label = publish_payload["args"]["label"]
+        if message.get("kind") == "read_status":
+            # Getting the RPC response to read_status isn't as important as
+            # returning the status as soon as possible, since the device
+            # will still publish a status within a few seconds even if the
+            # read_status command isn't received.
+            channel = "status"
+            label = None
 
         # Print status message
         channel_str = f" channel '{channel}'" if channel != "#" else ""
