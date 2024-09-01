@@ -15,7 +15,8 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.2.0"
+VERSION = "1.3.0"
+
 
 class Farmbot():
     """Farmbot class."""
@@ -49,15 +50,15 @@ class Farmbot():
         else:
             self.state.timeout[key] = duration
 
+    def set_token(self, token):
+        """Set FarmBot authorization token."""
+        self.state.token = token
+
     # api.py
 
     def get_token(self, email, password, server="https://my.farm.bot"):
         """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
         return self.api.get_token(email, password, server)
-
-    def set_token(self, token):
-        """Set FarmBot authorization token."""
-        self.state.token = token
 
     # basic_commands.py
 

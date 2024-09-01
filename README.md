@@ -94,6 +94,13 @@ bot.set_verbosity(2)
 | `1` A description of the action will be output with any additional results data. | `Emergency stopping device` |
 | `2` The name of the function and the timestamp will be output. | `'e_stop()' called at: 2024-08-21 11:16:18.547813` |
 
+### Configure timeouts
+
+If you expect movements to take longer than the default timeout duration of 120 seconds, you can increase the movement timeout via:
+```python
+bot.set_timeout(240, "movements")
+```
+
 ### Test 1: Add a new plant to your garden
 
 This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/rest-api).
@@ -147,13 +154,12 @@ sidecar-starter-pack/
 
 ### api.py
 
-| class `ApiConnect()` | Description |
-| :--- | :--- |
-| `get_token()` | Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
-| `set_token()` | Set FarmBot authorization token. |
-| `check_token()` | Ensure the token persists throughout sidecar. |
-| `request_handling()` | Handle errors associated with different endpoint errors. |
-| `request()` | Make requests to API endpoints using different methods. |
+|`main`| class `ApiConnect()` | Description |
+|:---:|:---|:---|
+|*| `get_token()` | Get FarmBot authorization token. Server is "https://my.farm.bot" by default. |
+| | `check_token()` | Ensure the token persists throughout sidecar. |
+| | `request_handling()` | Handle errors associated with different endpoint errors. |
+| | `request()` | Make requests to API endpoints using different methods. |
 
 ### basic_commands.py
 
@@ -167,14 +173,14 @@ sidecar-starter-pack/
 
 ### broker.py
 
-| class `BrokerConnect()` | Description |
-| :--- | :--- |
-| `connect()` | Establish a persistent connection to send messages via the message broker. |
-| `disconnect()` | Disconnect from the message broker. |
-| `publish()` | Publish messages containing CeleryScript via the message broker. |
-| `start_listen()` | Establish persistent subscription to message broker channels. |
-| `stop_listen()` | End subscription to all message broker channels. |
-| `listen()` | Listen to a message broker channel for the provided duration in seconds. |
+|`main`| class `BrokerConnect()` | Description |
+|:---:|:---|:---|
+|*| `connect()` | Establish a persistent connection to send messages via the message broker. |
+|*| `disconnect()` | Disconnect from the message broker. |
+|*| `publish()` | Publish messages containing CeleryScript via the message broker. |
+| | `start_listen()` | Establish persistent subscription to message broker channels. |
+| | `stop_listen()` | End subscription to all message broker channels. |
+|*| `listen()` | Listen to a message broker channel for the provided duration in seconds. |
 
 ### camera.py
 
