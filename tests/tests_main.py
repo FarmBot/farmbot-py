@@ -571,7 +571,7 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         self.fb.state.test_env = False
-        self.fb.broker.publish({'kind': 'sync', 'args': {}})
+        self.fb.publish({'kind': 'sync', 'args': {}})
         self.assertNotIn(self.fb.state.last_published.get('args', {}).get('label'), ['test', '', None])
 
     @patch('requests.request')

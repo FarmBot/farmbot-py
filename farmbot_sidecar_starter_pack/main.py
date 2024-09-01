@@ -91,6 +91,10 @@ class Farmbot():
         """Disconnect from the message broker."""
         return self.broker.disconnect()
 
+    def publish(self, message):
+        """Publish message to the message broker."""
+        return self.broker.publish(message)
+
     def listen(self, channel="#", duration=None):
         """Listen to a message broker channel for the provided duration in seconds."""
         return self.broker.listen(channel, duration)
