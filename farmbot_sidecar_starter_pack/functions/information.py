@@ -182,7 +182,11 @@ class Information():
     def get_resource_by_name(self, endpoint, resource_name, name_key="label", filter=None):
         """Find a resource by name."""
         self.state.print_status(description=f"Searching for {resource_name} in {endpoint}.")
-        resources = self.api_get(endpoint, data_print=False)
+        resources = self.state.fetch_cache(endpoint)
+        if resources is None:
+            resources = self.api_get(endpoint, data_print=False)
+        else:
+            self.state.print_status(description=f"Using {len(resources)} cached items.")
         if filter is not None:
             for key, value in filter.items():
                 resources = [resource for resource in resources if resource[key] == value]
@@ -191,7 +195,9 @@ class Information():
             error = f"ERROR: '{resource_name}' not in {endpoint}: {resource_names}."
             self.state.print_status(description=error, update_only=True)
             self.state.error = error
+            self.state.clear_cache(endpoint)
             return None
 
+        self.state.save_cache(endpoint, resources)
         resource = [p for p in resources if p[name_key] == resource_name][0]
         return resource

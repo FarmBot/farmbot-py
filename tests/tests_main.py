@@ -48,6 +48,7 @@ class TestFarmbot(unittest.TestCase):
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
         self.fb.set_timeout(0, 'all')
+        self.fb.state.clear_cache()
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
@@ -911,6 +912,45 @@ class TestFarmbot(unittest.TestCase):
             mock_api_response=[])
         self.assertEqual(self.fb.state.error, 'ERROR: \'New Peripheral\' not in peripherals: [].')
 
+    @patch('requests.request')
+    @patch('paho.mqtt.client.Client')
+    def test_toggle_peripheral_use_cache(self, mock_mqtt, mock_request):
+        '''Test toggle_peripheral command: use cache'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        mock_response = Mock()
+        mock_response.json.return_value = [
+            {'label': 'Peripheral 4', 'id': 123},
+            {'label': 'Peripheral 5', 'id': 456}
+        ]
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_request.return_value = mock_response
+        # save cache
+        self.fb.toggle_peripheral('Peripheral 4')
+        mock_request.assert_called()
+        mock_client.publish.assert_called()
+        mock_request.reset_mock()
+        mock_client.reset_mock()
+        # use cache
+        self.fb.toggle_peripheral('Peripheral 5')
+        mock_request.assert_not_called()
+        mock_client.publish.assert_called()
+        mock_request.reset_mock()
+        mock_client.reset_mock()
+        # clear cache
+        self.fb.toggle_peripheral('Peripheral 6')
+        mock_request.assert_not_called()
+        mock_client.publish.assert_not_called()
+        mock_request.reset_mock()
+        mock_client.reset_mock()
+        # save cache
+        self.fb.toggle_peripheral('Peripheral 4')
+        mock_request.assert_called()
+        mock_client.publish.assert_called()
+        mock_request.reset_mock()
+        mock_client.reset_mock()
+
     def test_on_digital(self):
         '''Test on command: digital'''
         def exec_command():
@@ -1287,6 +1327,7 @@ class TestFarmbot(unittest.TestCase):
         tray_data = kwargs['tray_data']
         cell = kwargs['cell']
         expected_xyz = kwargs['expected_xyz']
+        self.fb.state.clear_cache()
         mock_response = Mock()
         mock_api_response = [
             {

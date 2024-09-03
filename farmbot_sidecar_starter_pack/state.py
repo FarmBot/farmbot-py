@@ -45,6 +45,7 @@ class State():
         self.ssl = True
         self.min_call_stack_depth = 100
         self.dry_run = False
+        self.resource_cache = {}
 
     def print_status(self, endpoint_json=None, description=None, update_only=False, end="\n"):
         """Handle changes to output based on user-defined verbosity."""
@@ -77,3 +78,18 @@ class State():
             self.print_status(description=self.NO_TOKEN_ERROR)
             self.error = self.NO_TOKEN_ERROR
             raise ValueError(self.NO_TOKEN_ERROR)
+
+    def save_cache(self, endpoint, records):
+        """Cache records."""
+        self.resource_cache[endpoint] = records
+
+    def fetch_cache(self, endpoint):
+        """Fetch cached records."""
+        return self.resource_cache.get(endpoint)
+
+    def clear_cache(self, endpoint=None):
+        """Clear the cache."""
+        if endpoint is not None and endpoint in self.resource_cache:
+            del self.resource_cache[endpoint]
+        else:
+            self.resource_cache = {}
