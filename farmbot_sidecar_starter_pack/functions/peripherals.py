@@ -4,6 +4,7 @@ Peripherals class.
 
 # └── functions/peripherals.py
 #     ├── [BROKER] control_servo()
+#     ├── [BROKER] write_pin()
 #     ├── [BROKER] control_peripheral()
 #     ├── [BROKER] toggle_peripheral()
 #     ├── [BROKER] on()
@@ -40,6 +41,23 @@ class Peripherals():
         self.broker.publish(control_servo_message)
 
         return
+
+    def write_pin(self, pin_number, value, mode=0):
+        """Write a value to a pin."""
+        mode_str = self.info.convert_mode_to_string(mode)
+        self.state.print_status(
+            description=f"Setting pin {pin_number} to {value} ({mode_str}).")
+
+        write_pin_message = {
+            "kind": "write_pin",
+            "args": {
+                "pin_number": pin_number,
+                "pin_value": value,
+                "pin_mode": mode,
+            }
+        }
+
+        self.broker.publish(write_pin_message)
 
     def control_peripheral(self, peripheral_name, value, mode=None):
         """Set peripheral value and mode."""

@@ -210,6 +210,7 @@ sidecar-starter-pack/
 | `curve()` | Returns all curves or a single curve by id. |
 | `measure_soil_height()` | Use the camera to determine soil height at the current location. |
 | `read_status()` | Returns the FarmBot status tree. |
+| `read_pin()` | Reads the current value of the specified pin. |
 | `read_sensor()` | Reads the given sensor. |
 
 ### jobs.py
@@ -245,6 +246,7 @@ sidecar-starter-pack/
 | class `Peripherals()` | Description |
 | :--- | :--- |
 | `control_servo()` | Set servo angle between 0-100 degrees. |
+| `write_pin()` | Writes a new value to the specified pin. |
 | `control_peripheral()` | Set peripheral value (digital ON/OFF or analog value from 0-255). |
 | `toggle_peripheral()` | Toggles the state of a specific peripheral between 'ON' (100%) and 'OFF' (0%). |
 | `on()` | Turns specified pin number 'ON' (100%). |

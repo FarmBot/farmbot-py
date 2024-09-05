@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.4.0"
+VERSION = "1.5.0"
 
 
 class Farmbot():
@@ -152,6 +152,10 @@ class Farmbot():
         """Returns the FarmBot status tree."""
         return self.info.read_status()
 
+    def read_pin(self, pin_number, mode=0):
+        """Reads the current value of the specified pin."""
+        return self.info.read_pin(pin_number, mode)
+
     def read_sensor(self, sensor_name):
         """Reads the given sensor."""
         return self.info.read_sensor(sensor_name)
@@ -219,6 +223,10 @@ class Farmbot():
     def control_servo(self, pin, angle):
         """Set servo angle between 0-100 degrees."""
         return self.peripherals.control_servo(pin, angle)
+
+    def write_pin(self, pin_number, value, mode=0):
+        """Writes a new value to the specified pin."""
+        return self.peripherals.write_pin(pin_number, value, mode)
 
     def control_peripheral(self, peripheral_name, value, mode=None):
         """Set peripheral value and mode."""

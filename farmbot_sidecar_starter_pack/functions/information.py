@@ -13,6 +13,7 @@ Information class.
 #     ├── [API] curve()
 #     ├── [BROKER] measure_soil_height()
 #     ├── [BROKER] read_status()
+#     ├── [BROKER] read_pin()
 #     └── [BROKER] read_sensor()
 
 from .broker import BrokerConnect
@@ -152,6 +153,25 @@ class Information():
 
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
+
+    @staticmethod
+    def convert_mode_to_string(mode):
+        """Converts mode to string."""
+        return "digital" if mode == 0 else "analog"
+
+    def read_pin(self, pin_number, mode=0):
+        """Reads the given pin by number."""
+        mode_str = self.convert_mode_to_string(mode)
+        self.state.print_status(description=f"Reading pin {pin_number} ({mode_str})...")
+        read_pin_message = {
+            "kind": "read_pin",
+            "args": {
+                "pin_number": pin_number,
+                "label": "---",
+                "pin_mode": mode,
+            }
+        }
+        self.broker.publish(read_pin_message)
 
     def read_sensor(self, sensor_name):
         """Reads the given pin by id."""

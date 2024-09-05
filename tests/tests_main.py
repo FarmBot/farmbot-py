@@ -703,6 +703,23 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
+    def test_read_pin(self):
+        '''Test read_pin command'''
+        def exec_command():
+            self.fb.read_pin(13)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_pin',
+                'args': {
+                    'pin_number': 13,
+                    'label': '---',
+                    'pin_mode': 0,
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
     def test_read_sensor(self):
         '''Test read_sensor command'''
         def exec_command():
@@ -1044,6 +1061,23 @@ class TestFarmbot(unittest.TestCase):
             expected_command={
                 'kind': 'calibrate',
                 'args': {'axis': 'all'},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_write_pin(self):
+        '''Test write_pin command'''
+        def exec_command():
+            self.fb.write_pin(13, 1, 1)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'write_pin',
+                'args': {
+                    'pin_number': 13,
+                    'pin_value': 1,
+                    'pin_mode': 1,
+                },
             },
             extra_rpc_args={},
             mock_api_response={})
