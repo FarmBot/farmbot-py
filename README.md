@@ -181,6 +181,7 @@ sidecar-starter-pack/
 | | `start_listen()` | Establish persistent subscription to message broker channels. |
 | | `stop_listen()` | End subscription to all message broker channels. |
 |*| `listen()` | Listen to a message broker channel for the provided duration in seconds. |
+|*| `listen_for_status_changes()` | Listen for changes to the device state tree. |
 
 ### camera.py
 

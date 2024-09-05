@@ -556,15 +556,75 @@ class TestFarmbot(unittest.TestCase):
         mock_client.loop_start.assert_called()
         mock_client.loop_stop.assert_called()
 
+    @patch('math.inf', 0.1)
+    @patch('paho.mqtt.client.Client')
+    def test_listen_for_status_changes(self, mock_mqtt):
+        '''Test listen_for_status_changes command'''
+        self.maxDiff = None
+        i = 0
+
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+
+        class MockMessage:
+            '''Mock message class'''
+            def __init__(self):
+                self.topic = '/status'
+                payload = {
+                    'location_data': {
+                        'position': {
+                            'x': i,
+                            'y': i + 10,
+                            'z': 100,
+                        }}}
+                if i == 2:
+                    payload['location_data']['position']['extra'] = {'idx': 2}
+                if i == 3:
+                    payload['location_data']['position']['extra'] = {'idx': 3}
+                self.payload = json.dumps(payload)
+
+        def patched_sleep(_seconds):
+            '''Patched sleep function'''
+            nonlocal i
+            mock_message = MockMessage()
+            mock_client.on_message('', '', mock_message)
+            i += 1
+
+        with patch('time.sleep', new=patched_sleep):
+            self.fb.listen_for_status_changes(stop_count=5, info_path='location_data.position')
+
+        self.assertEqual(self.fb.state.last_messages['status'], [
+            {'location_data': {'position': {'x': 0, 'y': 10, 'z': 100}}},
+            {'location_data': {'position': {'x': 1, 'y': 11, 'z': 100}}},
+            {'location_data': {'position': {'extra': {'idx': 2}, 'x': 2, 'y': 12, 'z': 100}}},
+            {'location_data': {'position': {'extra': {'idx': 3}, 'x': 3, 'y': 13, 'z': 100}}},
+            {'location_data': {'position': {'x': 4, 'y': 14, 'z': 100}}}
+        ])
+        self.assertEqual(self.fb.state.last_messages['status_diffs'], [
+            {'x': 0, 'y': 10, 'z': 100},
+            {'x': 1, 'y': 11},
+            {'extra': {'idx': 2}, 'x': 2, 'y': 12},
+            {'extra': {'idx': 3}, 'x': 3, 'y': 13},
+            {'x': 4, 'y': 14},
+        ])
+        self.assertEqual(self.fb.state.last_messages['status_excerpt'], [
+            {'x': 0, 'y': 10, 'z': 100},
+            {'x': 1, 'y': 11, 'z': 100},
+            {'extra': {'idx': 2}, 'x': 2, 'y': 12, 'z': 100},
+            {'extra': {'idx': 3}, 'x': 3, 'y': 13, 'z': 100},
+            {'x': 4, 'y': 14, 'z': 100},
+        ])
+
+
     @patch('paho.mqtt.client.Client')
     def test_listen_clear_last(self, mock_mqtt):
         '''Test listen command: clear last message'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        self.fb.state.last_messages = {'#': "message"}
+        self.fb.state.last_messages = [{'#': "message"}]
         self.fb.state.test_env = False
         self.fb.listen()
-        self.assertIsNone(self.fb.state.last_messages['#'])
+        self.assertEqual(len(self.fb.state.last_messages['#']), 0)
 
     @patch('paho.mqtt.client.Client')
     def test_publish_apply_label(self, mock_mqtt):
@@ -593,10 +653,10 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_request.return_value = mock_response
-        self.fb.state.last_messages['from_device'] = {
+        self.fb.state.last_messages['from_device'] = [{
             'kind': 'rpc_error' if error else 'rpc_ok',
             'args': {'label': 'test'},
-        }
+        }]
         execute_command()
         if expected_command is None:
             mock_client.publish.assert_not_called()
@@ -1218,9 +1278,9 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz(self):
         '''Test get_xyz command'''
         def exec_command():
-            self.fb.state.last_messages['status'] = {
+            self.fb.state.last_messages['status'] = [{
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
-            }
+            }]
             position = self.fb.get_xyz()
             self.assertEqual(position, {'x': 1, 'y': 2, 'z': 3})
         self.send_command_test_helper(
@@ -1235,7 +1295,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_xyz_no_status(self):
         '''Test get_xyz command: no status'''
         def exec_command():
-            self.fb.state.last_messages['status'] = None
+            self.fb.state.last_messages['status'] = []
             position = self.fb.get_xyz()
             self.assertIsNone(position)
         self.send_command_test_helper(
@@ -1250,9 +1310,9 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position(self):
         '''Test check_position command: at position'''
         def exec_command():
-            self.fb.state.last_messages['status'] = {
+            self.fb.state.last_messages['status'] = [{
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
-            }
+            }]
             at_position = self.fb.check_position(1, 2, 3, 0)
             self.assertTrue(at_position)
         self.send_command_test_helper(
@@ -1267,9 +1327,9 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_false(self):
         '''Test check_position command: not at position'''
         def exec_command():
-            self.fb.state.last_messages['status'] = {
+            self.fb.state.last_messages['status'] = [{
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
-            }
+            }]
             at_position = self.fb.check_position(0, 0, 0, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
@@ -1284,7 +1344,7 @@ class TestFarmbot(unittest.TestCase):
     def test_check_position_no_status(self):
         '''Test check_position command: no status'''
         def exec_command():
-            self.fb.state.last_messages['status'] = None
+            self.fb.state.last_messages['status'] = []
             at_position = self.fb.check_position(0, 0, 0, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
@@ -1553,11 +1613,11 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_one(self):
         '''Test get_job command: get one job'''
         def exec_command():
-            self.fb.state.last_messages['status'] = {
+            self.fb.state.last_messages['status'] = [{
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
-            }
+            }]
             job = self.fb.get_job('job name')
             self.assertEqual(job, {'status': 'working'})
         self.send_command_test_helper(
@@ -1572,11 +1632,11 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_all(self):
         '''Test get_job command: get all jobs'''
         def exec_command():
-            self.fb.state.last_messages['status'] = {
+            self.fb.state.last_messages['status'] = [{
                 'jobs': {
                     'job name': {'status': 'working'},
                 },
-            }
+            }]
             jobs = self.fb.get_job()
             self.assertEqual(jobs, {'job name': {'status': 'working'}})
         self.send_command_test_helper(
@@ -1591,7 +1651,7 @@ class TestFarmbot(unittest.TestCase):
     def test_get_job_no_status(self):
         '''Test get_job command: no status'''
         def exec_command():
-            self.fb.state.last_messages['status'] = None
+            self.fb.state.last_messages['status'] = []
             job = self.fb.get_job('job name')
             self.assertIsNone(job)
         self.send_command_test_helper(
@@ -1794,7 +1854,9 @@ class TestFarmbot(unittest.TestCase):
     def test_rpc_response_timeout(self):
         '''Test rpc response timeout handling'''
         def exec_command():
-            self.fb.state.last_messages['from_device'] = {'kind': 'rpc_ok', 'args': {'label': 'wrong label'}}
+            self.fb.state.last_messages['from_device'] = [
+                {'kind': 'rpc_ok', 'args': {'label': 'wrong label'}},
+            ]
             self.fb.wait(100)
             self.assertEqual(self.fb.state.error, 'Timed out waiting for RPC response.')
         self.send_command_test_helper(

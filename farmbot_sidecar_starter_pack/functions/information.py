@@ -149,7 +149,8 @@ class Information():
         }
         self.broker.publish(status_message)
 
-        status_tree = self.state.last_messages.get("status")
+        status_trees = self.state.last_messages.get("status", [])
+        status_tree = None if len(status_trees) == 0 else status_trees[-1]
 
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
