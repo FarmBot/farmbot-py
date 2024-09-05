@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.5.0"
+VERSION = "1.5.1"
 
 
 class Farmbot():
@@ -53,6 +53,10 @@ class Farmbot():
     def set_token(self, token):
         """Set FarmBot authorization token."""
         self.state.token = token
+
+    def clear_cache(self, endpoint=None):
+        """Clear cached records."""
+        self.state.clear_cache(endpoint)
 
     # api.py
 

@@ -48,7 +48,7 @@ class TestFarmbot(unittest.TestCase):
         self.fb.set_verbosity(0)
         self.fb.state.test_env = True
         self.fb.set_timeout(0, 'all')
-        self.fb.state.clear_cache()
+        self.fb.clear_cache()
 
     @patch('requests.post')
     def test_get_token_default_server(self, mock_post):
@@ -1421,7 +1421,7 @@ class TestFarmbot(unittest.TestCase):
         tray_data = kwargs['tray_data']
         cell = kwargs['cell']
         expected_xyz = kwargs['expected_xyz']
-        self.fb.state.clear_cache()
+        self.fb.clear_cache()
         mock_response = Mock()
         mock_api_response = [
             {
