@@ -174,8 +174,8 @@ class Information():
         self.broker.publish(read_pin_message)
 
     def read_sensor(self, sensor_name):
-        """Reads the given pin by id."""
-        self.state.print_status(description="Reading sensor...")
+        """Reads the given sensor."""
+        self.state.print_status(description=f"Reading {sensor_name} sensor...")
         sensor = self.get_resource_by_name("sensors", sensor_name)
         if sensor is None:
             return
