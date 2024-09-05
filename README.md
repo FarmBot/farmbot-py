@@ -101,6 +101,9 @@ If you expect movements to take longer than the default timeout duration of 120 
 bot.set_timeout(240, "movements")
 ```
 
+> [!NOTE]
+> To reduce duplicate API requests, some information used frequently to look up peripheral, sensor, tool, and sequence IDs is cached. To clear the cache, call `bot.clear_cache()`.
+
 ### Test 1: Add a new plant to your garden
 
 This test will help familiarize you with sending commands via the [API](https://developer.farm.bot/docs/rest-api).
