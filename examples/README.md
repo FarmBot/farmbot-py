@@ -15,15 +15,19 @@ This script demonstrates how to use the Segment Anything Model (SAM) to segment 
 ## Example 1: Segmenting an image of a plant
 
 Input image:
+
 ![input image](_images/plant_segmentation_input.jpeg)
 
 `vit_l` model output:
+
 ![vit_l output](_images/plant_segmentation_output.png)
 
 ## Example 2: Segmenting an image of the FarmBot toolbay and other objects
 
 Input image:
+
 ![input image](_images/toolbay_segmentation_input.jpeg)
 
 `vit_l` model output:
+
 ![vit_l output](_images/toolbay_segmentation_output.png)
