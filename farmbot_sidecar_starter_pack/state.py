@@ -4,6 +4,7 @@ import json
 import inspect
 from datetime import datetime
 
+
 def get_call_stack_depth():
     """Return the depth of the current call stack."""
     depth = 0
@@ -13,21 +14,31 @@ def get_call_stack_depth():
         frame = frame.f_back
     return depth
 
+
 def get_function_call_info():
     """Return the name and given arguments of the function where this is called."""
     # back to print_status then back to the function that called print_status
     frame = inspect.currentframe().f_back.f_back
     func_name = frame.f_code.co_name
     args, _, _, values = inspect.getargvalues(frame)
-    arg_strings = [f"{arg}={repr(values[arg])}" for arg in args if arg != "self"]
+    arg_strings = []
+    for arg in args:
+        if arg != "self":
+            arg_strings.append(f"{arg}={repr(values[arg])}")
     arg_str = ", ".join(arg_strings)
     return f"{func_name}({arg_str})"
+
+
+NO_TOKEN_ERROR = """
+ERROR: You have no token, please call `get_token`
+using your login credentials and the server you wish to connect to.
+"""
 
 
 class State():
     """State class."""
 
-    NO_TOKEN_ERROR = "ERROR: You have no token, please call `get_token` using your login credentials and the server you wish to connect to."
+    NO_TOKEN_ERROR = NO_TOKEN_ERROR.replace("\n", "")
 
     def __init__(self):
         self.token = None
@@ -65,7 +76,7 @@ class State():
             if self.verbosity == 1 and not update_only and top:
                 print()
             if description is not None:
-                print(indent + description, end=end, flush=(end == ""))
+                print(indent + description, end=end, flush=end == "")
             if endpoint_json is not None and self.json_printing:
                 json_str = json.dumps(endpoint_json, indent=4)
                 indented_str = indent + json_str.replace("\n", "\n" + indent)

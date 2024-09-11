@@ -11,8 +11,10 @@ BasicCommands class.
 
 from .broker import BrokerConnect
 
+
 class BasicCommands():
     """Basic commands class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.state = state
@@ -20,7 +22,8 @@ class BasicCommands():
     def wait(self, duration):
         """Pauses execution for a certain number of milliseconds."""
 
-        self.state.print_status(description=f"Waiting for {duration} milliseconds...")
+        description = f"Waiting for {duration} milliseconds..."
+        self.state.print_status(description=description)
 
         wait_message = {
             "kind": "wait",
@@ -54,7 +57,9 @@ class BasicCommands():
             "args": {}
         }
 
-        unlock_message = self.broker.wrap_message(unlock_message, priority=9000)
+        unlock_message = self.broker.wrap_message(
+            unlock_message,
+            priority=9000)
         self.broker.publish(unlock_message)
 
     def reboot(self):

@@ -16,26 +16,41 @@ from .information import Information
 
 ASSERTION_TYPES = ["abort", "recover", "abort_recover", "continue"]
 
+
 def validate_assertion_type(assertion_type):
     """Validate assertion type."""
     if assertion_type not in ASSERTION_TYPES:
-        raise ValueError(f"Invalid assertion_type: {assertion_type} not in {ASSERTION_TYPES}")
+        msg = "Invalid assertion_type: "
+        msg += f"{assertion_type} not in {ASSERTION_TYPES}"
+        raise ValueError(msg)
+
 
 OPERATORS = ["<", ">", "is", "not", "is_undefined"]
-IF_STATEMENT_VARIABLE_STRINGS = ["x", "y", "z", *[f"pin{str(i)}" for i in range(70)]]
+IF_STATEMENT_VARIABLE_STRINGS = [
+    "x",
+    "y",
+    "z",
+    *[f"pin{str(i)}" for i in range(70)]]
 NAMED_PIN_TYPES = ["Peripheral", "Sensor"]
+
 
 def validate_if_statement_args(named_pin_type, variable, operator):
     """Validate if statement arguments."""
     if operator not in OPERATORS:
         raise ValueError(f"Invalid operator: {operator} not in {OPERATORS}")
     if named_pin_type is None and variable not in IF_STATEMENT_VARIABLE_STRINGS:
-        raise ValueError(f"Invalid variable: {variable} not in {IF_STATEMENT_VARIABLE_STRINGS}")
+        msg = "Invalid variable: "
+        msg += f"{variable} not in {IF_STATEMENT_VARIABLE_STRINGS}"
+        raise ValueError(msg)
     if named_pin_type is not None and named_pin_type not in NAMED_PIN_TYPES:
-        raise ValueError(f"Invalid named_pin_type: {named_pin_type} not in {NAMED_PIN_TYPES}")
+        msg = "Invalid named_pin_type: "
+        msg += f"{named_pin_type} not in {NAMED_PIN_TYPES}"
+        raise ValueError(msg)
+
 
 class Resources():
     """Resources class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -47,9 +62,13 @@ class Resources():
 
     def sequence(self, sequence_name):
         """Executes a predefined sequence."""
-        self.state.print_status(description="Running {sequence_name} sequence.")
+        self.state.print_status(
+            description="Running {sequence_name} sequence.")
 
-        sequence = self.info.get_resource_by_name("sequences", sequence_name, "name")
+        sequence = self.info.get_resource_by_name(
+            endpoint="sequences",
+            resource_name=sequence_name,
+            name_key="name")
         if sequence is None:
             return
 
@@ -62,10 +81,10 @@ class Resources():
 
         self.broker.publish(sequence_message)
 
-
     def get_seed_tray_cell(self, tray_name, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""
-        self.state.print_status(description="Identifying seed tray cell location.")
+        self.state.print_status(
+            description="Identifying seed tray cell location.")
 
         tray_tool = self.info.get_resource_by_name("tools", tray_name, "name")
         if tray_tool is None:
@@ -106,7 +125,8 @@ class Resources():
         }
 
         if cell not in cells:
-            raise ValueError("Seed Tray Cell must be one of **A1** through **D4**")
+            msg = "Seed Tray Cell must be one of **A1** through **D4**"
+            raise ValueError(msg)
 
         flip = 1
         if tray_data["pullout_direction"] == 1:
@@ -114,7 +134,8 @@ class Resources():
         elif tray_data["pullout_direction"] == 2:
             flip = -1
         else:
-            raise ValueError("Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`")
+            msg = "Seed Tray **SLOT DIRECTION** must be `Positive X` or `Negative X`"
+            raise ValueError(msg)
 
         a1 = {
             "x": tray_data["x"] - seeder_needle_offset + (1.5 * cell_spacing * flip),
@@ -164,7 +185,13 @@ class Resources():
 
         self.broker.publish(lua_message)
 
-    def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
+    def if_statement(self,
+                     variable,
+                     operator,
+                     value,
+                     then_sequence_name=None,
+                     else_sequence_name=None,
+                     named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
 
         self.state.print_status(description="Executing if statement.")
@@ -200,7 +227,10 @@ class Resources():
         }
         for key, sequence_name in sequence_names.items():
             if sequence_name is not None:
-                sequence = self.info.get_resource_by_name("sequences", sequence_name, "name")
+                sequence = self.info.get_resource_by_name(
+                    endpoint="sequences",
+                    resource_name=sequence_name,
+                    name_key="name")
                 if sequence is None:
                     return
                 sequence_id = sequence["id"]
@@ -227,7 +257,10 @@ class Resources():
         }
 
         if recovery_sequence_name is not None:
-            sequence = self.info.get_resource_by_name("sequences", recovery_sequence_name, "name")
+            sequence = self.info.get_resource_by_name(
+                endpoint="sequences",
+                resource_name=recovery_sequence_name,
+                name_key="name")
             if sequence is None:
                 return
             recovery_sequence_id = sequence["id"]

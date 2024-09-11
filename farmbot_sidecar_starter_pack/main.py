@@ -104,7 +104,11 @@ class Farmbot():
         """Listen to a message broker channel."""
         return self.broker.listen(channel, duration, stop_count=stop_count)
 
-    def listen_for_status_changes(self, duration=None, stop_count=1, diff_only=True, info_path=None):
+    def listen_for_status_changes(self,
+                                  duration=None,
+                                  stop_count=1,
+                                  diff_only=True,
+                                  info_path=None):
         """Listen for status changes."""
         return self.broker.listen(
             channel="status",
@@ -275,9 +279,21 @@ class Farmbot():
         """Executes custom Lua code snippets to perform complex tasks or automations."""
         return self.resources.lua(lua_code)
 
-    def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
+    def if_statement(self,
+                     variable,
+                     operator,
+                     value,
+                     then_sequence_name=None,
+                     else_sequence_name=None,
+                     named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
-        return self.resources.if_statement(variable, operator, value, then_sequence_name, else_sequence_name, named_pin_type)
+        return self.resources.if_statement(
+            variable,
+            operator,
+            value,
+            then_sequence_name,
+            else_sequence_name,
+            named_pin_type)
 
     def assertion(self, lua_code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""

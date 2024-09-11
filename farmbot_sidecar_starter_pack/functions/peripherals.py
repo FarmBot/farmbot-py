@@ -13,8 +13,10 @@ Peripherals class.
 from .broker import BrokerConnect
 from .information import Information
 
+
 class Peripherals():
     """Peripherals class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -34,7 +36,7 @@ class Peripherals():
             "kind": "set_servo_angle",
             "args": {
                 "pin_number": pin,
-                "pin_value": angle # From 0 to 180
+                "pin_value": angle  # From 0 to 180
             }
         }
 
@@ -61,19 +63,24 @@ class Peripherals():
 
     def control_peripheral(self, peripheral_name, value, mode=None):
         """Set peripheral value and mode."""
-        self.state.print_status(description=f"Setting {peripheral_name} to {value}.")
+        self.state.print_status(
+            description=f"Setting {peripheral_name} to {value}.")
 
-        peripheral = self.info.get_resource_by_name("peripherals", peripheral_name)
+        peripheral = self.info.get_resource_by_name(
+            "peripherals",
+            peripheral_name)
         if peripheral is None:
             return
         peripheral_id = peripheral["id"]
-        pin_mode = peripheral["mode"] if mode is None else self.info.convert_mode_to_number(mode)
+        pin_mode = peripheral["mode"]
+        if mode is not None:
+            pin_mode = self.info.convert_mode_to_number(mode)
 
         control_peripheral_message = {
             "kind": "write_pin",
             "args": {
-                "pin_value": value, # Controls ON/OFF or slider value from 0-255
-                "pin_mode": pin_mode, # Controls digital (0) or analog (1) mode
+                "pin_value": value,
+                "pin_mode": pin_mode,
                 "pin_number": {
                     "kind": "named_pin",
                     "args": {
@@ -89,7 +96,9 @@ class Peripherals():
     def toggle_peripheral(self, peripheral_name):
         """Toggles the state of a specific peripheral between `on` and `off`."""
         self.state.print_status(description=f"Toggling {peripheral_name}.")
-        peripheral = self.info.get_resource_by_name("peripherals", peripheral_name)
+        peripheral = self.info.get_resource_by_name(
+            "peripherals",
+            peripheral_name)
         if peripheral is None:
             return
         peripheral_id = peripheral["id"]
@@ -110,7 +119,8 @@ class Peripherals():
 
     def on(self, pin_number):
         """Turns specified pin number `on` (100%)."""
-        self.state.print_status(description=f"Turning ON pin number {pin_number}.")
+        self.state.print_status(
+            description=f"Turning ON pin number {pin_number}.")
 
         on_message = {
             "kind": "write_pin",
@@ -125,7 +135,8 @@ class Peripherals():
 
     def off(self, pin_number):
         """Turns specified pin number `off` (0%)."""
-        self.state.print_status(description=f"Turning OFF pin number {pin_number}.")
+        self.state.print_status(
+            description=f"Turning OFF pin number {pin_number}.")
 
         off_message = {
             "kind": "write_pin",

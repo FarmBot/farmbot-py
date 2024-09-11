@@ -9,8 +9,10 @@ Camera class.
 
 from .broker import BrokerConnect
 
+
 class Camera():
     """Camera class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.state = state

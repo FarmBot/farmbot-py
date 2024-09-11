@@ -28,6 +28,7 @@ def validate_log_options(message_type, channel):
 
 class MessageHandling():
     """Message handling class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.api = ApiConnect(state)
@@ -36,7 +37,8 @@ class MessageHandling():
 
     def log(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the API."""
-        self.state.print_status(description="Sending new log message to the API.")
+        self.state.print_status(
+            description="Sending new log message to the API.")
 
         validate_log_options(message_type, channel)
 
@@ -50,7 +52,8 @@ class MessageHandling():
 
     def message(self, message_str, message_type="info", channel="ticker"):
         """Sends new log message via the message broker."""
-        self.state.print_status(description="Sending new log message to the message broker.")
+        self.state.print_status(
+            description="Sending new log message to the message broker.")
 
         validate_log_options(message_type, channel)
 
@@ -72,12 +75,14 @@ class MessageHandling():
 
     def debug(self, message_str):
         """Sends debug message used for developer information or troubleshooting."""
-        self.state.print_status(description="Sending debug message to the message broker.")
+        self.state.print_status(
+            description="Sending debug message to the message broker.")
 
         self.message(message_str, "debug", "ticker")
 
     def toast(self, message_str, message_type="info"):
         """Sends a message that pops up on the user interface briefly."""
-        self.state.print_status(description="Sending toast message to the message broker.")
+        self.state.print_status(
+            description="Sending toast message to the message broker.")
 
         self.message(message_str, message_type, channel="toast")

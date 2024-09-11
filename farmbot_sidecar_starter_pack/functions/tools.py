@@ -12,8 +12,10 @@ ToolControls class.
 from .broker import BrokerConnect
 from .resources import Resources
 
+
 class ToolControls():
     """Tool controls class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.resource = Resources(state)
@@ -73,7 +75,8 @@ class ToolControls():
 
     def dispense(self, milliliters, tool_name=None, pin=None):
         """Dispenses user-defined amount of liquid in milliliters."""
-        self.state.print_status(description=f"Dispensing {milliliters} from tool {tool_name}...")
+        self.state.print_status(
+            description=f"Dispensing {milliliters} from tool {tool_name}...")
 
         lua_code = f"dispense({milliliters}"
         lua_code += self.water_and_dispense_end_string(tool_name, pin)

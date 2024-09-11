@@ -12,8 +12,10 @@ from .broker import BrokerConnect
 from .information import Information
 from .resources import Resources
 
+
 class JobHandling():
     """Job handling class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -42,7 +44,8 @@ class JobHandling():
 
     def set_job(self, job_name, status, percent):
         """Initiates or modifies job with given parameters."""
-        self.state.print_status(description=f"Marking job {job_name} as {percent}% {status}.")
+        self.state.print_status(
+            description=f"Marking job {job_name} as {percent}% {status}.")
 
         lua_code = f"""
             local job_name = "{job_name}"
@@ -59,7 +62,8 @@ class JobHandling():
 
     def complete_job(self, job_name):
         """Marks job as completed and triggers any associated actions."""
-        self.state.print_status(description=f"Marking job {job_name} as `complete`.")
+        self.state.print_status(
+            description=f"Marking job {job_name} as `complete`.")
 
         lua_code = f"complete_job(\"{job_name}\")"
 

@@ -15,13 +15,16 @@ from .information import Information
 
 AXES = ["x", "y", "z", "all"]
 
+
 def validate_axis(axis):
     """Validate axis."""
     if axis not in AXES:
         raise ValueError(f"Invalid axis: {axis} not in {AXES}")
 
+
 class MovementControls():
     """MovementControls class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.info = Information(state)
@@ -152,13 +155,16 @@ class MovementControls():
             return None
         position = tree_data["location_data"]["position"]
 
-        self.state.print_status(description=f"Current position: {position}.", update_only=True)
+        self.state.print_status(
+            description=f"Current position: {position}.",
+            update_only=True)
         return position
 
     def check_position(self, coordinate, tolerance):
         """Verifies position of the FarmBot within specified tolerance range."""
 
-        self.state.print_status(description=f"Checking if position is {coordinate} with tolerance: {tolerance}.")
+        self.state.print_status(
+            description=f"Checking if position is {coordinate} with tolerance: {tolerance}.")
 
         actual_vals = self.get_xyz()
 
@@ -169,8 +175,10 @@ class MovementControls():
             user_value = coordinate[axis]
             actual_value = actual_vals[axis]
             if not actual_value - tolerance <= user_value <= actual_value + tolerance:
+                description = "Farmbot is NOT at position."
+                description += f"\n Current position: {actual_vals}."
                 self.state.print_status(
-                    description=f"Farmbot is NOT at position.\n Current position: {actual_vals}.",
+                    description=description,
                     update_only=True)
                 return False
 

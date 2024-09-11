@@ -19,8 +19,10 @@ Information class.
 from .broker import BrokerConnect
 from .api import ApiConnect
 
+
 class Information():
     """Information class."""
+
     def __init__(self, state):
         self.broker = BrokerConnect(state)
         self.api = ApiConnect(state)
@@ -28,14 +30,19 @@ class Information():
 
     def api_get(self, endpoint, database_id=None, data_print=True):
         """Get information about a specific endpoint."""
-        self.state.print_status(description=f"Retrieving {endpoint} information.")
+        self.state.print_status(
+            description=f"Retrieving {endpoint} information.")
 
         endpoint_data = self.api.request("GET", endpoint, database_id)
 
         if data_print:
-            self.state.print_status(update_only=True, endpoint_json=endpoint_data)
+            self.state.print_status(
+                update_only=True,
+                endpoint_json=endpoint_data)
         else:
-            self.state.print_status(update_only=True, description=f"Fetched {len(endpoint_data)} items.")
+            self.state.print_status(
+                update_only=True,
+                description=f"Fetched {len(endpoint_data)} items.")
 
         return endpoint_data
 
@@ -43,7 +50,11 @@ class Information():
         """Change information contained within an endpoint."""
         self.state.print_status(description=f"Editing {endpoint}.")
 
-        result = self.api.request("PATCH", endpoint, database_id=database_id, payload=new_data)
+        result = self.api.request(
+            method="PATCH",
+            endpoint=endpoint,
+            database_id=database_id,
+            payload=new_data)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 
@@ -53,7 +64,11 @@ class Information():
         """Create new information contained within an endpoint."""
         self.state.print_status(description=f"Adding new data to {endpoint}.")
 
-        result = self.api.request("POST", endpoint, database_id=None, payload=new_data)
+        result = self.api.request(
+            method="POST",
+            endpoint=endpoint,
+            database_id=None,
+            payload=new_data)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 
@@ -61,7 +76,8 @@ class Information():
 
     def api_delete(self, endpoint, database_id=None):
         """Delete information contained within an endpoint."""
-        self.state.print_status(description=f"Deleting {endpoint} with id={database_id}.")
+        self.state.print_status(
+            description=f"Deleting {endpoint} with id={database_id}.")
 
         result = self.api.request("DELETE", endpoint, database_id=database_id)
 
@@ -76,7 +92,8 @@ class Information():
         config_data = self.api_get('fbos_config')
         z_value = config_data["safe_height"]
 
-        self.state.print_status(description=f"Safe z={z_value}", update_only=True)
+        self.state.print_status(
+            description=f"Safe z={z_value}", update_only=True)
         return z_value
 
     def garden_size(self):
@@ -163,15 +180,16 @@ class Information():
     @staticmethod
     def convert_mode_to_number(mode):
         """Converts mode string to mode number."""
-        MODES = ["digital", "analog"]
-        if str(mode).lower() not in MODES:
-            raise ValueError(f"Invalid mode: {mode} not in {MODES}")
+        modes = ["digital", "analog"]
+        if str(mode).lower() not in modes:
+            raise ValueError(f"Invalid mode: {mode} not in {modes}")
         return 0 if mode.lower() == "digital" else 1
 
     def read_pin(self, pin_number, mode="digital"):
         """Reads the given pin by number."""
         pin_mode = self.convert_mode_to_number(mode)
-        self.state.print_status(description=f"Reading pin {pin_number} ({mode})...")
+        self.state.print_status(
+            description=f"Reading pin {pin_number} ({mode})...")
         read_pin_message = {
             "kind": "read_pin",
             "args": {
@@ -210,18 +228,20 @@ class Information():
 
     def get_resource_by_name(self, endpoint, resource_name, name_key="label", query=None):
         """Find a resource by name."""
-        self.state.print_status(description=f"Searching for {resource_name} in {endpoint}.")
+        self.state.print_status(
+            description=f"Searching for {resource_name} in {endpoint}.")
         resources = self.state.fetch_cache(endpoint)
         if resources is None:
             resources = self.api_get(endpoint, data_print=False)
         else:
-            self.state.print_status(description=f"Using {len(resources)} cached items.")
+            self.state.print_status(
+                description=f"Using {len(resources)} cached items.")
         if query is not None:
             for key, value in query.items():
-                resources = [resource for resource in resources if resource[key] == value]
-        resource_names = [resource[name_key] for resource in resources]
-        if resource_name not in resource_names:
-            error = f"ERROR: '{resource_name}' not in {endpoint}: {resource_names}."
+                resources = [res for res in resources if res[key] == value]
+        names = [resource[name_key] for resource in resources]
+        if resource_name not in names:
+            error = f"ERROR: '{resource_name}' not in {endpoint}: {names}."
             self.state.print_status(description=error, update_only=True)
             self.state.error = error
             self.state.clear_cache(endpoint)

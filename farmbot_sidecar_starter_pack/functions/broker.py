@@ -17,8 +17,10 @@ import uuid
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
+
 class BrokerConnect():
     """Broker connection class."""
+
     def __init__(self, state):
         self.state = state
         self.client = None
@@ -50,7 +52,8 @@ class BrokerConnect():
         if self.client is not None:
             self.client.loop_stop()
             self.client.disconnect()
-            self.state.print_status(description="Disconnected from message broker.")
+            description = "Disconnected from message broker."
+            self.state.print_status(description=description)
 
     def wrap_message(self, message, priority=None):
         """Wrap message in CeleryScript format."""
@@ -78,22 +81,31 @@ class BrokerConnect():
             rpc = self.wrap_message(rpc)
 
         if rpc["args"]["label"] == "":
-            rpc["args"]["label"] = uuid.uuid4().hex if not self.state.test_env else "test"
+            if self.state.test_env:
+                rpc["args"]["label"] = "test"
+            else:
+                rpc["args"]["label"] = uuid.uuid4().hex
 
         self.state.print_status(description="Publishing to 'from_clients'")
         self.state.print_status(endpoint_json=rpc, update_only=True)
         if self.state.dry_run:
-            self.state.print_status(description="Sending disabled, message not sent.", update_only=True)
+            self.state.print_status(
+                description="Sending disabled, message not sent.",
+                update_only=True)
         else:
             self.listen("from_device", publish_payload=rpc)
 
         response = self.state.last_messages.get("from_device", [])
         if len(response) > 0:
             if response[-1]["kind"] == "rpc_ok":
-                self.state.print_status(description="Success response received.", update_only=True)
+                self.state.print_status(
+                    description="Success response received.",
+                    update_only=True)
                 self.state.error = None
             else:
-                self.state.print_status(description="Error response received.", update_only=True)
+                self.state.print_status(
+                    description="Error response received.",
+                    update_only=True)
                 self.state.error = "RPC error response received."
 
         self.state.last_published = rpc
@@ -131,8 +143,8 @@ class BrokerConnect():
 
             if diff_only:
                 diff = payload
-                prev_channel_key = path_channel if len(path) > 0 else channel_key
-                last_messages = self.state.last_messages.get(prev_channel_key, [])
+                key = path_channel if len(path) > 0 else channel_key
+                last_messages = self.state.last_messages.get(key, [])
                 if len(last_messages) > 1:
                     current = last_messages[-1]
                     previous = last_messages[-2]
@@ -175,9 +187,15 @@ class BrokerConnect():
 
         self.client.loop_stop()
 
-        self.state.print_status(description="Stopped listening to all message broker channels.")
+        self.state.print_status(
+            description="Stopped listening to all message broker channels.")
 
-    def listen(self, channel="#", duration=None, publish_payload=None, stop_count=1, message_options=None):
+    def listen(self,
+               channel="#",
+               duration=None,
+               publish_payload=None,
+               stop_count=1,
+               message_options=None):
         """Listen to a message broker channel for the provided duration in seconds."""
         publish = publish_payload is not None
         message = (publish_payload or {}).get("body", [{}])[0]
@@ -220,14 +238,16 @@ class BrokerConnect():
         self.start_listen(channel, message_options)
         if not self.state.test_env:
             if channel == "#":
-                self.state.last_messages = {"#" : []}
+                self.state.last_messages = {"#": []}
             else:
                 self.state.last_messages[channel] = []
         if publish:
-            time.sleep(0.1) # wait for start_listen to be ready
+            time.sleep(0.1)  # wait for start_listen to be ready
             device_id_str = self.state.token["token"]["unencoded"]["bot"]
-            publish_topic =  f"bot/{device_id_str}/from_clients"
-            self.client.publish(publish_topic, payload=json.dumps(publish_payload))
+            publish_topic = f"bot/{device_id_str}/from_clients"
+            self.client.publish(
+                publish_topic,
+                payload=json.dumps(publish_payload))
         self.state.print_status(update_only=True, description="", end="")
         while (datetime.now() - start_time).seconds < duration_seconds:
             self.state.print_status(update_only=True, description=".", end="")
@@ -240,19 +260,25 @@ class BrokerConnect():
                     continue
                 if len(last_messages) > (stop_count - 1):
                     seconds = (datetime.now() - start_time).seconds
-                    prefix = "Message" if stop_count == 1 else f"{stop_count} messages"
+                    prefix = f"{stop_count} messages"
+                    if stop_count == 1:
+                        prefix = "Message"
+                    description = f"{prefix} received after {seconds} seconds"
                     self.state.print_status(
-                        description=f"{prefix} received after {seconds} seconds",
+                        description=description,
                         update_only=True)
                     break
         if len(self.state.last_messages.get(channel, [])) == 0:
             self.state.print_status(description="", update_only=True)
+            secs = duration_seconds
+            description = f"Did not receive message after {secs} seconds"
             self.state.print_status(
-                description=f"Did not receive message after {duration_seconds} seconds",
+                description=description,
                 update_only=True)
             self.state.error = "Timed out waiting for RPC response."
 
         self.stop_listen()
+
 
 def difference(next_state, prev_state):
     """Find the difference between two states."""
@@ -267,7 +293,9 @@ def difference(next_state, prev_state):
         prev_value = prev_state[key]
         if next_value != prev_value:
             if isinstance(next_value, dict) and isinstance(prev_value, dict):
-                nested_diff, nested_is_different = difference(next_value, prev_value)
+                nested_diff, nested_is_different = difference(
+                    next_value,
+                    prev_value)
                 if nested_is_different:
                     diff[key] = nested_diff
                     is_different = True
