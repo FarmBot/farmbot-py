@@ -140,9 +140,10 @@ class Information():
 
         self.broker.publish(measure_soil_height_message)
 
-    def read_status(self):
+    def read_status(self, path=None):
         """Returns the FarmBot status tree."""
-        self.state.print_status(description="Reading status...")
+        path_str = "" if path is None else f" of {path}"
+        self.state.print_status(description=f"Reading status{path_str}...")
         status_message = {
             "kind": "read_status",
             "args": {}
@@ -152,24 +153,31 @@ class Information():
         status_trees = self.state.last_messages.get("status", [])
         status_tree = None if len(status_trees) == 0 else status_trees[-1]
 
+        if path is not None:
+            for key in path.split("."):
+                status_tree = status_tree[key]
+
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
 
     @staticmethod
-    def convert_mode_to_string(mode):
-        """Converts mode to string."""
-        return "digital" if mode == 0 else "analog"
+    def convert_mode_to_number(mode):
+        """Converts mode string to mode number."""
+        MODES = ["digital", "analog"]
+        if str(mode).lower() not in MODES:
+            raise ValueError(f"Invalid mode: {mode} not in {MODES}")
+        return 0 if mode.lower() == "digital" else 1
 
-    def read_pin(self, pin_number, mode=0):
+    def read_pin(self, pin_number, mode="digital"):
         """Reads the given pin by number."""
-        mode_str = self.convert_mode_to_string(mode)
-        self.state.print_status(description=f"Reading pin {pin_number} ({mode_str})...")
+        pin_mode = self.convert_mode_to_number(mode)
+        self.state.print_status(description=f"Reading pin {pin_number} ({mode})...")
         read_pin_message = {
             "kind": "read_pin",
             "args": {
                 "pin_number": pin_number,
                 "label": "---",
-                "pin_mode": mode,
+                "pin_mode": pin_mode,
             }
         }
         self.broker.publish(read_pin_message)

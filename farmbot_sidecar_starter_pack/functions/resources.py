@@ -151,14 +151,14 @@ class Resources():
 
         self.broker.publish(detect_weeds_message)
 
-    def lua(self, code_snippet):
+    def lua(self, lua_code):
         """Executes custom Lua code snippets to perform complex tasks or automations."""
         self.state.print_status(description="Running Lua code")
 
         lua_message = {
             "kind": "lua",
             "args": {
-                "lua": code_snippet.strip()
+                "lua": lua_code.strip()
             }
         }
 
@@ -211,7 +211,7 @@ class Resources():
 
         self.broker.publish(if_statement_message)
 
-    def assertion(self, code, assertion_type, recovery_sequence_name=None):
+    def assertion(self, lua_code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""
         self.state.print_status(description="Executing assertion.")
 
@@ -221,7 +221,7 @@ class Resources():
             "kind": "assertion",
             "args": {
                 "assertion_type": assertion_type,
-                "lua": code,
+                "lua": lua_code,
                 "_then": {"kind": "nothing", "args": {}},
             }
         }

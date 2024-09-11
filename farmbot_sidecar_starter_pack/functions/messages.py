@@ -76,8 +76,8 @@ class MessageHandling():
 
         self.message(message_str, "debug", "ticker")
 
-    def toast(self, message_str):
+    def toast(self, message_str, message_type="info"):
         """Sends a message that pops up on the user interface briefly."""
         self.state.print_status(description="Sending toast message to the message broker.")
 
-        self.message(message_str, "info", "toast")
+        self.message(message_str, message_type, channel="toast")

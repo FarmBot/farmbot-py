@@ -753,7 +753,28 @@ class TestFarmbot(unittest.TestCase):
     def test_read_status(self):
         '''Test read_status command'''
         def exec_command():
-            self.fb.read_status()
+            self.fb.state.last_messages['status'] = [{
+                'location_data': {'position': {'x': 100}},
+            }]
+            result = self.fb.read_status()
+            self.assertEqual(result, {'location_data': {'position': {'x': 100}}})
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_read_status_path(self):
+        '''Test read_status command: specific path'''
+        def exec_command():
+            self.fb.state.last_messages['status'] = [{
+                'location_data': {'position': {'x': 100}},
+            }]
+            result = self.fb.read_status('location_data.position.x')
+            self.assertEqual(result, 100)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1065,7 +1086,21 @@ class TestFarmbot(unittest.TestCase):
     def test_move(self):
         '''Test move command'''
         def exec_command():
-            self.fb.move(1, 2, 3)
+            self.fb.move()
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'move',
+                'args': {},
+                'body': [],
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_move_extras(self):
+        '''Test move command with extras'''
+        def exec_command():
+            self.fb.move(1, 2, 3, safe_z=True, speed=50)
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1081,6 +1116,16 @@ class TestFarmbot(unittest.TestCase):
                     {'kind': 'axis_overwrite', 'args': {
                         'axis': 'z',
                         'axis_operand': {'kind': 'numeric', 'args': {'number': 3}}}},
+                    {'kind': 'speed_overwrite', 'args': {
+                        'axis': 'x',
+                        'speed_setting': {'kind': 'numeric', 'args': {'number': 50}}}},
+                    {'kind': 'speed_overwrite', 'args': {
+                        'axis': 'y',
+                        'speed_setting': {'kind': 'numeric', 'args': {'number': 50}}}},
+                    {'kind': 'speed_overwrite', 'args': {
+                        'axis': 'z',
+                        'speed_setting': {'kind': 'numeric', 'args': {'number': 50}}}},
+                    {'kind': 'safe_z', 'args': {}},
                 ],
             },
             extra_rpc_args={},
@@ -1128,7 +1173,7 @@ class TestFarmbot(unittest.TestCase):
     def test_write_pin(self):
         '''Test write_pin command'''
         def exec_command():
-            self.fb.write_pin(13, 1, 1)
+            self.fb.write_pin(13, 1, 'analog')
         self.send_command_test_helper(
             exec_command,
             expected_command={
@@ -1139,6 +1184,20 @@ class TestFarmbot(unittest.TestCase):
                     'pin_mode': 1,
                 },
             },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_write_pin_invalid_mode(self):
+        '''Test write_pin command: invalid mode'''
+        def exec_command():
+            with self.assertRaises(ValueError) as cm:
+                self.fb.write_pin(13, 1, 1)
+            self.assertEqual(
+                cm.exception.args[0],
+                "Invalid mode: 1 not in ['digital', 'analog']")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command=None,
             extra_rpc_args={},
             mock_api_response={})
 
@@ -1313,7 +1372,7 @@ class TestFarmbot(unittest.TestCase):
             self.fb.state.last_messages['status'] = [{
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }]
-            at_position = self.fb.check_position(1, 2, 3, 0)
+            at_position = self.fb.check_position({'x': 1, 'y': 2, 'z': 3}, 0)
             self.assertTrue(at_position)
         self.send_command_test_helper(
             exec_command,
@@ -1330,7 +1389,7 @@ class TestFarmbot(unittest.TestCase):
             self.fb.state.last_messages['status'] = [{
                 'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
             }]
-            at_position = self.fb.check_position(0, 0, 0, 2)
+            at_position = self.fb.check_position({'x': 0, 'y': 0, 'z': 0}, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
             exec_command,
@@ -1345,7 +1404,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_position command: no status'''
         def exec_command():
             self.fb.state.last_messages['status'] = []
-            at_position = self.fb.check_position(0, 0, 0, 2)
+            at_position = self.fb.check_position({'x': 0, 'y': 0, 'z': 0}, 2)
             self.assertFalse(at_position)
         self.send_command_test_helper(
             exec_command,
@@ -1402,13 +1461,58 @@ class TestFarmbot(unittest.TestCase):
     def test_dispense(self):
         '''Test dispense command'''
         def exec_command():
-            self.fb.dispense(100, 'Weeder', 4)
+            self.fb.dispense(100)
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'lua',
                 'args': {
-                    'lua': 'dispense(100, {tool_name = "Weeder", pin = 4})',
+                    'lua': 'dispense(100)',
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_dispense_all_args(self):
+        '''Test dispense command with all args'''
+        def exec_command():
+            self.fb.dispense(100, 'Nutrient Sprayer', 4)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {
+                    'lua': 'dispense(100, {tool_name = "Nutrient Sprayer", pin = 4})',
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_dispense_only_pin(self):
+        '''Test dispense command'''
+        def exec_command():
+            self.fb.dispense(100, pin=4)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {
+                    'lua': 'dispense(100, {pin = 4})',
+                },
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
+    def test_dispense_only_tool_name(self):
+        '''Test dispense command'''
+        def exec_command():
+            self.fb.dispense(100, "Nutrient Sprayer")
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'lua',
+                'args': {
+                    'lua': 'dispense(100, {tool_name = "Nutrient Sprayer"})',
                 },
             },
             extra_rpc_args={},

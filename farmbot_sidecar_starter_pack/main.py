@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.5.1"
+VERSION = "1.6.0"
 
 
 class Farmbot():
@@ -137,9 +137,9 @@ class Farmbot():
         """Create new information contained within an endpoint."""
         return self.info.api_post(endpoint, new_data)
 
-    def api_delete(self, endpoint, id=None):
+    def api_delete(self, endpoint, database_id=None):
         """Delete information contained within an endpoint."""
-        return self.info.api_delete(endpoint, id)
+        return self.info.api_delete(endpoint, database_id)
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""
@@ -161,11 +161,11 @@ class Farmbot():
         """Use the camera to determine soil height at the current location."""
         return self.info.measure_soil_height()
 
-    def read_status(self):
+    def read_status(self, path=None):
         """Returns the FarmBot status tree."""
-        return self.info.read_status()
+        return self.info.read_status(path)
 
-    def read_pin(self, pin_number, mode=0):
+    def read_pin(self, pin_number, mode="digital"):
         """Reads the current value of the specified pin."""
         return self.info.read_pin(pin_number, mode)
 
@@ -175,17 +175,17 @@ class Farmbot():
 
     # jobs.py
 
-    def get_job(self, job_str=None):
+    def get_job(self, job_name=None):
         """Retrieves the status or details of the specified job."""
-        return self.jobs.get_job(job_str)
+        return self.jobs.get_job(job_name)
 
-    def set_job(self, job_str, status_message, value):
+    def set_job(self, job_name, status, percent):
         """Initiates or modifies job with given parameters."""
-        return self.jobs.set_job(job_str, status_message, value)
+        return self.jobs.set_job(job_name, status, percent)
 
-    def complete_job(self, job_str):
+    def complete_job(self, job_name):
         """Marks job as completed and triggers any associated actions."""
-        return self.jobs.complete_job(job_str)
+        return self.jobs.complete_job(job_name)
 
     # messages.py
 
@@ -201,15 +201,15 @@ class Farmbot():
         """Sends debug message used for developer information or troubleshooting."""
         return self.messages.debug(message_str)
 
-    def toast(self, message_str):
+    def toast(self, message_str, message_type="info"):
         """Sends a message that pops up on the user interface briefly."""
-        return self.messages.toast(message_str)
+        return self.messages.toast(message_str, message_type)
 
     # movements.py
 
-    def move(self, x, y, z):
+    def move(self, x=None, y=None, z=None, safe_z=None, speed=None):
         """Moves to the specified (x, y, z) coordinate."""
-        return self.movements.move(x, y, z)
+        return self.movements.move(x, y, z, safe_z, speed)
 
     def set_home(self, axis="all"):
         """Sets the current position as the home position for a specific axis."""
@@ -227,17 +227,17 @@ class Farmbot():
         """Returns the current (x, y, z) coordinates of the FarmBot."""
         return self.movements.get_xyz()
 
-    def check_position(self, user_x, user_y, user_z, tolerance):
+    def check_position(self, coordinate, tolerance):
         """Verifies position of the FarmBot within specified tolerance range."""
-        return self.movements.check_position(user_x, user_y, user_z, tolerance)
+        return self.movements.check_position(coordinate, tolerance)
 
     # peripherals.py
 
     def control_servo(self, pin, angle):
-        """Set servo angle between 0-100 degrees."""
+        """Set servo angle between 0-180 degrees."""
         return self.peripherals.control_servo(pin, angle)
 
-    def write_pin(self, pin_number, value, mode=0):
+    def write_pin(self, pin_number, value, mode="digital"):
         """Writes a new value to the specified pin."""
         return self.peripherals.write_pin(pin_number, value, mode)
 
@@ -271,32 +271,32 @@ class Farmbot():
         """Scans the garden to detect weeds."""
         return self.resources.detect_weeds()
 
-    def lua(self, code_snippet):
+    def lua(self, lua_code):
         """Executes custom Lua code snippets to perform complex tasks or automations."""
-        return self.resources.lua(code_snippet)
+        return self.resources.lua(lua_code)
 
     def if_statement(self, variable, operator, value, then_sequence_name=None, else_sequence_name=None, named_pin_type=None):
         """Performs conditional check and executes actions based on the outcome."""
         return self.resources.if_statement(variable, operator, value, then_sequence_name, else_sequence_name, named_pin_type)
 
-    def assertion(self, code, assertion_type, recovery_sequence_name=None):
+    def assertion(self, lua_code, assertion_type, recovery_sequence_name=None):
         """Evaluates an expression."""
-        return self.resources.assertion(code, assertion_type, recovery_sequence_name)
+        return self.resources.assertion(lua_code, assertion_type, recovery_sequence_name)
 
     # tools.py
 
-    def mount_tool(self, tool_str):
+    def mount_tool(self, tool_name):
         """Mounts the given tool and pulls it out of assigned slot."""
-        return self.tools.mount_tool(tool_str)
+        return self.tools.mount_tool(tool_name)
 
     def dismount_tool(self):
         """Dismounts the currently mounted tool into assigned slot."""
         return self.tools.dismount_tool()
 
-    def water(self, plant_id):
+    def water(self, plant_id, tool_name=None, pin=None):
         """Moves to and waters plant based on age and assigned watering curve."""
-        return self.tools.water(plant_id)
+        return self.tools.water(plant_id, tool_name, pin)
 
-    def dispense(self, milliliters, tool_name, pin):
+    def dispense(self, milliliters, tool_name=None, pin=None):
         """Dispenses user-defined amount of liquid in milliliters."""
         return self.tools.dispense(milliliters, tool_name, pin)

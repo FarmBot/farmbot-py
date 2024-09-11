@@ -21,7 +21,7 @@ class Peripherals():
         self.state = state
 
     def control_servo(self, pin, angle):
-        """Set servo angle between 0-100 degrees."""
+        """Set servo angle between 0-180 degrees."""
         self.state.print_status(description=f"Setting servo angle to {angle}.")
 
         if angle < 0 or angle > 180:
@@ -42,18 +42,18 @@ class Peripherals():
 
         return
 
-    def write_pin(self, pin_number, value, mode=0):
+    def write_pin(self, pin_number, value, mode="digital"):
         """Write a value to a pin."""
-        mode_str = self.info.convert_mode_to_string(mode)
+        pin_mode = self.info.convert_mode_to_number(mode)
         self.state.print_status(
-            description=f"Setting pin {pin_number} to {value} ({mode_str}).")
+            description=f"Setting pin {pin_number} to {value} ({mode}).")
 
         write_pin_message = {
             "kind": "write_pin",
             "args": {
                 "pin_number": pin_number,
                 "pin_value": value,
-                "pin_mode": mode,
+                "pin_mode": pin_mode,
             }
         }
 
@@ -67,7 +67,7 @@ class Peripherals():
         if peripheral is None:
             return
         peripheral_id = peripheral["id"]
-        pin_mode = peripheral["mode"] if mode is None else mode
+        pin_mode = peripheral["mode"] if mode is None else self.info.convert_mode_to_number(mode)
 
         control_peripheral_message = {
             "kind": "write_pin",

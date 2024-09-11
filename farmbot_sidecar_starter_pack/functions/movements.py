@@ -27,7 +27,7 @@ class MovementControls():
         self.info = Information(state)
         self.state = state
 
-    def move(self, x, y, z):
+    def move(self, x=None, y=None, z=None, safe_z=None, speed=None):
         """Moves to the specified (x, y, z) coordinate."""
         self.state.print_status(description=f"Moving to ({x}, {y}, {z}).")
 
@@ -45,15 +45,48 @@ class MovementControls():
                 }
             }
 
+        def safe_z_body_item():
+            return {
+                "kind": "safe_z",
+                "args": {},
+            }
+
+        def speed_overwrite(axis, speed):
+            return {
+                "kind": "speed_overwrite",
+                "args": {
+                    "axis": axis,
+                    "speed_setting": {
+                        "kind": "numeric",
+                        "args": {
+                            "number": speed,
+                        }
+                    }
+                }
+            }
+
         move_message = {
             "kind": "move",
             "args": {},
-            "body": [
-                axis_overwrite("x", x),
-                axis_overwrite("y", y),
-                axis_overwrite("z", z)
-            ]
+            "body": [],
         }
+
+        if x is not None:
+            move_message["body"].append(axis_overwrite("x", x))
+
+        if y is not None:
+            move_message["body"].append(axis_overwrite("y", y))
+
+        if z is not None:
+            move_message["body"].append(axis_overwrite("z", z))
+
+        if speed is not None:
+            move_message["body"].append(speed_overwrite("x", speed))
+            move_message["body"].append(speed_overwrite("y", speed))
+            move_message["body"].append(speed_overwrite("z", speed))
+
+        if safe_z is not None:
+            move_message["body"].append(safe_z_body_item())
 
         self.broker.publish(move_message)
 
@@ -119,30 +152,21 @@ class MovementControls():
             return None
         position = tree_data["location_data"]["position"]
 
-        x_val = position["x"]
-        y_val = position["y"]
-        z_val = position["z"]
-
         self.state.print_status(description=f"Current position: {position}.", update_only=True)
         return position
 
-    def check_position(self, user_x, user_y, user_z, tolerance):
+    def check_position(self, coordinate, tolerance):
         """Verifies position of the FarmBot within specified tolerance range."""
 
-        user_values = {'x': user_x, 'y': user_y, 'z': user_z}
-        self.state.print_status(description=f"Checking if position is {user_values} with tolerance: {tolerance}.")
+        self.state.print_status(description=f"Checking if position is {coordinate} with tolerance: {tolerance}.")
 
         actual_vals = self.get_xyz()
 
         if actual_vals is None:
             return False
 
-        x_val = actual_vals["x"]
-        y_val = actual_vals["y"]
-        z_val = actual_vals["z"]
-
         for axis in ['x', 'y', 'z']:
-            user_value = user_values[axis]
+            user_value = coordinate[axis]
             actual_value = actual_vals[axis]
             if not actual_value - tolerance <= user_value <= actual_value + tolerance:
                 self.state.print_status(
