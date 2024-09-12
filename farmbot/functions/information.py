@@ -9,7 +9,6 @@ Information class.
 #     ├── [API] api_delete()
 #     ├── [API] safe_z()
 #     ├── [API] garden_size()
-#     ├── [API] group()
 #     ├── [API] curve()
 #     ├── [BROKER] measure_soil_height()
 #     ├── [BROKER] read_status()
@@ -119,18 +118,6 @@ class Information():
 
         self.state.print_status(endpoint_json=garden_size, update_only=True)
         return garden_size
-
-    def group(self, group_id=None):
-        """Returns all group info or single by id."""
-        self.state.print_status(description="Retrieving group information...")
-
-        if group_id is None:
-            group_data = self.api_get("point_groups")
-        else:
-            group_data = self.api_get('point_groups', group_id)
-
-        self.state.print_status(endpoint_json=group_data, update_only=True)
-        return group_data
 
     def get_curve(self, curve_id):
         """Retrieve curve data from the API and return a curve object with extras."""

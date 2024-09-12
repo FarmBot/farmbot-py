@@ -153,10 +153,6 @@ class Farmbot():
         """Returns size of garden bed."""
         return self.info.garden_size()
 
-    def group(self, group_id=None):
-        """Returns all group info or single by id."""
-        return self.info.group(group_id)
-
     def get_curve(self, curve_id=None):
         """Returns the curve data."""
         return self.info.get_curve(curve_id)

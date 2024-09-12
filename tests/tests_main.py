@@ -397,38 +397,6 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(result, {"edit_requests_disabled": True})
 
     @patch('requests.request')
-    def test_group_one(self, mock_request):
-        '''test group function: get one group'''
-        mock_response = Mock()
-        mock_response.json.return_value = {'name': 'Group 0'}
-        mock_response.status_code = 200
-        mock_response.text = 'text'
-        mock_request.return_value = mock_response
-        group_info = self.fb.group(12345)
-        mock_request.assert_called_once_with(
-            method='GET',
-            url='https://my.farm.bot/api/point_groups/12345',
-            **REQUEST_KWARGS,
-        )
-        self.assertEqual(group_info, {'name': 'Group 0'})
-
-    @patch('requests.request')
-    def test_group_all(self, mock_request):
-        '''test group function: get all groups'''
-        mock_response = Mock()
-        mock_response.json.return_value = [{'name': 'Group 0'}]
-        mock_response.status_code = 200
-        mock_response.text = 'text'
-        mock_request.return_value = mock_response
-        group_info = self.fb.group()
-        mock_request.assert_called_once_with(
-            method='GET',
-            url='https://my.farm.bot/api/point_groups',
-            **REQUEST_KWARGS,
-        )
-        self.assertEqual(group_info, [{'name': 'Group 0'}])
-
-    @patch('requests.request')
     def helper_test_get_curve(self, *args, **kwargs):
         '''get_curve function test helper'''
         mock_request = args[0]
