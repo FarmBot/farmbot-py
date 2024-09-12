@@ -132,17 +132,14 @@ class Information():
         self.state.print_status(endpoint_json=group_data, update_only=True)
         return group_data
 
-    def curve(self, curve_id=None):
-        """Returns all curve info or single by id."""
-        self.state.print_status(description="Retrieving curve information...")
+    def get_curve(self, curve_id):
+        """Retrieve curve data from the API and return a curve object with extras."""
+        self.state.print_status(description="Preparing curve information...")
 
-        if curve_id is None:
-            curve_data = self.api_get("curves")
-        else:
-            curve_data = self.api_get('curves', curve_id)
-
-        self.state.print_status(endpoint_json=curve_data, update_only=True)
-        return curve_data
+        api_curve_data = self.api_get("curves", curve_id)
+        if isinstance(api_curve_data, str):
+            return None
+        return Curve(api_curve_data)
 
     def measure_soil_height(self):
         """Use the camera to measure the soil height at the current location."""
@@ -250,3 +247,47 @@ class Information():
         self.state.save_cache(endpoint, resources)
         resource = [p for p in resources if p[name_key] == resource_name][0]
         return resource
+
+
+class Curve:
+    """Curve data object for the get_curve() function to return."""
+
+    def __init__(self, curve_data):
+        self.curve_data = curve_data
+        self.name = curve_data["name"]
+        self.type = curve_data["type"]
+        self.unit = "mL" if self.type == "water" else "mm"
+
+    def __getitem__(self, key):
+        """Allow dictionary-style access to attributes."""
+        return getattr(self, key)
+
+    def day(self, day):
+        """Calculate the value for a specific day based on the curve data."""
+        day = int(day)
+        data = self.curve_data["data"]
+        data = {int(key): val for key, val in data.items()}
+        value = data.get(day)
+        if value is not None:
+            return value
+
+        sorted_day_keys = sorted(data.keys())
+        prev_day = None
+        next_day = None
+        for day_key in sorted_day_keys:
+            if day_key < day:
+                prev_day = day_key
+            elif day_key > day and next_day is None:
+                next_day = day_key
+                break
+
+        if prev_day is None:
+            return data[sorted_day_keys[0]]
+
+        if next_day is None:
+            return data[sorted_day_keys[-1]]
+
+        exact_value = (data[prev_day] * (next_day - day) +
+                       data[next_day] * (day - prev_day)
+                       ) / (next_day - prev_day)
+        return round(exact_value, 2)

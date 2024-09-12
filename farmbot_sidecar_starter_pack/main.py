@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "1.6.1"
+VERSION = "1.7.0"
 
 
 class Farmbot():
@@ -157,9 +157,9 @@ class Farmbot():
         """Returns all group info or single by id."""
         return self.info.group(group_id)
 
-    def curve(self, curve_id=None):
-        """Returns all curve info or single by id."""
-        return self.info.curve(curve_id)
+    def get_curve(self, curve_id=None):
+        """Returns the curve data."""
+        return self.info.get_curve(curve_id)
 
     def measure_soil_height(self):
         """Use the camera to determine soil height at the current location."""

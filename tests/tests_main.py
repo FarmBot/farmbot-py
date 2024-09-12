@@ -429,36 +429,82 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(group_info, [{'name': 'Group 0'}])
 
     @patch('requests.request')
-    def test_curve_one(self, mock_request):
-        '''test curve function: get one curve'''
+    def helper_test_get_curve(self, *args, **kwargs):
+        '''get_curve function test helper'''
+        mock_request = args[0]
         mock_response = Mock()
-        mock_response.json.return_value = {'name': 'Curve 0'}
+        mock_response.json.return_value = {
+            'name': 'Curve 0',
+            **kwargs.get('api_data'),
+        }
         mock_response.status_code = 200
         mock_response.text = 'text'
         mock_request.return_value = mock_response
-        curve_info = self.fb.curve(12345)
+        curve_info = self.fb.get_curve(12345)
         mock_request.assert_called_once_with(
             method='GET',
             url='https://my.farm.bot/api/curves/12345',
             **REQUEST_KWARGS,
         )
-        self.assertEqual(curve_info, {'name': 'Curve 0'})
+        self.assertEqual(curve_info['name'], 'Curve 0')
+        self.assertEqual(curve_info['type'], kwargs.get('type'))
+        self.assertEqual(curve_info['unit'], kwargs.get('unit'))
+        self.assertEqual(curve_info.day(50), kwargs.get('value'))
+
+    def test_get_curve(self):
+        '''test get_curve function'''
+        self.helper_test_get_curve(
+            api_data={
+                'type': 'water',
+                'data': {'1': 1, '100': 100},
+            },
+            type='water',
+            unit='mL',
+            value=50,
+        )
+        self.helper_test_get_curve(
+            api_data={
+                'type': 'water',
+                'data': {'100': 1, '200': 100},
+            },
+            type='water',
+            unit='mL',
+            value=1,
+        )
+        self.helper_test_get_curve(
+            api_data={
+                'type': 'water',
+                'data': {'1': 1, '2': 100},
+            },
+            type='water',
+            unit='mL',
+            value=100,
+        )
+        self.helper_test_get_curve(
+            api_data={
+                'type': 'height',
+                'data': {'1': 1, '50': 500, '100': 100},
+            },
+            type='height',
+            unit='mm',
+            value=500,
+        )
 
     @patch('requests.request')
-    def test_curve_all(self, mock_request):
-        '''test curve function: get all curves'''
+    def test_get_curve_error(self, mock_request):
+        '''test get_curve function: error'''
         mock_response = Mock()
-        mock_response.json.return_value = [{'name': 'Curve 0'}]
-        mock_response.status_code = 200
+        mock_response.json.return_value = None
+        mock_response.status_code = 400
         mock_response.text = 'text'
         mock_request.return_value = mock_response
-        curve_info = self.fb.curve()
+        curve_info = self.fb.get_curve(12345)
         mock_request.assert_called_once_with(
             method='GET',
-            url='https://my.farm.bot/api/curves',
+            url='https://my.farm.bot/api/curves/12345',
             **REQUEST_KWARGS,
         )
-        self.assertEqual(curve_info, [{'name': 'Curve 0'}])
+        self.assertIsNone(curve_info)
 
     @patch('requests.request')
     def test_safe_z(self, mock_request):
