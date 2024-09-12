@@ -521,7 +521,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'text'
         mock_response.json.return_value = {'message': 'test message'}
         mock_request.return_value = mock_response
-        self.fb.log('test message', 'info', 'toast')
+        self.fb.log('test message', 'info', ['toast'])
         mock_request.assert_called_once_with(
             method='POST',
             url='https://my.farm.bot/api/logs',
@@ -713,13 +713,13 @@ class TestFarmbot(unittest.TestCase):
     def test_message(self):
         '''Test message command'''
         def exec_command():
-            self.fb.message('test message', 'info')
+            self.fb.send_message('test message', 'info')
         self.send_command_test_helper(
             exec_command,
             expected_command={
                 'kind': 'send_message',
                 'args': {'message': 'test message', 'message_type': 'info'},
-                'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
+                'body': [],
             },
             extra_rpc_args={},
             mock_api_response={})
@@ -733,7 +733,7 @@ class TestFarmbot(unittest.TestCase):
             expected_command={
                 'kind': 'send_message',
                 'args': {'message': 'test message', 'message_type': 'debug'},
-                'body': [{'kind': 'channel', 'args': {'channel_name': 'ticker'}}],
+                'body': [],
             },
             extra_rpc_args={},
             mock_api_response={})
@@ -756,7 +756,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test message_type validation'''
         def exec_command():
             with self.assertRaises(ValueError) as cm:
-                self.fb.message('test', message_type='nope')
+                self.fb.send_message('test', message_type='nope')
             msg = 'Invalid message type: `nope` not in '
             msg += "['assertion', 'busy', 'debug', 'error', 'fun', 'info', 'success', 'warn']"
             self.assertEqual(cm.exception.args[0], msg)
@@ -770,7 +770,7 @@ class TestFarmbot(unittest.TestCase):
         '''Test message channel validation'''
         def exec_command():
             with self.assertRaises(ValueError) as cm:
-                self.fb.message('test', channel='nope')
+                self.fb.send_message('test', channels=['nope'])
             self.assertEqual(
                 cm.exception.args[0],
                 "Invalid channel: nope not in ['ticker', 'toast', 'email', 'espeak']")

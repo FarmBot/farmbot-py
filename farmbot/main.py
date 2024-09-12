@@ -189,13 +189,13 @@ class Farmbot():
 
     # messages.py
 
-    def log(self, message_str, message_type="info", channel="ticker"):
+    def log(self, message_str, message_type="info", channels=None):
         """Sends new log message via the API."""
-        return self.messages.log(message_str, message_type, channel)
+        return self.messages.log(message_str, message_type, channels)
 
-    def message(self, message_str, message_type="info", channel="ticker"):
+    def send_message(self, message_str, message_type="info", channels=None):
         """Sends new log message via the message broker."""
-        return self.messages.message(message_str, message_type, channel)
+        return self.messages.send_message(message_str, message_type, channels)
 
     def debug(self, message_str):
         """Sends debug message used for developer information or troubleshooting."""

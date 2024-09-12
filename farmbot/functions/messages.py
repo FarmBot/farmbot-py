@@ -17,13 +17,14 @@ MESSAGE_TYPES = ["assertion", "busy", "debug",
 CHANNELS = ["ticker", "toast", "email", "espeak"]
 
 
-def validate_log_options(message_type, channel):
+def validate_log_options(message_type, channels):
     """Validate the message type and channel options."""
     if message_type not in MESSAGE_TYPES:
         raise ValueError(
             f"Invalid message type: `{message_type}` not in {MESSAGE_TYPES}")
-    if channel not in CHANNELS:
-        raise ValueError(f"Invalid channel: {channel} not in {CHANNELS}")
+    for channel in channels:
+        if channel not in CHANNELS:
+            raise ValueError(f"Invalid channel: {channel} not in {CHANNELS}")
 
 
 class MessageHandling():
@@ -35,27 +36,29 @@ class MessageHandling():
         self.info = Information(state)
         self.state = state
 
-    def log(self, message_str, message_type="info", channel="ticker"):
+    def log(self, message_str, message_type="info", channels=None):
         """Sends new log message via the API."""
         self.state.print_status(
             description="Sending new log message to the API.")
 
-        validate_log_options(message_type, channel)
+        channels = channels or []
+        validate_log_options(message_type, channels)
 
         log_message = {
             "message": message_str,
             "type": message_type,
-            "channels": [channel],
+            "channels": channels,
         }
 
         self.info.api_post("logs", log_message)
 
-    def message(self, message_str, message_type="info", channel="ticker"):
+    def send_message(self, message_str, message_type="info", channels=None):
         """Sends new log message via the message broker."""
         self.state.print_status(
             description="Sending new log message to the message broker.")
 
-        validate_log_options(message_type, channel)
+        channels = channels or []
+        validate_log_options(message_type, channels)
 
         message = {
             "kind": "send_message",
@@ -63,13 +66,13 @@ class MessageHandling():
                 "message": message_str,
                 "message_type": message_type,
             },
-            "body": [{
-                "kind": "channel",
-                "args": {
-                    "channel_name": channel
-                }
-            }]
+            "body": [],
         }
+
+        for channel in channels:
+            message["body"].append({
+                "kind": "channel",
+                "args": {"channel_name": channel}})
 
         self.broker.publish(message)
 
@@ -78,11 +81,11 @@ class MessageHandling():
         self.state.print_status(
             description="Sending debug message to the message broker.")
 
-        self.message(message_str, "debug", "ticker")
+        self.send_message(message_str, "debug")
 
     def toast(self, message_str, message_type="info"):
         """Sends a message that pops up on the user interface briefly."""
         self.state.print_status(
             description="Sending toast message to the message broker.")
 
-        self.message(message_str, message_type, channel="toast")
+        self.send_message(message_str, message_type, channels=["toast"])
