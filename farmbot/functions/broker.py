@@ -191,6 +191,12 @@ class BrokerConnect():
         self.state.print_status(
             description="Stopped listening to all message broker channels.")
 
+    def clear_last_messages(self, key):
+        """Clear last messages from a channel."""
+        self.state.last_messages[key] = []
+        self.state.last_messages[f"{key}_excerpt"] = []
+        self.state.last_messages[f"{key}_diffs"] = []
+
     @staticmethod
     def stop_listen_upon_interrupt(func):
         """Decorator to stop listening upon KeyboardInterrupt."""
@@ -253,7 +259,7 @@ class BrokerConnect():
             if channel == "#":
                 self.state.last_messages = {"#": []}
             else:
-                self.state.last_messages[channel] = []
+                self.clear_last_messages(channel)
         if publish:
             time.sleep(0.1)  # wait for start_listen to be ready
             device_id_str = self.state.token["token"]["unencoded"]["bot"]
@@ -269,7 +275,7 @@ class BrokerConnect():
             if len(last_messages) > 0:
                 # If a label is provided, verify the label matches
                 if label is not None and last_messages[-1]["args"]["label"] != label:
-                    self.state.last_messages[channel] = []
+                    self.clear_last_messages(channel)
                     continue
                 if len(last_messages) > (stop_count - 1):
                     seconds = (datetime.now() - start_time).seconds
