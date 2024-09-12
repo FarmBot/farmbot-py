@@ -289,6 +289,8 @@ class BrokerConnect():
                 description=description,
                 update_only=True)
             self.state.error = "Timed out waiting for RPC response."
+        else:
+            self.state.error = None
 
         self.stop_listen()
 
