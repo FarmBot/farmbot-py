@@ -140,7 +140,8 @@ class BrokerConnect():
             for key in path:
                 payload = payload[key]
             path_channel = f"{channel_key}_excerpt"
-            add_message(path_channel, payload)
+            if len(path) > 0:
+                add_message(path_channel, payload)
 
             if diff_only:
                 key = path_channel if len(path) > 0 else channel_key
