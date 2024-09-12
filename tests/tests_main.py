@@ -629,7 +629,6 @@ class TestFarmbot(unittest.TestCase):
             {'location_data': {'position': {'x': 4, 'y': 14, 'z': 100}}}
         ])
         self.assertEqual(self.fb.state.last_messages['status_diffs'], [
-            {'x': 0, 'y': 10, 'z': 100},
             {'x': 1, 'y': 11},
             {'extra': {'idx': 2}, 'x': 2, 'y': 12},
             {'extra': {'idx': 3}, 'x': 3, 'y': 13},

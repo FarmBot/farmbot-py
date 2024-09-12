@@ -143,15 +143,14 @@ class BrokerConnect():
             add_message(path_channel, payload)
 
             if diff_only:
-                diff = payload
                 key = path_channel if len(path) > 0 else channel_key
                 last_messages = self.state.last_messages.get(key, [])
                 if len(last_messages) > 1:
                     current = last_messages[-1]
                     previous = last_messages[-2]
                     diff, _is_different = difference(current, previous)
-                payload = diff
-                add_message(f"{channel_key}_diffs", payload)
+                    payload = diff
+                    add_message(f"{channel_key}_diffs", payload)
 
             self.state.print_status(description="", update_only=True)
             description = "New message"
