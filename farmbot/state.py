@@ -83,8 +83,7 @@ class State():
                 print(indented_str)
 
     def check_token(self):
-        """Ensure the token persists throughout sidecar."""
-
+        """Check if a token is present."""
         if self.token is None:
             self.print_status(description=self.NO_TOKEN_ERROR)
             self.error = self.NO_TOKEN_ERROR

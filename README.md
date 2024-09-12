@@ -1,7 +1,5 @@
-# sidecar-starter-pack
+[![Test Status](https://github.com/FarmBot/farmbot-py/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/FarmBot/farmbot-py/actions?query=branch%3Amain)
+[![Coverage Status](https://coveralls.io/repos/github/FarmBot/farmbot-py/badge.svg?branch=main)](https://coveralls.io/github/FarmBot/farmbot-py?branch=main)
+[![PyPI - Version](https://img.shields.io/pypi/v/farmbot-py)](https://pypi.org/project/farmbot-py/)
 
-[![Test Status](https://github.com/FarmBot-Labs/sidecar-starter-pack/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/FarmBot-Labs/sidecar-starter-pack/actions?query=branch%3Amain)
-[![Coverage Status](https://coveralls.io/repos/github/FarmBot-Labs/sidecar-starter-pack/badge.svg?branch=main)](https://coveralls.io/github/FarmBot-Labs/sidecar-starter-pack?branch=main)
-[![PyPI - Version](https://img.shields.io/pypi/v/farmbot-sidecar-starter-pack)](https://pypi.org/project/farmbot-sidecar-starter-pack/)
-
-See [Sidecar Starter Pack](https://developer.farm.bot/docs/sidecar-starter-pack) in the FarmBot developer documentation.
+See [FarmBot-Py](https://developer.farm.bot/docs/farmbot-py) in the FarmBot developer documentation.

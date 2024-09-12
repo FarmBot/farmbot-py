@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "farmbot_sidecar_starter_pack"
+name = "farmbot"
 dynamic = ["version"]
 License = "MIT"
 authors = [
     {name = "FarmBot Inc."},
 ]
-keywords = ["farmbot", "sidecar"]
-description = "FarmBot Sidecar Starter Pack"
+keywords = ["farmbot"]
+description = "FarmBot Python package"
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -24,8 +24,8 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://github.com/FarmBot-Labs/sidecar-starter-pack"
-issues = "https://github.com/FarmBot-Labs/sidecar-starter-pack/issues"
+homepage = "https://github.com/FarmBot/farmbot-py"
+issues = "https://github.com/FarmBot/farmbot-py/issues"
 
 [tool.hatch.version]
-path = "farmbot_sidecar_starter_pack/main.py"
+path = "farmbot/main.py"

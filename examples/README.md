@@ -1,4 +1,4 @@
-These examples showcase various ways in which you might use the sidecar-starter-pack to augment and expand upon your FarmBot's capabilities.
+These examples showcase various ways in which you might use farmbot-py to augment and expand upon your FarmBot's capabilities.
 
 # Copy Plants to New Account
 

@@ -1,15 +1,15 @@
 # Local development
 
-If you are working on the sidecar-starter-pack itself,
+If you are working on farmbot-py itself,
 
 (1) Clone the repository.
 ```bash
-git clone https://github.com/FarmBot-Labs/sidecar-starter-pack
+git clone https://github.com/FarmBot/farmbot-py
 ```
 
 (2) Navigate to the project directory.
 ```bash
-cd sidecar-starter-pack
+cd farmbot-py
 ```
 
 (3) Create a virtual environment.

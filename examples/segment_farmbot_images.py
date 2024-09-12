@@ -5,7 +5,7 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 import matplotlib.pyplot as plt
-from farmbot_sidecar_starter_pack import Farmbot
+from farmbot import Farmbot
 from segment_anything import SamPredictor, SamAutomaticMaskGenerator, sam_model_registry
 
 # This script demonstrates how to use the Segment Anything Model (SAM) to segment images from

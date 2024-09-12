@@ -2,7 +2,7 @@
 # Note: It will not copy any associated water, height, or spread curves ids
 # because they will not exist in the target account.
 
-from farmbot_sidecar_starter_pack import Farmbot
+from farmbot import Farmbot
 from time import sleep
 
 source = Farmbot()
