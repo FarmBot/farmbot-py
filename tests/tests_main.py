@@ -654,6 +654,20 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(len(self.fb.state.last_messages['#']), 0)
 
     @patch('paho.mqtt.client.Client')
+    def test_listen_interrupt(self, mock_mqtt):
+        '''Test listen command: interrupt'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.state.test_env = False
+
+        def patched_sleep(_seconds):
+            '''Patched sleep function'''
+            raise KeyboardInterrupt
+        with patch('time.sleep', new=patched_sleep):
+            self.fb.listen(stop_count=100)
+        mock_client.loop_stop.assert_called_once()
+
+    @patch('paho.mqtt.client.Client')
     def test_publish_apply_label(self, mock_mqtt):
         '''Test publish command: set uuid'''
         mock_client = Mock()

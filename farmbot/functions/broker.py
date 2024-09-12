@@ -14,6 +14,7 @@ import time
 import math
 import json
 import uuid
+import functools
 from datetime import datetime
 import paho.mqtt.client as mqtt
 
@@ -190,6 +191,18 @@ class BrokerConnect():
         self.state.print_status(
             description="Stopped listening to all message broker channels.")
 
+    @staticmethod
+    def stop_listen_upon_interrupt(func):
+        """Decorator to stop listening upon KeyboardInterrupt."""
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwargs):
+            try:
+                func(self, *args, **kwargs)
+            except KeyboardInterrupt:
+                self.stop_listen()
+        return wrapper
+
+    @stop_listen_upon_interrupt
     def listen(self,
                channel="#",
                duration=None,
