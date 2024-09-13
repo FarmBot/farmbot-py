@@ -45,7 +45,7 @@ class State():
         self.error = None
         self.last_messages = {}
         self.last_published = {}
-        self.verbosity = 2
+        self.verbosity = 1
         self.json_printing = True
         self.timeout = {
             "api": 15,
