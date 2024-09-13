@@ -342,6 +342,12 @@ def difference(next_state, prev_state):
     is_different = False
     diff = {}
 
+    if next_state != prev_state:
+        is_different = True
+
+    if not isinstance(next_state, dict) or not isinstance(prev_state, dict):
+        return next_state, is_different
+
     for key, next_value in next_state.items():
         if key not in prev_state:
             diff[key] = next_value

@@ -735,6 +735,41 @@ class TestFarmbot(unittest.TestCase):
             {'x': 4, 'y': 14, 'z': 100},
         ])
 
+    @patch('math.inf', 0.1)
+    @patch('paho.mqtt.client.Client')
+    def test_listen_for_status_changes_single_value(self, mock_mqtt):
+        '''Test listen_for_status_changes command: single value'''
+        self.maxDiff = None
+        i = 0
+
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+
+        class MockMessage:
+            '''Mock message class'''
+
+            def __init__(self):
+                self.topic = 'bot/device_0/status'
+                payload = {'location_data': {'position': {'x': i}}}
+                self.payload = json.dumps(payload)
+
+        def patched_sleep(_seconds):
+            '''Patched sleep function'''
+            nonlocal i
+            mock_message = MockMessage()
+            mock_client.on_message('', '', mock_message)
+            i += 1
+
+        with patch('time.sleep', new=patched_sleep):
+            self.fb.listen_for_status_changes(
+                stop_count=5,
+                path='location_data.position.x')
+
+        self.assertEqual(self.fb.state.last_messages['status_diffs'],
+                         [1, 2, 3, 4])
+        self.assertEqual(self.fb.state.last_messages['status_excerpt'],
+                         [0, 1, 2, 3, 4])
+
     @patch('paho.mqtt.client.Client')
     def test_listen_clear_last(self, mock_mqtt):
         '''Test listen command: clear last message'''
