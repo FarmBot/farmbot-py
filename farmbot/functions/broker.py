@@ -98,7 +98,7 @@ class BrokerConnect():
 
         response = self.state.last_messages.get("from_device", [])
         if len(response) > 0:
-            if response[-1]["kind"] == "rpc_ok":
+            if response[-1]["content"]["kind"] == "rpc_ok":
                 self.state.print_status(
                     description="Success response received.",
                     update_only=True)
@@ -117,41 +117,59 @@ class BrokerConnect():
         path = (options.get("path", "") or "").split(".") or []
         path = [key for key in path if key != ""]
         diff_only = options.get("diff_only")
+        filters = options.get("filters", {})
 
         if self.client is None:
             self.connect()
 
-        def add_message(key, value):
+        def add_message(key, topic, content):
             """Add message to last_messages."""
             if key not in self.state.last_messages:
                 self.state.last_messages[key] = []
-            self.state.last_messages[key].append(value)
+            if topic is None:
+                self.state.last_messages[key].append(content)
+                return
+            self.state.last_messages[key].append({
+                "topic": topic,
+                "content": content,
+            })
 
         # Set on_message callback
         def on_message(_client, _userdata, msg):
             """on_message callback"""
-            channel_key = msg.topic.split("/")[-1]
+            channel_key = msg.topic.split("/")[2]
             payload = json.loads(msg.payload)
 
+            if not self.match({"topic": msg.topic, "content": payload}, filters):
+                self.state.print_status(
+                    description="x",
+                    update_only=True,
+                    end="")
+                return
+
             if channel == "#":
-                add_message(channel, payload)
-            add_message(channel_key, payload)
+                add_message(channel, msg.topic, payload)
+            add_message(channel_key, msg.topic, payload)
 
             for key in path:
                 payload = payload[key]
             path_channel = f"{channel_key}_excerpt"
             if len(path) > 0:
-                add_message(path_channel, payload)
+                add_message(path_channel, None, payload)
 
             if diff_only:
                 key = path_channel if len(path) > 0 else channel_key
                 last_messages = self.state.last_messages.get(key, [])
                 if len(last_messages) > 1:
-                    current = last_messages[-1]
-                    previous = last_messages[-2]
+                    if len(path) > 0:
+                        current = last_messages[-1]
+                        previous = last_messages[-2]
+                    else:
+                        current = last_messages[-1]["content"]
+                        previous = last_messages[-2]["content"]
                     diff, _is_different = difference(current, previous)
                     payload = diff
-                    add_message(f"{channel_key}_diffs", payload)
+                    add_message(f"{channel_key}_diffs", None, payload)
 
             self.state.print_status(description="", update_only=True)
             description = "New message"
@@ -193,9 +211,25 @@ class BrokerConnect():
 
     def clear_last_messages(self, key):
         """Clear last messages from a channel."""
+        if key == "#":
+            self.state.last_messages = {"#": []}
+            return
         self.state.last_messages[key] = []
         self.state.last_messages[f"{key}_excerpt"] = []
         self.state.last_messages[f"{key}_diffs"] = []
+
+    def match(self, message, filters):
+        """Check if message matches filters."""
+        for item in filters.get("topic", []):
+            if item not in message["topic"].split("/"):
+                return False
+        for path, value in filters.get("content", {}).items():
+            content = message["content"]
+            for key in path.split("."):
+                content = content[key]
+            if str(value) not in str(content):
+                return False
+        return True
 
     @staticmethod
     def stop_listen_upon_interrupt(func):
@@ -218,6 +252,9 @@ class BrokerConnect():
         """Listen to a message broker channel for the provided duration in seconds."""
         publish = publish_payload is not None
         message = (publish_payload or {}).get("body", [{}])[0]
+        message_options = message_options or {}
+        filters = message_options.get("filters", {})
+        filters = {"topic": [], "content": {}, **filters}
         # Prepare duration option
         timeout_key = "listen"
         if message.get("kind") in ["move", "find_home", "calibrate"]:
@@ -227,17 +264,17 @@ class BrokerConnect():
             duration_seconds += message["args"]["milliseconds"] / 1000
         if stop_count > 1:
             duration_seconds = math.inf
-        # Prepare label option
-        label = None
+        # Prepare label matching
         if publish and publish_payload["args"]["label"] != "":
-            label = publish_payload["args"]["label"]
+            # If a label is provided, verify the label matches
+            filters["content"]["args.label"] = publish_payload["args"]["label"]
         if message.get("kind") == "read_status":
             # Getting the RPC response to read_status isn't as important as
             # returning the status as soon as possible, since the device
             # will still publish a status within a few seconds even if the
             # read_status command isn't received.
             channel = "status"
-            label = None
+            filters = {"topic": [], "content": {}}
 
         # Print status message
         description = "Listening to message broker"
@@ -245,8 +282,16 @@ class BrokerConnect():
             description += f" channel '{channel}'"
         if duration_seconds != math.inf:
             description += f" for {duration_seconds} seconds"
-        if label is not None:
-            description += f" for label '{label}'"
+        filter_strs = []
+        for item in filters["topic"]:
+            filter_strs.append(f" for `{item}` in topic")
+        for k, v in filters["content"].items():
+            filter_strs.append(f" for `{v}` in `{k}`")
+        description += " and".join(filter_strs)
+        if message_options.get("diff_only"):
+            description += " for diffs"
+        if message_options.get("path"):
+            description += f" at path `{message_options['path']}`"
         plural = "s are" if stop_count > 1 else " is"
         description += f" until {stop_count} message{plural} received"
         description += "..."
@@ -254,12 +299,9 @@ class BrokerConnect():
 
         # Start listening
         start_time = datetime.now()
-        self.start_listen(channel, message_options)
+        self.start_listen(channel, {**message_options, "filters": filters})
         if not self.state.test_env:
-            if channel == "#":
-                self.state.last_messages = {"#": []}
-            else:
-                self.clear_last_messages(channel)
+            self.clear_last_messages(channel)
         if publish:
             time.sleep(0.1)  # wait for start_listen to be ready
             device_id_str = self.state.token["token"]["unencoded"]["bot"]
@@ -272,21 +314,16 @@ class BrokerConnect():
             self.state.print_status(update_only=True, description=".", end="")
             time.sleep(0.25)
             last_messages = self.state.last_messages.get(channel, [])
-            if len(last_messages) > 0:
-                # If a label is provided, verify the label matches
-                if label is not None and last_messages[-1]["args"]["label"] != label:
-                    self.clear_last_messages(channel)
-                    continue
-                if len(last_messages) > (stop_count - 1):
-                    seconds = (datetime.now() - start_time).seconds
-                    prefix = f"{stop_count} messages"
-                    if stop_count == 1:
-                        prefix = "Message"
-                    description = f"{prefix} received after {seconds} seconds"
-                    self.state.print_status(
-                        description=description,
-                        update_only=True)
-                    break
+            if len(last_messages) > (stop_count - 1):
+                seconds = (datetime.now() - start_time).seconds
+                prefix = f"{stop_count} messages"
+                if stop_count == 1:
+                    prefix = "Message"
+                description = f"{prefix} received after {seconds} seconds"
+                self.state.print_status(
+                    description=description,
+                    update_only=True)
+                break
         if len(self.state.last_messages.get(channel, [])) == 0:
             self.state.print_status(description="", update_only=True)
             secs = duration_seconds

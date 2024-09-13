@@ -152,7 +152,9 @@ class Information():
         self.broker.publish(status_message)
 
         status_trees = self.state.last_messages.get("status", [])
-        status_tree = None if len(status_trees) == 0 else status_trees[-1]
+        status_tree = None
+        if len(status_trees) > 0:
+            status_tree = status_trees[-1]["content"]
 
         if path is not None:
             for key in path.split("."):

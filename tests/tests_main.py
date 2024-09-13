@@ -565,7 +565,7 @@ class TestFarmbot(unittest.TestCase):
 
         class MockMessage:
             '''Mock message class'''
-            topic = 'topic'
+            topic = 'bot/device_0/topic'
             payload = '{"message": "test message"}'
         mock_client.on_message('', '', MockMessage())
         mock_client.username_pw_set.assert_called_once_with(
@@ -578,6 +578,89 @@ class TestFarmbot(unittest.TestCase):
         mock_client.subscribe.assert_called_once_with('bot/device_0/#')
         mock_client.loop_start.assert_called()
         mock_client.loop_stop.assert_called()
+        self.assertEqual(self.fb.state.last_messages['topic'], [{
+            'topic': 'bot/device_0/topic',
+            'content': {'message': 'test message'},
+        }])
+
+    @patch('paho.mqtt.client.Client')
+    def test_listen_diff_only(self, mock_mqtt):
+        '''Test listen command: diff_only'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.listen(message_options={'diff_only': True})
+
+        class MockMessageFirst:
+            '''Mock message class'''
+            topic = 'bot/device_0/topic'
+            payload = '{"message": "test message", "i": 0}'
+        mock_client.on_message('', '', MockMessageFirst())
+
+        class MockMessageSecond:
+            '''Mock message class'''
+            topic = 'bot/device_0/topic'
+            payload = '{"message": "test message", "i": 1}'
+        mock_client.on_message('', '', MockMessageSecond())
+        mock_client.username_pw_set.assert_called_once_with(
+            username='device_0',
+            password='encoded_token_value')
+        mock_client.connect.assert_called_once_with(
+            'mqtt_url',
+            port=1883,
+            keepalive=60)
+        mock_client.subscribe.assert_called_once_with('bot/device_0/#')
+        mock_client.loop_start.assert_called()
+        mock_client.loop_stop.assert_called()
+        self.assertEqual(self.fb.state.last_messages['topic'], [
+            {'topic': 'bot/device_0/topic',
+             'content': {'message': 'test message', 'i': 0}},
+            {'topic': 'bot/device_0/topic',
+             'content': {'message': 'test message', 'i': 1}},
+        ])
+        self.assertEqual(self.fb.state.last_messages['topic_diffs'], [
+            {'i': 1},
+        ])
+
+    @patch('paho.mqtt.client.Client')
+    def test_listen_with_filters(self, mock_mqtt):
+        '''Test listen command with filters'''
+        mock_client = Mock()
+        mock_mqtt.return_value = mock_client
+        self.fb.listen(message_options={'filters': {
+            'topic': ['Point'],
+            'content': {'body.pointerType': 'Plant'}}})
+
+        class MockMessageMiss:
+            '''Mock message class'''
+            topic = 'bot/device_0/topic'
+            payload = '{"message": "test message"}'
+        mock_client.on_message('', '', MockMessageMiss())
+
+        class MockMessageAlsoMiss:
+            '''Mock message class'''
+            topic = 'bot/device_0/sync/Point/123'
+            payload = json.dumps({'body': {'pointerType': 'Weed'}})
+        mock_client.on_message('', '', MockMessageAlsoMiss())
+
+        class MockMessageMatch:
+            '''Mock message class'''
+            topic = 'bot/device_0/sync/Point/1234'
+            payload = json.dumps({'body': {'pointerType': 'Plant'}})
+        mock_client.on_message('', '', MockMessageMatch())
+        mock_client.username_pw_set.assert_called_once_with(
+            username='device_0',
+            password='encoded_token_value')
+        mock_client.connect.assert_called_once_with(
+            'mqtt_url',
+            port=1883,
+            keepalive=60)
+        mock_client.subscribe.assert_called_once_with('bot/device_0/#')
+        mock_client.loop_start.assert_called()
+        mock_client.loop_stop.assert_called()
+        self.assertEqual(self.fb.state.last_messages['sync'], [{
+            'topic': 'bot/device_0/sync/Point/1234',
+            'content': {'body': {'pointerType': 'Plant'}},
+        }])
 
     @patch('math.inf', 0.1)
     @patch('paho.mqtt.client.Client')
@@ -593,7 +676,7 @@ class TestFarmbot(unittest.TestCase):
             '''Mock message class'''
 
             def __init__(self):
-                self.topic = '/status'
+                self.topic = 'bot/device_0/status'
                 payload = {
                     'location_data': {
                         'position': {
@@ -617,16 +700,26 @@ class TestFarmbot(unittest.TestCase):
         with patch('time.sleep', new=patched_sleep):
             self.fb.listen_for_status_changes(
                 stop_count=5,
-                info_path='location_data.position')
+                path='location_data.position')
 
         self.assertEqual(self.fb.state.last_messages['status'], [
-            {'location_data': {'position': {'x': 0, 'y': 10, 'z': 100}}},
-            {'location_data': {'position': {'x': 1, 'y': 11, 'z': 100}}},
-            {'location_data': {'position': {
-                'extra': {'idx': 2}, 'x': 2, 'y': 12, 'z': 100}}},
-            {'location_data': {'position': {
-                'extra': {'idx': 3}, 'x': 3, 'y': 13, 'z': 100}}},
-            {'location_data': {'position': {'x': 4, 'y': 14, 'z': 100}}}
+            {
+                'topic': 'bot/device_0/status',
+                'content': {'location_data': {'position': {'x': 0, 'y': 10, 'z': 100}}}},
+            {
+                'topic': 'bot/device_0/status',
+                'content': {'location_data': {'position': {'x': 1, 'y': 11, 'z': 100}}}},
+            {
+                'topic': 'bot/device_0/status',
+                'content': {'location_data': {'position': {
+                    'extra': {'idx': 2}, 'x': 2, 'y': 12, 'z': 100}}}},
+            {
+                'topic': 'bot/device_0/status',
+                'content': {'location_data': {'position': {
+                    'extra': {'idx': 3}, 'x': 3, 'y': 13, 'z': 100}}}},
+            {
+                'topic': 'bot/device_0/status',
+                'content': {'location_data': {'position': {'x': 4, 'y': 14, 'z': 100}}}},
         ])
         self.assertEqual(self.fb.state.last_messages['status_diffs'], [
             {'x': 1, 'y': 11},
@@ -647,7 +740,9 @@ class TestFarmbot(unittest.TestCase):
         '''Test listen command: clear last message'''
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
-        self.fb.state.last_messages = [{'#': "message"}]
+        self.fb.state.last_messages = [
+            {'#': {'topic': '', 'content': "message"}},
+        ]
         self.fb.state.test_env = False
         self.fb.listen()
         self.assertEqual(len(self.fb.state.last_messages['#']), 0)
@@ -695,8 +790,11 @@ class TestFarmbot(unittest.TestCase):
         mock_response.text = 'text'
         mock_request.return_value = mock_response
         self.fb.state.last_messages['from_device'] = [{
-            'kind': 'rpc_error' if error else 'rpc_ok',
-            'args': {'label': 'test'},
+            'topic': '',
+            'content': {
+                'kind': 'rpc_error' if error else 'rpc_ok',
+                'args': {'label': 'test'},
+            },
         }]
         execute_command()
         if expected_command is None:
@@ -797,7 +895,8 @@ class TestFarmbot(unittest.TestCase):
         '''Test read_status command'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'location_data': {'position': {'x': 100}},
+                'topic': '',
+                'content': {'location_data': {'position': {'x': 100}}},
             }]
             result = self.fb.read_status()
             self.assertEqual(
@@ -816,7 +915,10 @@ class TestFarmbot(unittest.TestCase):
         '''Test read_status command: specific path'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'location_data': {'position': {'x': 100}},
+                'topic': '',
+                'content': {
+                    'location_data': {'position': {'x': 100}},
+                },
             }]
             result = self.fb.read_status('location_data.position.x')
             self.assertEqual(result, 100)
@@ -1415,7 +1517,10 @@ class TestFarmbot(unittest.TestCase):
         '''Test get_xyz command'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                'topic': '',
+                'content': {
+                    'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                },
             }]
             position = self.fb.get_xyz()
             self.assertEqual(position, {'x': 1, 'y': 2, 'z': 3})
@@ -1447,7 +1552,10 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_position command: at position'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                'topic': '',
+                'content': {
+                    'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                },
             }]
             at_position = self.fb.check_position({'x': 1, 'y': 2, 'z': 3}, 0)
             self.assertTrue(at_position)
@@ -1464,7 +1572,10 @@ class TestFarmbot(unittest.TestCase):
         '''Test check_position command: not at position'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                'topic': '',
+                'content': {
+                    'location_data': {'position': {'x': 1, 'y': 2, 'z': 3}},
+                },
             }]
             at_position = self.fb.check_position({'x': 0, 'y': 0, 'z': 0}, 2)
             self.assertFalse(at_position)
@@ -1795,8 +1906,11 @@ class TestFarmbot(unittest.TestCase):
         '''Test get_job command: get one job'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'jobs': {
-                    'job name': {'status': 'working'},
+                'topic': '',
+                'content': {
+                    'jobs': {
+                        'job name': {'status': 'working'},
+                    },
                 },
             }]
             job = self.fb.get_job('job name')
@@ -1814,8 +1928,11 @@ class TestFarmbot(unittest.TestCase):
         '''Test get_job command: get all jobs'''
         def exec_command():
             self.fb.state.last_messages['status'] = [{
-                'jobs': {
-                    'job name': {'status': 'working'},
+                'topic': '',
+                'content': {
+                    'jobs': {
+                        'job name': {'status': 'working'},
+                    },
                 },
             }]
             jobs = self.fb.get_job()
@@ -2052,9 +2169,7 @@ class TestFarmbot(unittest.TestCase):
     def test_rpc_response_timeout(self):
         '''Test rpc response timeout handling'''
         def exec_command():
-            self.fb.state.last_messages['from_device'] = [
-                {'kind': 'rpc_ok', 'args': {'label': 'wrong label'}},
-            ]
+            self.fb.state.last_messages['from_device'] = []
             self.fb.wait(100)
             self.assertEqual(
                 self.fb.state.error,

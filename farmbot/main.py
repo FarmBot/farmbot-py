@@ -100,21 +100,29 @@ class Farmbot():
         """Publish message to the message broker."""
         return self.broker.publish(message)
 
-    def listen(self, channel="#", duration=None, stop_count=1):
+    def listen(self,
+               channel="#",
+               duration=None,
+               stop_count=1,
+               message_options=None):
         """Listen to a message broker channel."""
-        return self.broker.listen(channel, duration, stop_count=stop_count)
+        return self.broker.listen(
+            channel=channel,
+            duration=duration,
+            stop_count=stop_count,
+            message_options=message_options)
 
     def listen_for_status_changes(self,
                                   duration=None,
                                   stop_count=1,
                                   diff_only=True,
-                                  info_path=None):
+                                  path=None):
         """Listen for status changes."""
         return self.broker.listen(
             channel="status",
             duration=duration,
             stop_count=stop_count,
-            message_options={"diff_only": diff_only, "path": info_path},
+            message_options={"diff_only": diff_only, "path": path},
         )
 
     # camera.py
