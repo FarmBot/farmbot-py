@@ -627,7 +627,7 @@ class TestFarmbot(unittest.TestCase):
         mock_client = Mock()
         mock_mqtt.return_value = mock_client
         self.fb.listen(message_options={'filters': {
-            'topic': ['Point'],
+            'topic': 'sync/Point',
             'content': {'body.pointerType': 'Plant'}}})
 
         class MockMessageMiss:

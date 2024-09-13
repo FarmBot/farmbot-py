@@ -220,9 +220,8 @@ class BrokerConnect():
 
     def match(self, message, filters):
         """Check if message matches filters."""
-        for item in filters.get("topic", []):
-            if item not in message["topic"].split("/"):
-                return False
+        if filters.get("topic", '') not in message["topic"]:
+            return False
         for path, value in filters.get("content", {}).items():
             content = message["content"]
             for key in path.split("."):
@@ -254,7 +253,7 @@ class BrokerConnect():
         message = (publish_payload or {}).get("body", [{}])[0]
         message_options = message_options or {}
         filters = message_options.get("filters", {})
-        filters = {"topic": [], "content": {}, **filters}
+        filters = {"topic": '', "content": {}, **filters}
         # Prepare duration option
         timeout_key = "listen"
         if message.get("kind") in ["move", "find_home", "calibrate"]:
@@ -274,7 +273,7 @@ class BrokerConnect():
             # will still publish a status within a few seconds even if the
             # read_status command isn't received.
             channel = "status"
-            filters = {"topic": [], "content": {}}
+            filters = {"topic": 'status', "content": {}}
 
         # Print status message
         description = "Listening to message broker"
@@ -283,8 +282,8 @@ class BrokerConnect():
         if duration_seconds != math.inf:
             description += f" for {duration_seconds} seconds"
         filter_strs = []
-        for item in filters["topic"]:
-            filter_strs.append(f" for `{item}` in topic")
+        if filters["topic"]:
+            filter_strs.append(f" for `{filters['topic']}` in topic")
         for k, v in filters["content"].items():
             filter_strs.append(f" for `{v}` in `{k}`")
         description += " and".join(filter_strs)
