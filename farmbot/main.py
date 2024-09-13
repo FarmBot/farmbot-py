@@ -122,7 +122,13 @@ class Farmbot():
             channel="status",
             duration=duration,
             stop_count=stop_count,
-            message_options={"diff_only": diff_only, "path": path},
+            message_options={
+                "diff_only": diff_only,
+                "path": path,
+                "filters": {
+                    "topic": "status",
+                    "content": {},
+                }},
         )
 
     # camera.py
