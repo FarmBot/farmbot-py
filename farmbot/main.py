@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "2.0.3"
+VERSION = "2.0.4"
 
 
 class Farmbot():
@@ -143,21 +143,21 @@ class Farmbot():
 
     # information.py
 
-    def api_get(self, endpoint, database_id=None):
+    def api_get(self, endpoint, database_id=None, payload=None):
         """Get information about a specific endpoint."""
-        return self.info.api_get(endpoint, database_id)
+        return self.info.api_get(endpoint, database_id, payload)
 
-    def api_patch(self, endpoint, new_data, database_id=None):
+    def api_patch(self, endpoint, payload, database_id=None):
         """Change information contained within an endpoint."""
-        return self.info.api_patch(endpoint, new_data, database_id)
+        return self.info.api_patch(endpoint, payload, database_id)
 
-    def api_post(self, endpoint, new_data):
+    def api_post(self, endpoint, payload=None):
         """Create new information contained within an endpoint."""
-        return self.info.api_post(endpoint, new_data)
+        return self.info.api_post(endpoint, payload)
 
-    def api_delete(self, endpoint, database_id=None):
+    def api_delete(self, endpoint, database_id=None, payload=None):
         """Delete information contained within an endpoint."""
-        return self.info.api_delete(endpoint, database_id)
+        return self.info.api_delete(endpoint, database_id, payload)
 
     def safe_z(self):
         """Returns the highest safe point along the z-axis."""

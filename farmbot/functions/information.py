@@ -27,12 +27,16 @@ class Information():
         self.api = ApiConnect(state)
         self.state = state
 
-    def api_get(self, endpoint, database_id=None, data_print=True):
+    def api_get(self, endpoint, database_id=None, payload=None, data_print=True):
         """Get information about a specific endpoint."""
         self.state.print_status(
             description=f"Retrieving {endpoint} information.")
 
-        endpoint_data = self.api.request("GET", endpoint, database_id)
+        endpoint_data = self.api.request(
+            method="GET",
+            endpoint=endpoint,
+            database_id=database_id,
+            payload=payload)
 
         if data_print:
             self.state.print_status(
@@ -45,7 +49,7 @@ class Information():
 
         return endpoint_data
 
-    def api_patch(self, endpoint, new_data, database_id=None):
+    def api_patch(self, endpoint, payload, database_id=None):
         """Change information contained within an endpoint."""
         self.state.print_status(description=f"Editing {endpoint}.")
 
@@ -53,13 +57,13 @@ class Information():
             method="PATCH",
             endpoint=endpoint,
             database_id=database_id,
-            payload=new_data)
+            payload=payload)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 
         return result
 
-    def api_post(self, endpoint, new_data):
+    def api_post(self, endpoint, payload=None):
         """Create new information contained within an endpoint."""
         self.state.print_status(description=f"Adding new data to {endpoint}.")
 
@@ -67,18 +71,22 @@ class Information():
             method="POST",
             endpoint=endpoint,
             database_id=None,
-            payload=new_data)
+            payload=payload)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 
         return result
 
-    def api_delete(self, endpoint, database_id=None):
+    def api_delete(self, endpoint, database_id=None, payload=None):
         """Delete information contained within an endpoint."""
         self.state.print_status(
             description=f"Deleting {endpoint} with id={database_id}.")
 
-        result = self.api.request("DELETE", endpoint, database_id=database_id)
+        result = self.api.request(
+            method="DELETE",
+            endpoint=endpoint,
+            database_id=database_id,
+            payload=payload)
 
         self.state.print_status(update_only=True, endpoint_json=result)
 
