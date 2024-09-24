@@ -275,6 +275,25 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(response, expected_response)
 
     @patch('requests.request')
+    def test_api_get_with_payload(self, mock_request):
+        '''Test api_get: with payload'''
+        mock_response = Mock()
+        expected_response = {'device': 'info'}
+        mock_response.json.return_value = expected_response
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_request.return_value = mock_response
+        # Call with endpoint only
+        response = self.fb.api_get('device', payload={'key': 'value'})
+        mock_request.assert_called_once_with(
+            method='GET',
+            url='https://my.farm.bot/api/device',
+            **REQUEST_KWARGS_WITH_PAYLOAD,
+            json={'key': 'value'},
+        )
+        self.assertEqual(response, expected_response)
+
+    @patch('requests.request')
     def test_api_get_with_id(self, mock_request):
         '''POSITIVE TEST: function called with valid ID'''
         mock_response = Mock()
@@ -373,6 +392,24 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(point, {'name': 'new name'})
 
     @patch('requests.request')
+    def test_api_post_no_payload(self, mock_request):
+        '''test api_post: no payload'''
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_response.json.return_value = {'name': 'new name'}
+        mock_request.return_value = mock_response
+        point = self.fb.api_post('points')
+        mock_request.assert_has_calls([call(
+            method='POST',
+            url='https://my.farm.bot/api/points',
+            **REQUEST_KWARGS,
+        ),
+            call().json(),
+        ])
+        self.assertEqual(point, {'name': 'new name'})
+
+    @patch('requests.request')
     def test_api_delete(self, mock_request):
         '''test api_delete function'''
         mock_response = Mock()
@@ -385,6 +422,24 @@ class TestFarmbot(unittest.TestCase):
             method='DELETE',
             url='https://my.farm.bot/api/points/12345',
             **REQUEST_KWARGS,
+        )
+        self.assertEqual(result, {'name': 'deleted'})
+
+    @patch('requests.request')
+    def test_api_delete_with_payload(self, mock_request):
+        '''test api_delete: with payload'''
+        mock_response = Mock()
+        mock_response.status_code = 200
+        mock_response.text = 'text'
+        mock_response.json.return_value = {'name': 'deleted'}
+        mock_request.return_value = mock_response
+        result = self.fb.api_delete(
+            'points', 12345, payload={'key': 'value'})
+        mock_request.assert_called_once_with(
+            method='DELETE',
+            url='https://my.farm.bot/api/points/12345',
+            **REQUEST_KWARGS_WITH_PAYLOAD,
+            json={'key': 'value'},
         )
         self.assertEqual(result, {'name': 'deleted'})
 
