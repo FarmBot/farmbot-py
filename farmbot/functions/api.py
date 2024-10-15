@@ -127,7 +127,7 @@ class ApiConnect():
 
         try:
             response.json()
-        except requests.exceptions.JSONDecodeError:
+        except (json.JSONDecodeError, requests.exceptions.RequestException):
             self.state.error += f" ({text})"
         else:
             self.state.error += f" ({json.dumps(response.json(), indent=2)})"

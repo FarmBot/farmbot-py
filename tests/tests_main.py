@@ -2,6 +2,7 @@
 Farmbot class unit tests.
 '''
 
+import sys
 import json
 import unittest
 from unittest.mock import Mock, patch, call
@@ -37,6 +38,10 @@ REQUEST_KWARGS = {
     **REQUEST_KWARGS_WITH_PAYLOAD,
     'json': None,
 }
+
+
+JSONDecodeError = requests.exceptions.JSONDecodeError if sys.version_info >= (
+    3, 10) else json.JSONDecodeError
 
 
 class TestFarmbot(unittest.TestCase):
@@ -223,8 +228,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 404
         mock_response.reason = 'reason'
         mock_response.text = 'error string'
-        mock_response.json.side_effect = requests.exceptions.JSONDecodeError(
-            '', '', 0)
+        mock_response.json.side_effect = JSONDecodeError('', '', 0)
         mock_request.return_value = mock_response
         response = self.fb.api_get('device')
         mock_request.assert_called_once_with(
@@ -243,8 +247,7 @@ class TestFarmbot(unittest.TestCase):
         mock_response.status_code = 404
         mock_response.reason = 'reason'
         mock_response.text = '<html><h1>error0</h1><h2>error1</h2></html>'
-        mock_response.json.side_effect = requests.exceptions.JSONDecodeError(
-            '', '', 0)
+        mock_response.json.side_effect = JSONDecodeError('', '', 0)
         mock_request.return_value = mock_response
         response = self.fb.api_get('device')
         mock_request.assert_called_once_with(

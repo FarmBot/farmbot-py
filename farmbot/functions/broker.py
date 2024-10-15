@@ -241,7 +241,7 @@ class BrokerConnect():
                 self.stop_listen()
         return wrapper
 
-    @stop_listen_upon_interrupt
+    @stop_listen_upon_interrupt.__func__
     def listen(self,
                channel="#",
                duration=None,
