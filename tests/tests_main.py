@@ -56,19 +56,20 @@ class TestFarmbot(unittest.TestCase):
         self.fb.set_timeout(0, 'all')
         self.fb.clear_cache()
 
-    @patch('requests.post')
-    def test_get_token_default_server(self, mock_post):
+    @patch('requests.request')
+    def test_get_token_default_server(self, mock_request):
         '''POSITIVE TEST: function called with email, password, and default server'''
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
         mock_response.text = 'text'
-        mock_post.return_value = mock_response
+        mock_request.return_value = mock_response
         self.fb.set_token(None)
         # Call with default server
         self.fb.get_token('test_email@gmail.com', 'test_pass_123')
-        mock_post.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            method='POST',
             url='https://my.farm.bot/api/tokens',
             **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'test_email@gmail.com',
@@ -76,20 +77,21 @@ class TestFarmbot(unittest.TestCase):
         )
         self.assertEqual(self.fb.state.token, expected_token)
 
-    @patch('requests.post')
-    def test_get_token_custom_server(self, mock_post):
+    @patch('requests.request')
+    def test_get_token_custom_server(self, mock_request):
         '''POSITIVE TEST: function called with email, password, and custom server'''
         mock_response = Mock()
         expected_token = {'token': 'abc123'}
         mock_response.json.return_value = expected_token
         mock_response.status_code = 200
         mock_response.text = 'text'
-        mock_post.return_value = mock_response
+        mock_request.return_value = mock_response
         self.fb.set_token(None)
         # Call with custom server
         self.fb.get_token('test_email@gmail.com', 'test_pass_123',
                           'https://staging.farm.bot')
-        mock_post.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            method='POST',
             url='https://staging.farm.bot/api/tokens',
             **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'test_email@gmail.com',
@@ -97,18 +99,19 @@ class TestFarmbot(unittest.TestCase):
         )
         self.assertEqual(self.fb.state.token, expected_token)
 
-    @patch('requests.post')
+    @patch('requests.request')
     def helper_get_token_errors(self, *args, **kwargs):
         '''Test helper for get_token errors'''
-        mock_post = args[0]
+        mock_request = args[0]
         status_code = kwargs['status_code']
         error_msg = kwargs['error_msg']
         mock_response = Mock()
         mock_response.status_code = status_code
-        mock_post.return_value = mock_response
+        mock_request.return_value = mock_response
         self.fb.set_token(None)
         self.fb.get_token('email@gmail.com', 'test_pass_123')
-        mock_post.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            method='POST',
             url='https://my.farm.bot/api/tokens',
             **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'email@gmail.com',
@@ -138,16 +141,17 @@ class TestFarmbot(unittest.TestCase):
             error_msg='HTTP ERROR: Unexpected status code 500',
         )
 
-    @patch('requests.post')
+    @patch('requests.request')
     def helper_get_token_exceptions(self, *args, **kwargs):
         '''Test helper for get_token exceptions'''
-        mock_post = args[0]
+        mock_request = args[0]
         exception = kwargs['exception']
         error_msg = kwargs['error_msg']
-        mock_post.side_effect = exception
+        mock_request.side_effect = exception
         self.fb.set_token(None)
         self.fb.get_token('email@gmail.com', 'test_pass_123')
-        mock_post.assert_called_once_with(
+        mock_request.assert_called_once_with(
+            method='POST',
             url='https://my.farm.bot/api/tokens',
             **TOKEN_REQUEST_KWARGS,
             json={'user': {'email': 'email@gmail.com',
@@ -156,32 +160,39 @@ class TestFarmbot(unittest.TestCase):
         self.assertEqual(self.fb.state.error, error_msg)
         self.assertIsNone(self.fb.state.token)
 
+    def test_get_token_ssl_error(self):
+        '''get_token: ssl error'''
+        self.helper_get_token_exceptions(
+            exception=requests.exceptions.SSLError,
+            error_msg='ERROR: The server does not support SSL. (self.state.ssl=True)',
+        )
+
     def test_get_token_server_not_found(self):
         '''get_token: server not found'''
         self.helper_get_token_exceptions(
             exception=requests.exceptions.ConnectionError,
-            error_msg='DNS ERROR: The server address does not exist.',
+            error_msg='ERROR: The server address does not exist.',
         )
 
     def test_get_token_timeout(self):
         '''get_token: timeout'''
         self.helper_get_token_exceptions(
             exception=requests.exceptions.Timeout,
-            error_msg='DNS ERROR: The request timed out.',
+            error_msg='ERROR: The request timed out.',
         )
 
     def test_get_token_problem(self):
         '''get_token: problem'''
         self.helper_get_token_exceptions(
             exception=requests.exceptions.RequestException,
-            error_msg='DNS ERROR: There was a problem with the request.',
+            error_msg='ERROR: There was a problem with the request.',
         )
 
     def test_get_token_other_exception(self):
         '''get_token: other exception'''
         self.helper_get_token_exceptions(
             exception=Exception('other'),
-            error_msg='DNS ERROR: An unexpected error occurred: other',
+            error_msg='ERROR: An unexpected error occurred: other',
         )
 
     @patch('requests.request')

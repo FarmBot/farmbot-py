@@ -47,42 +47,56 @@ class ApiConnect():
     def __init__(self, state):
         self.state = state
 
+    def _request(self, **kwargs):
+        """Internal method to make requests."""
+        response = None
+        try:
+            response = requests.request(
+                method=kwargs["method"],
+                url=kwargs["url"],
+                headers=kwargs["headers"],
+                json=kwargs["json"],
+                timeout=kwargs["timeout"])
+        except requests.exceptions.RequestException as e:
+            if isinstance(e, requests.exceptions.SSLError):
+                self.state.error = "ERROR: The server does not support SSL."
+                self.state.error += f' ({self.state.ssl=})'
+            elif isinstance(e, requests.exceptions.ConnectionError):
+                self.state.error = "ERROR: The server address does not exist."
+            elif isinstance(e, requests.exceptions.Timeout):
+                self.state.error = "ERROR: The request timed out."
+            elif isinstance(e, requests.exceptions.RequestException):
+                self.state.error = "ERROR: There was a problem with the request."
+        except Exception as e:
+            self.state.error = f"ERROR: An unexpected error occurred: {e}"
+        return response
+
     def get_token(self, email, password, server="https://my.farm.bot"):
         """Get FarmBot authorization token. Server is 'https://my.farm.bot' by default."""
         self.state.ssl = "https" in server
-        try:
-            headers = {'content-type': 'application/json'}
-            user = {'user': {'email': email, 'password': password}}
-            timeout = self.state.timeout["api"]
-            response = requests.post(
-                url=f'{server}/api/tokens',
-                headers=headers,
-                json=user,
-                timeout=timeout)
-            # Handle HTTP status codes
+        headers = {'content-type': 'application/json'}
+        user = {'user': {'email': email, 'password': password}}
+        timeout = self.state.timeout["api"]
+        response = self._request(
+            method='POST',
+            url=f'{server}/api/tokens',
+            headers=headers,
+            json=user,
+            timeout=timeout)
+        if response is not None:
             if response.status_code == 200:
                 self.state.token = response.json()
                 self.state.error = None
                 description = f"Successfully fetched token from {server}."
                 self.state.print_status(description=description)
                 return response.json()
-            elif response.status_code == 404:
+            if response.status_code == 404:
                 self.state.error = "HTTP ERROR: The server address does not exist."
             elif response.status_code == 422:
                 self.state.error = "HTTP ERROR: Incorrect email address or password."
             else:
                 code = response.status_code
                 self.state.error = f"HTTP ERROR: Unexpected status code {code}"
-        # Handle DNS resolution errors
-        except requests.exceptions.RequestException as e:
-            if isinstance(e, requests.exceptions.ConnectionError):
-                self.state.error = "DNS ERROR: The server address does not exist."
-            elif isinstance(e, requests.exceptions.Timeout):
-                self.state.error = "DNS ERROR: The request timed out."
-            elif isinstance(e, requests.exceptions.RequestException):
-                self.state.error = "DNS ERROR: There was a problem with the request."
-        except Exception as e:
-            self.state.error = f"DNS ERROR: An unexpected error occurred: {e}"
 
         self.state.token = None
         self.state.print_status(description=self.state.error)
@@ -157,7 +171,7 @@ class ApiConnect():
         make_request = not self.state.dry_run or method == "GET"
         if make_request:
             timeout = self.state.timeout["api"]
-            response = requests.request(
+            response = self._request(
                 method=method,
                 url=url,
                 headers=headers,
@@ -168,7 +182,7 @@ class ApiConnect():
             response.status_code = 200
             response._content = b'{"edit_requests_disabled": true}'
 
-        if self.request_handling(response, make_request) == 200:
+        if response is not None and self.request_handling(response, make_request) == 200:
             self.state.error = None
             description = "Successfully fetched request contents."
             self.state.print_status(description=description)
