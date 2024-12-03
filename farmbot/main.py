@@ -15,7 +15,7 @@ from .functions.peripherals import Peripherals
 from .functions.resources import Resources
 from .functions.tools import ToolControls
 
-VERSION = "2.0.7"
+VERSION = "2.0.8"
 
 
 class Farmbot():
