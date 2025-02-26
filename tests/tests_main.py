@@ -1035,6 +1035,21 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response={})
 
+    def test_read_status_path_none(self):
+        '''Test read_status command: specific path when None'''
+        def exec_command():
+            self.fb.state.last_messages['status'] = []
+            result = self.fb.read_status('location_data.position.x')
+            self.assertEqual(result, None)
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'read_status',
+                'args': {},
+            },
+            extra_rpc_args={},
+            mock_api_response={})
+
     def test_read_pin(self):
         '''Test read_pin command'''
         def exec_command():

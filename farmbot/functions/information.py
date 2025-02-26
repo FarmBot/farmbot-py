@@ -166,7 +166,8 @@ class Information():
 
         if path is not None:
             for key in path.split("."):
-                status_tree = status_tree[key]
+                if status_tree is not None:
+                    status_tree = status_tree[key]
 
         self.state.print_status(update_only=True, endpoint_json=status_tree)
         return status_tree
