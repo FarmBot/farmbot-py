@@ -273,9 +273,9 @@ class Farmbot():
 
     # resources.py
 
-    def sequence(self, sequence_name):
+    def sequence(self, sequence_name, **kwargs):
         """Executes a predefined sequence."""
-        return self.resources.sequence(sequence_name)
+        return self.resources.sequence(sequence_name, **kwargs)
 
     def get_seed_tray_cell(self, tray_name, tray_cell):
         """Identifies and returns the location of specified cell in the seed tray."""

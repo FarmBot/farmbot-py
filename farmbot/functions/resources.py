@@ -60,7 +60,7 @@ class Resources():
 
     # TODO: sort_points(points, method)
 
-    def sequence(self, sequence_name):
+    def sequence(self, sequence_name, **kwargs):
         """Executes a predefined sequence."""
         self.state.print_status(
             description="Running {sequence_name} sequence.")
@@ -78,6 +78,8 @@ class Resources():
                 "sequence_id": sequence["id"],
             }
         }
+        if "cs_body" in kwargs:
+            sequence_message["body"] = kwargs["cs_body"]
 
         self.broker.publish(sequence_message)
 

@@ -1580,6 +1580,31 @@ class TestFarmbot(unittest.TestCase):
             extra_rpc_args={},
             mock_api_response=[{'name': 'My Sequence', 'id': 123}])
 
+    def test_sequence_with_body(self):
+        '''Test sequence command: with body'''
+        variable = {
+            'kind': 'parameter_application',
+            'args': {
+                'label': 'label',
+                'data_value': {
+                    'kind': 'coordinate',
+                    'args': {'x': 0, 'y': 0, 'z': 0},
+                },
+            },
+        }
+
+        def exec_command():
+            self.fb.sequence('My Sequence', cs_body=[variable])
+        self.send_command_test_helper(
+            exec_command,
+            expected_command={
+                'kind': 'execute',
+                'args': {'sequence_id': 123},
+                'body': [variable],
+            },
+            extra_rpc_args={},
+            mock_api_response=[{'name': 'My Sequence', 'id': 123}])
+
     def test_sequence_not_found(self):
         '''Test sequence command: sequence not found'''
         def exec_command():
